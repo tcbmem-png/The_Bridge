@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/Header";
+import { MoneyProvider } from "../lib/money/store";
 
 function NotFoundComponent() {
   return (
@@ -118,11 +119,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-paper text-ink">
-        <Header />
-        {/* Required: nested routes render here. */}
-        <Outlet />
-      </div>
+      <MoneyProvider>
+        <div className="min-h-screen bg-paper text-ink">
+          <Header />
+          {/* Required: nested routes render here. */}
+          <Outlet />
+        </div>
+      </MoneyProvider>
     </QueryClientProvider>
   );
 }
