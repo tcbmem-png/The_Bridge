@@ -88,14 +88,26 @@ export function ActProblem() {
           </aside>
         </div>
 
-        {/* AI-reframe placeholder */}
         <div className="mt-12">
-          <Placeholder label="AI-reframe copy" />
+          <p className="text-base leading-relaxed text-ink/85">
+            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.
+          </p>
         </div>
 
-        {/* AUC placeholder */}
-        <div className="mt-6">
-          <Placeholder label="AUC callout" />
+        <div className="mt-6 rounded-lg border-l-2 border-[var(--teal)] bg-paper p-5 md:p-6">
+          <p className="text-base leading-relaxed text-ink/85">
+            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.
+          </p>
+          <p className="mt-3 text-sm text-ink/55">
+            <a
+              href="https://www.cms.gov/medicare/quality/appropriate-use-criteria-program"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 decoration-ink/25 hover:decoration-ink/60 transition-colors"
+            >
+              Source: CMS Appropriate Use Criteria Program
+            </a>
+          </p>
         </div>
 
         {/* Fall vignette */}
