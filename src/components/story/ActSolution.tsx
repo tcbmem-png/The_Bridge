@@ -56,6 +56,9 @@ export function ActSolution() {
           <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.1] md:text-[3rem]">
             Everyone earns more by removing waste.
           </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
+            Not a negotiation. Not 'we have better numbers, so renegotiate.' It's the hospital and the group both adapting to the new reality — where all parties earn more by cutting waste, in full legal compliance. Fewer unnecessary unpaid scans, faster throughput, and capturing the reads that are payable.
+          </p>
         </div>
 
         {/* Pillars */}
