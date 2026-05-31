@@ -5,37 +5,38 @@ import { useReveal } from "../../lib/useReveal";
 const pillars = [
   {
     name: "Collaborate",
-    line: "Put the three parties in the same view. The same report. The same definitions.",
+    line: "Ordering-side support in the ED and radiologist-led appropriateness. Accurate indication capture — so the fall that shouldn't be scanned, isn't. Voluntary decision-support, which CMS now encourages, future-proofs the group if AUC returns.",
   },
   {
     name: "Quantify",
-    line: "Count the reads. Count the claims. Count the gap. Use the systems you already pay for.",
+    line: "A shared fact base both sides trust. The dashboard, jointly owned, so nobody argues about whose numbers are right.",
   },
   {
     name: "Structure",
-    line: "Move the work from the line item nobody owns to a line item somebody does.",
+    line: "Any coverage arrangement built fair-market-value and anti-kickback clean from day one. Compliance is the foundation, not an afterthought.",
   },
 ];
 
 // Illustrative sample numbers — clearly not measured.
+// TODO: wire these tiles to the Sandbox shared state in a later pass.
 const wins = [
   {
-    value: "+$3.20",
-    unit: "/ exam",
-    label: "Revenue recovered per read.",
+    value: "$2.6M",
+    unit: "",
+    label: "TO THE GROUP / YR",
     tone: "gold" as const,
   },
   {
-    value: "−18%",
-    unit: "unpaid reads",
-    label: "Reads that were absorbed silently.",
+    value: "$1.4M",
+    unit: "",
+    label: "TO THE HOSPITAL / YR",
+    tone: "gold" as const,
+  },
+  {
+    value: "144,000",
+    unit: "",
+    label: "FEWER NEEDLESS SCANS / YR",
     tone: "teal" as const,
-  },
-  {
-    value: `$${((CONFIG.examsPerYear * 3.2) / 1_000_000).toFixed(1)}M`,
-    unit: "/ year",
-    label: `At ${CONFIG.examsPerYear.toLocaleString()} exams. Illustrative.`,
-    tone: "gold" as const,
   },
 ];
 

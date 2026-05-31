@@ -119,12 +119,7 @@ export function ActProblem() {
                 A small vignette
               </div>
               <p className="font-display mt-4 text-[1.75rem] leading-[1.15] text-paper md:text-[2.5rem]">
-                The read happens. The dollar falls.
-              </p>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/75">
-                Nobody catches it because nobody is standing in that part of the
-                hallway. The systems each see their own slice. The slice that
-                matters sits between them.
+                A patient arrives, coded '<strong>fall</strong>.' That one word reflexively unlocks a head and C-spine CT — often low-yield, frequently uncollectible. Watch that single scan travel through all three stages. It's the whole story in miniature.
               </p>
             </div>
             <div className="relative md:col-span-3">
