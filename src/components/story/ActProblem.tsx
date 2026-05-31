@@ -61,16 +61,7 @@ export function ActProblem() {
         <div className="mt-14 grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="md:col-span-7">
             <p className="text-lg leading-relaxed text-ink/85">
-              Emergency volume runs through imaging. Scans are ordered, acquired,
-              and read. The read produces a report, a claim, and a set of
-              timestamps. The work happens. The economics of the work go
-              unobserved.
-            </p>
-            <p className="mt-5 text-base leading-relaxed text-ink/70">
-              A read without a payer is still a read. The radiologist still
-              clears the queue. The hospital still owns the technical fee. The
-              ED still moves the patient. The cost of the unpaid read sits on a
-              line item nobody owns.
+              This is the shape of the modern radiology partnership. A physician group reads for a hospital system under contract. The hospital mandates emergency, trauma, and overnight coverage. Payer mix means a large share of that volume never collects — and the group eats the labor on every read regardless. <strong>If the hospital isn't paid, neither is the group.</strong>
             </p>
           </div>
 
