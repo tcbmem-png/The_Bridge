@@ -1,6 +1,8 @@
-import { CONFIG } from "../../config";
 import { SectionTag } from "./SectionTag";
 import { useReveal } from "../../lib/useReveal";
+import { useMoney } from "../../lib/money/store";
+import { fmtCount, fmtMoney } from "../../lib/money/format";
+import { CountUp } from "../sandbox/CountUp";
 
 const pillars = [
   {
@@ -17,36 +19,42 @@ const pillars = [
   },
 ];
 
-// Illustrative sample numbers — clearly not measured.
-// TODO: wire these tiles to the Sandbox shared state in a later pass.
-const wins = [
-  {
-    value: "$2.6M",
-    unit: "",
-    label: "TO THE GROUP / YR",
-    tone: "gold" as const,
-  },
-  {
-    value: "$1.4M",
-    unit: "",
-    label: "TO THE HOSPITAL / YR",
-    tone: "gold" as const,
-  },
-  {
-    value: "144,000",
-    unit: "",
-    label: "FEWER NEEDLESS SCANS / YR",
-    tone: "teal" as const,
-  },
-];
-
-const toneText: Record<"gold" | "teal", string> = {
-  gold: "text-[var(--gold-2)]",
-  teal: "text-[var(--teal)]",
-};
-
+// Win-row reads from the shared money-model store. One model, one set of numbers,
+// consumed here and in the Sandbox.
 export function ActSolution() {
   const ref = useReveal<HTMLDivElement>();
+  const { derived } = useMoney();
+
+  const wins: Array<{
+    value: number;
+    format: (n: number) => string;
+    label: string;
+    tone: "gold" | "teal";
+  }> = [
+    {
+      value: derived.group_gain_per_year_$,
+      format: fmtMoney,
+      label: "TO THE GROUP / YR",
+      tone: "gold",
+    },
+    {
+      value: derived.hospital_gain_per_year_$,
+      format: fmtMoney,
+      label: "TO THE HOSPITAL / YR",
+      tone: "gold",
+    },
+    {
+      value: derived.fewer_needless_scans_per_year,
+      format: fmtCount,
+      label: "FEWER NEEDLESS SCANS / YR",
+      tone: "teal",
+    },
+  ];
+
+  const toneText: Record<"gold" | "teal", string> = {
+    gold: "text-[var(--gold-2)]",
+    teal: "text-[var(--teal)]",
+  };
 
   return (
     <section className="relative">
@@ -77,28 +85,25 @@ export function ActSolution() {
           ))}
         </div>
 
-        {/* Win-row */}
+        {/* Win-row — wired to the shared money-model store. */}
         <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-3">
           {wins.map((w) => (
             <div
               key={w.label}
               className="rounded-lg border border-ink bg-ink p-6 text-paper"
             >
-              <div className="flex items-baseline gap-2">
-                <div className={`font-mono-tab text-4xl leading-none ${toneText[w.tone]}`}>
-                  {w.value}
-                </div>
-                <div className="font-mono-tab text-[11px] uppercase tracking-[0.12em] text-paper/65">
-                  {w.unit}
-                </div>
+              <div className={`font-mono-tab text-4xl leading-none ${toneText[w.tone]}`}>
+                <CountUp value={w.value} format={w.format} />
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-paper/80">{w.label}</p>
+              <p className="font-mono-tab mt-3 text-[11px] uppercase tracking-[0.12em] text-paper/65">
+                {w.label}
+              </p>
             </div>
           ))}
         </div>
 
         <p className="font-mono-tab mt-6 text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
-          All figures illustrative. Sample data.
+          Illustrative sample data. Tune the inputs in The Sandbox.
         </p>
       </div>
     </section>
