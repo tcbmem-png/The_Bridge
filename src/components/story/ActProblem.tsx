@@ -1,6 +1,5 @@
 import { CONFIG } from "../../config";
 import { FallToken } from "../FallToken";
-import { Placeholder } from "../Placeholder";
 import { SectionTag } from "./SectionTag";
 import { useReveal } from "../../lib/useReveal";
 
@@ -61,16 +60,7 @@ export function ActProblem() {
         <div className="mt-14 grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="md:col-span-7">
             <p className="text-lg leading-relaxed text-ink/85">
-              Emergency volume runs through imaging. Scans are ordered, acquired,
-              and read. The read produces a report, a claim, and a set of
-              timestamps. The work happens. The economics of the work go
-              unobserved.
-            </p>
-            <p className="mt-5 text-base leading-relaxed text-ink/70">
-              A read without a payer is still a read. The radiologist still
-              clears the queue. The hospital still owns the technical fee. The
-              ED still moves the patient. The cost of the unpaid read sits on a
-              line item nobody owns.
+              This is the shape of the modern radiology partnership. A physician group reads for a hospital system under contract. The hospital mandates emergency, trauma, and overnight coverage. Payer mix means a large share of that volume never collects — and the group eats the labor on every read regardless. <strong>If the hospital isn't paid, neither is the group.</strong>
             </p>
           </div>
 
@@ -97,14 +87,26 @@ export function ActProblem() {
           </aside>
         </div>
 
-        {/* AI-reframe placeholder */}
         <div className="mt-12">
-          <Placeholder label="AI-reframe copy" />
+          <p className="text-base leading-relaxed text-ink/85">
+            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.
+          </p>
         </div>
 
-        {/* AUC placeholder */}
-        <div className="mt-6">
-          <Placeholder label="AUC callout" />
+        <div className="mt-6 rounded-lg border-l-2 border-[var(--teal)] bg-paper p-5 md:p-6">
+          <p className="text-base leading-relaxed text-ink/85">
+            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.
+          </p>
+          <p className="mt-3 text-sm text-ink/55">
+            <a
+              href="https://www.cms.gov/medicare/quality/appropriate-use-criteria-program"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 decoration-ink/25 hover:decoration-ink/60 transition-colors"
+            >
+              Source: CMS Appropriate Use Criteria Program
+            </a>
+          </p>
         </div>
 
         {/* Fall vignette */}
@@ -116,12 +118,7 @@ export function ActProblem() {
                 A small vignette
               </div>
               <p className="font-display mt-4 text-[1.75rem] leading-[1.15] text-paper md:text-[2.5rem]">
-                The read happens. The dollar falls.
-              </p>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/75">
-                Nobody catches it because nobody is standing in that part of the
-                hallway. The systems each see their own slice. The slice that
-                matters sits between them.
+                A patient arrives, coded '<strong>fall</strong>.' That one word reflexively unlocks a head and C-spine CT — often low-yield, frequently uncollectible. Watch that single scan travel through all three stages. It's the whole story in miniature.
               </p>
             </div>
             <div className="relative md:col-span-3">
