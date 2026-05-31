@@ -1,6 +1,5 @@
 import { CONFIG } from "../../config";
 import { FallToken } from "../FallToken";
-import { Placeholder } from "../Placeholder";
 import { SectionTag } from "./SectionTag";
 import { useReveal } from "../../lib/useReveal";
 
