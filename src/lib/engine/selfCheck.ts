@@ -74,7 +74,7 @@ const CASES: Expect[] = [
       turnaround: "pending_source",
       trend: "pending_source",
     },
-    hasFlag: ["hospital_billed", "Turnaround", "Implementation", "shallow"],
+    hasFlag: ["DUA", "Turnaround", "Implementation", "shallow", "BAA", "compliance review"],
   },
   {
     label: "Case C — vendor RCM, mPower licensed-unused, BI but no warehouse",
