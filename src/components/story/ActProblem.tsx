@@ -98,7 +98,7 @@ export function ActProblem() {
 
         <div className="mt-6 rounded-lg border-l-2 border-[var(--teal)] bg-paper p-5 md:p-6">
           <p className="text-base leading-relaxed text-ink/85">
-            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.
+            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.<sup className="text-[0.65em] text-ink/60">[3]</sup>
           </p>
           <p className="mt-3 text-sm text-ink/55">
             <a
