@@ -5,6 +5,7 @@ import { SectionTag } from "../components/story/SectionTag";
 import { SiloDiagram, ProvenanceList } from "../components/hood/SiloDiagram";
 import { Questionnaire } from "../components/hood/Questionnaire";
 import { BuildPlan } from "../components/hood/BuildPlan";
+import { Dashboard } from "../components/dashboard/Dashboard";
 import { generateSpec } from "../lib/engine/generateSpec";
 import { renderSpecMarkdown } from "../lib/engine/renderSpec";
 import { runEngineSelfCheck } from "../lib/engine/selfCheck";
