@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import type { Spec, DomainState, DomainStatus } from "../../lib/engine/types";
 import { useMoney } from "../../lib/money/store";
 import {
+  fmtCount,
   fmtDollarsPerWRVU,
   fmtMoney,
   fmtPct,
