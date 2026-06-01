@@ -62,6 +62,9 @@ export function ActProblem() {
             <p className="text-lg leading-relaxed text-ink/85">
               This is the shape of the modern radiology partnership. A physician group reads for a hospital system under contract. The hospital mandates emergency, trauma, and overnight coverage. Payer mix means a large share of that volume never collects — and the group eats the labor on every read regardless. <strong>If the hospital isn't paid, neither is the group.</strong>
             </p>
+            <p className="mt-6 text-lg leading-relaxed text-ink/85">
+              Reimbursement is falling in real terms. The Medicare conversion factor — the dollars-per-RVU that anchors every read — was $32.35 in 2025 and is $33.40 (non-QP) / $33.57 (QP) for 2026, the first year of split factors.<sup className="text-[0.65em] text-ink/60">[1]</sup> On top of that, CMS finalized a −2.5% efficiency cut to work RVUs on non-time-based codes for 2026, which lands directly on imaging.<sup className="text-[0.65em] text-ink/60">[2]</sup> The rate per unit of work keeps eroding — while the mandated, uncollected coverage volume doesn't.
+            </p>
           </div>
 
           <aside className="md:col-span-5">
