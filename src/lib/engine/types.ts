@@ -68,6 +68,26 @@ export type Compliance = {
   gates: string[];
 };
 
+// Dashboard-facing readiness. Four states, per dashboard-panel-spec §3.
+// "assumed" = no answer yet for the domain → render on a benchmark default.
+// The dashboard renders this verbatim; it never recomputes.
+export type DomainStatus =
+  | "live"
+  | "assumed"
+  | "pending_source"
+  | "pending_compliance";
+
+export type DomainKey = "billing" | "reporting" | "tat";
+
+export type DomainState = {
+  key: DomainKey;
+  status: DomainStatus;
+  needs: string[];
+  sourceName: string;
+};
+
+export type DomainReadiness = Record<DomainKey, DomainState>;
+
 export type Spec = {
   sources: Source[];
   storageTier: Tier;
@@ -82,4 +102,6 @@ export type Spec = {
   sequence: string[];
   timelineBand: string;
   flags: string[];
+  // Dashboard reads this; engine owns it.
+  domainReadiness: DomainReadiness;
 };

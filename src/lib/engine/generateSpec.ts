@@ -6,6 +6,8 @@
 import type {
   Answers,
   Compliance,
+  DomainReadiness,
+  DomainState,
   Panel,
   PanelKey,
   Source,
@@ -400,6 +402,84 @@ const PANEL_ORDER: PanelKey[] = [
   "trend",
 ];
 
+// ---------- §3.7 domain readiness (dashboard-facing) ----------
+// Dashboard panels read this. Engine-truth — never recomputed in the UI.
+// "assumed" = no answer given yet for the domain → benchmark default in UI.
+// Compliance trumps source readiness.
+
+function domainState(
+  key: "billing" | "reporting" | "tat",
+  unanswered: boolean,
+  sourceReady: boolean,
+  comp: Compliance,
+  sourceName: string,
+  pendingNeeds: string[],
+): DomainState {
+  if (unanswered) {
+    return {
+      key,
+      status: "assumed",
+      needs: ["Answer the questionnaire to wire this domain."],
+      sourceName,
+    };
+  }
+  if (!sourceReady) {
+    return { key, status: "pending_source", needs: pendingNeeds, sourceName };
+  }
+  if (!comp.cleared) {
+    return { key, status: "pending_compliance", needs: comp.gates, sourceName };
+  }
+  return { key, status: "live", needs: [], sourceName };
+}
+
+function buildDomainReadiness(
+  a: Answers,
+  billing: Source & { billing_ready: boolean },
+  reporting: Source,
+  tat: Source,
+  comp: Compliance,
+): DomainReadiness {
+  const billingPending: string[] =
+    a.rcm_owner === "hospital_billed"
+      ? ["DUA with hospital before extract"]
+      : ["Billing feed access"];
+  const reportingPending: string[] =
+    a.mpower === "no" && a.reporting === "other"
+      ? ["Flat-file extract or manual sampling protocol"]
+      : ["Reporting platform export"];
+  const tatPending: string[] =
+    a.pacs_ts === "no"
+      ? ["PACS timestamp export (or RIS/RCM proxy)"]
+      : ["PACS timestamp export"];
+
+  return {
+    billing: domainState(
+      "billing",
+      a.rcm_owner === undefined,
+      billing.billing_ready,
+      comp,
+      billing.name,
+      billingPending,
+    ),
+    reporting: domainState(
+      "reporting",
+      a.mpower === undefined && a.reporting === undefined,
+      reporting.ready,
+      comp,
+      reporting.name,
+      reportingPending,
+    ),
+    tat: domainState(
+      "tat",
+      a.pacs_ts === undefined,
+      tat.ready,
+      comp,
+      tat.name,
+      tatPending,
+    ),
+  };
+}
+
 // ---------- §7 assembled ----------
 
 export function generateSpec(a: Answers): Spec {
@@ -424,6 +504,8 @@ export function generateSpec(a: Answers): Spec {
   for (const g of comp.gates) perms.add(g);
   if (a.rcm_owner === "hospital_billed") perms.add("DUA + hospital data feed");
 
+  const domainReadiness = buildDomainReadiness(a, billing, reporting, tat, comp);
+
   return {
     sources,
     storageTier: tier,
@@ -435,5 +517,6 @@ export function generateSpec(a: Answers): Spec {
     sequence,
     timelineBand,
     flags,
+    domainReadiness,
   };
 }
