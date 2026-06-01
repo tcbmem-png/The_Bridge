@@ -185,7 +185,7 @@ export function Dashboard({ spec, compact = false }: Props) {
         ].join(" ")}
       >
         {PANELS.map((p) => {
-          const ds = domainFor(p.domain as DomainKey | "worklist");
+          const ds = domainFor(p.domain);
           return (
             <PanelCard key={p.id} def={p} state={ds}>
               {renderPanelBody(p, ds.status, inputs, derived)}
