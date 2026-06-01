@@ -7,15 +7,15 @@ import { CountUp } from "../sandbox/CountUp";
 const pillars = [
   {
     name: "Collaborate",
-    line: "Ordering-side support in the ED and radiologist-led appropriateness. Accurate indication capture — so the fall that shouldn't be scanned, isn't. Voluntary decision-support, which CMS now encourages, future-proofs the group if AUC returns.",
+    line: "ED ordering support and radiologist-led appropriateness. Capture the right indication — so the fall that shouldn't be scanned, isn't.",
   },
   {
     name: "Quantify",
-    line: "A shared fact base both sides trust. The dashboard, jointly owned, so nobody argues about whose numbers are right.",
+    line: "A shared fact base both sides trust. Nobody argues about whose numbers are right.",
   },
   {
     name: "Structure",
-    line: "Any coverage arrangement built fair-market-value and anti-kickback clean from day one. Compliance is the foundation, not an afterthought.",
+    line: "Every coverage deal built FMV- and anti-kickback-clean from day one. Compliance first, not bolted on.",
   },
 ];
 
@@ -46,7 +46,7 @@ export function ActSolution() {
     {
       value: derived.fewer_needless_scans_per_year,
       format: fmtCount,
-      label: "FEWER NEEDLESS SCANS / YR",
+      label: "FEWER UNNECESSARY SCANS / YR",
       tone: "teal",
     },
   ];
@@ -60,12 +60,12 @@ export function ActSolution() {
     <section className="relative">
       <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
         <div ref={ref} className="reveal">
-          <SectionTag tone="gold">The Solution · The fall, removed</SectionTag>
+          <SectionTag tone="gold">Solution · The fall, removed</SectionTag>
           <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.1] md:text-[3rem]">
             One set of numbers both sides can act on.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
-            Not a negotiation. Not 'we have better numbers, so renegotiate.' It's the hospital and the group both adapting to the new reality — where all parties earn more by cutting waste, in full legal compliance. Fewer unnecessary unpaid scans, faster throughput, and capturing the reads that are payable.
+            Not a negotiation. Not 'we have better numbers, so renegotiate.' Both sides adapt to the same reality and earn more by cutting waste — legally clean. Fewer unnecessary unpaid scans, faster throughput, every payable read captured.
           </p>
         </div>
 
@@ -112,12 +112,10 @@ export function ActSolution() {
             Moves are theirs — hypotheses the data tests, not instructions.
             COPY BELOW IS PROVISIONAL — final wording is a later tone pass. */}
         <div className="mt-16 border-t border-ink/15 pt-12">
-          <SectionTag tone="teal">What becomes possible</SectionTag>
-          {/* PROVISIONAL */}
+          <SectionTag tone="teal">What the join unlocks</SectionTag>
           <h3 className="font-display mt-5 max-w-3xl text-[1.75rem] leading-[1.15] md:text-[2.5rem]">
-            Once you can see it, here's what opens up.
+            What the join unlocks.
           </h3>
-          {/* PROVISIONAL */}
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
             None of this needs new systems or AI. It needs the join — and the join is cheap.
           </p>
@@ -135,7 +133,7 @@ export function ActSolution() {
               },
               {
                 name: "The denial pattern, fixed",
-                line: "One CARC, one workflow tweak, one report — recovered dollars into the pool.",
+                line: "One CARC, one workflow tweak, one report — and the leak is closed.",
               },
             ].map((m) => (
               <article

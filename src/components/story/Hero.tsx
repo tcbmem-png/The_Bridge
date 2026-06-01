@@ -19,7 +19,7 @@ export function Hero() {
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink/75 md:text-lg">
           Every read writes a claim, a report, and a set of timestamps to systems
           you already pay for. The economics feel invisible not because data is
-          missing, but because nobody has joined it. This shows what happens when
+          missing, but because nobody has joined it. See what happens when
           you do.
         </p>
 
