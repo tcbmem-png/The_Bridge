@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnderTheHoodRouteImport } from './routes/under-the-hood'
 import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
 
 const UnderTheHoodRoute = UnderTheHoodRouteImport.update({
@@ -23,6 +24,11 @@ const SandboxRoute = SandboxRouteImport.update({
   path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sandbox' | '/under-the-hood'
+  fullPaths: '/' | '/faq' | '/sandbox' | '/under-the-hood'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sandbox' | '/under-the-hood'
-  id: '__root__' | '/' | '/sandbox' | '/under-the-hood'
+  to: '/' | '/faq' | '/sandbox' | '/under-the-hood'
+  id: '__root__' | '/' | '/faq' | '/sandbox' | '/under-the-hood'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FaqRoute: typeof FaqRoute
   SandboxRoute: typeof SandboxRoute
   UnderTheHoodRoute: typeof UnderTheHoodRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FaqRoute: FaqRoute,
   SandboxRoute: SandboxRoute,
   UnderTheHoodRoute: UnderTheHoodRoute,
 }
