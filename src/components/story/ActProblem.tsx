@@ -62,6 +62,9 @@ export function ActProblem() {
             <p className="text-lg leading-relaxed text-ink/85">
               This is the shape of the modern radiology partnership. A physician group reads for a hospital system under contract. The hospital mandates emergency, trauma, and overnight coverage. Payer mix means a large share of that volume never collects — and the group eats the labor on every read regardless. <strong>If the hospital isn't paid, neither is the group.</strong>
             </p>
+            <p className="mt-6 text-lg leading-relaxed text-ink/85">
+              Reimbursement is falling in real terms. The Medicare conversion factor — the dollars-per-RVU that anchors every read — was $32.35 in 2025 and is $33.40 (non-QP) / $33.57 (QP) for 2026, the first year of split factors.<sup className="text-[0.65em] text-ink/60">[1]</sup> On top of that, CMS finalized a −2.5% efficiency cut to work RVUs on non-time-based codes for 2026, which lands directly on imaging.<sup className="text-[0.65em] text-ink/60">[2]</sup> The rate per unit of work keeps eroding — while the mandated, uncollected coverage volume doesn't.
+            </p>
           </div>
 
           <aside className="md:col-span-5">
@@ -89,13 +92,13 @@ export function ActProblem() {
 
         <div className="mt-12">
           <p className="text-base leading-relaxed text-ink/85">
-            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.
+            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.<sup className="text-[0.65em] text-ink/60">[4]</sup>
           </p>
         </div>
 
         <div className="mt-6 rounded-lg border-l-2 border-[var(--teal)] bg-paper p-5 md:p-6">
           <p className="text-base leading-relaxed text-ink/85">
-            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.
+            There was one federal lever that could have curbed unnecessary ordering — Medicare's Appropriate Use Criteria program, which required ordering clinicians to consult decision-support before advanced imaging. Effective January 2024, CMS paused it and rescinded the regulations, with no restart date. It's statutorily mandated, so it could return — but for now there's no regulatory brake on over-ordering. The fix can't wait for Washington; it has to be operational.<sup className="text-[0.65em] text-ink/60">[3]</sup>
           </p>
           <p className="mt-3 text-sm text-ink/55">
             <a
