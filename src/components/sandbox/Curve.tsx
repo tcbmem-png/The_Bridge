@@ -815,6 +815,7 @@ function NumField(props: {
   value: number;
   step?: number;
   min?: number;
+  max?: number;
   onChange: (n: number) => void;
   isOverride?: boolean;
   onReset?: () => void;
