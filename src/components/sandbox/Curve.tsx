@@ -17,16 +17,27 @@ import {
   DEFAULT_CURVE_INPUTS,
   DEFAULT_CORE_MIX,
   DEFAULT_COVERAGE_MIX,
+  DEFAULT_WORKFLOW_LAYER,
   computeAt,
+  computeWorkflowLayer,
   deriveYieldForMix,
   sampleBonusCurve,
   type CurveInputs,
+  type WorkflowLayerInputs,
 } from "../../lib/curve/compute";
 import { fmtMoney, fmtCount, fmtDollarsPerWRVU } from "../../lib/money/format";
 import { FeedsGlyph } from "../provenance/FeedsGlyph";
 
 // avg_yield is a two-feed number on this site: billing + production only.
 const FEEDS_AVG_YIELD = { billing: true, production: true, workflow: false } as const;
+
+// §2A readouts: billing measured + production measured + workflow assumed
+// (worklist estimates). DASHED-three — never FILLED-three.
+const FEEDS_WORKFLOW_LAYER = {
+  billing: true,
+  production: true,
+  workflow: "assumption",
+} as const;
 
 type Overrides = Partial<Pick<CurveInputs, "y_core" | "y_cov">>;
 
@@ -68,9 +79,25 @@ export function SandboxCurve() {
   // Optional phase-2 fair-coverage overlay: a stipend that lifts y_cov.
   const [y_cov_fair, setYCovFair] = useState<number>(() => Math.max(yCov * 1.6, yCore * 0.7));
 
+  // §2A workflow-layer assumptions. Seeded so y_night sits BELOW y_cov by
+  // default — illustrative "worse after-hours mix". User can move freely;
+  // setting y_night === y_core (or night_share === 0) zeroes the gap.
+  const defaultYNight = useMemo(() => Math.max(0, yCov * 0.8), [yCov]);
+  const [wf, setWf] = useState<WorkflowLayerInputs>({
+    ...DEFAULT_WORKFLOW_LAYER,
+    y_night: defaultYNight,
+  });
+  const [wfOverrides, setWfOverrides] = useState<{ y_night?: number }>({});
+  const yNight = wfOverrides.y_night ?? defaultYNight;
+  const effWf: WorkflowLayerInputs = useMemo(
+    () => ({ ...wf, y_night: yNight }),
+    [wf, yNight],
+  );
+
   // Clamp w to the (editable) range.
   const wClamped = Math.min(eff.w_max, Math.max(eff.w_min, w));
   const out = useMemo(() => computeAt(wClamped, eff), [wClamped, eff]);
+  const wfOut = useMemo(() => computeWorkflowLayer(wClamped, eff, effWf), [wClamped, eff, effWf]);
   const samples = useMemo(() => sampleBonusCurve(eff, 200), [eff]);
   const samplesFair = useMemo(
     () => sampleBonusCurve({ ...eff, y_cov: y_cov_fair }, 200),
@@ -91,6 +118,8 @@ export function SandboxCurve() {
     setW(DEFAULT_CURVE_INPUTS.w_default);
     setGroupTotal(false);
     setShowFair(false);
+    setWf({ ...DEFAULT_WORKFLOW_LAYER, y_night: defaultYNight });
+    setWfOverrides({});
   }
 
   return (
@@ -201,6 +230,117 @@ export function SandboxCurve() {
               tone="ink"
             />
           </div>
+
+          {/* §2A — workflow layer. Decomposes cov_w; does NOT feed back
+              into bonus_per_partner / avg_yield / next_1k. Two overlapping
+              lenses on the same coverage work — never sum them. */}
+          {wfOut.cov_w <= 0 ? (
+            <div className="rounded-lg border border-dashed border-ink/25 bg-paper p-4">
+              <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                Workflow layer
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-ink/70">
+                No coverage work at this productivity.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* After-hours coverage gap */}
+              <div className="rounded-lg border border-ink/20 bg-paper p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="font-mono-tab inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                    <span>After-hours coverage gap</span>
+                    <FeedsGlyph
+                      feeds={FEEDS_WORKFLOW_LAYER}
+                      sources={[
+                        "p1 — 837/835 (claim & remittance)",
+                        "p5 — CMS RVU file (wRVU per CPT)",
+                      ]}
+                      assumptions={[
+                        "night_share — from your worklist; estimate for now",
+                        "y_night — from your worklist; estimate for now",
+                      ]}
+                      note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
+                    />
+                  </div>
+                  <span className="font-mono-tab text-2xl text-ink md:text-3xl">
+                    {fmtMoney(wfOut.afterhours_gap * mult)}
+                  </span>
+                </div>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-ink/65">
+                  Here is the after-hours coverage the rate doesn't cover — the
+                  stipend ask, sized.
+                </p>
+                <p className="font-mono-tab mt-2 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                  night_w {fmtCount(wfOut.night_w)} wRVU × (y_core − y_night) ={" "}
+                  {fmtDollarsPerWRVU(eff.y_core - effWf.y_night)} · per partner
+                  {groupTotal ? ` × ${eff.N}` : ""}
+                </p>
+              </div>
+
+              {/* Structural vs avoidable split — visibly sums to coverage_shortfall. */}
+              <div className="rounded-lg border border-ink/20 bg-paper p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div className="font-mono-tab inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                    <span>Structural vs avoidable split</span>
+                    <FeedsGlyph
+                      feeds={FEEDS_WORKFLOW_LAYER}
+                      sources={[
+                        "p1 — 837/835 (claim & remittance)",
+                        "p5 — CMS RVU file (wRVU per CPT)",
+                      ]}
+                      assumptions={[
+                        "avoidable_share — needs Jonathan's low-yield definition",
+                      ]}
+                      note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
+                    />
+                  </div>
+                  <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                    coverage_shortfall = {fmtMoney(wfOut.coverage_shortfall * mult)}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch">
+                  <div className="rounded-md border border-ink/15 bg-paper p-3">
+                    <div className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/55">
+                      avoidable_gap · hospital's lever
+                    </div>
+                    <div className="font-mono-tab mt-1 text-xl text-ink md:text-2xl">
+                      {fmtMoney(wfOut.avoidable_gap * mult)}
+                    </div>
+                    <p className="mt-1 text-[11.5px] leading-snug text-ink/65">
+                      This is the hospital's shared-waste lever — not money
+                      the group recovers. Reducing avoidable work reduces the
+                      group's own volume; we say so plainly.
+                    </p>
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    className="font-mono-tab self-center text-center text-base text-ink/45 md:px-1"
+                  >
+                    +
+                  </div>
+                  <div className="rounded-md border border-ink/15 bg-paper p-3">
+                    <div className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/55">
+                      structural_gap · what you carry
+                    </div>
+                    <div className="font-mono-tab mt-1 text-xl text-ink md:text-2xl">
+                      {fmtMoney(wfOut.structural_gap * mult)}
+                    </div>
+                    <p className="mt-1 text-[11.5px] leading-snug text-ink/65">
+                      Coverage you'd still be on the hook for. The stipend
+                      conversation.
+                    </p>
+                  </div>
+                </div>
+                <p className="font-mono-tab mt-3 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                  Overlapping lenses on the same cov_w — never one combined
+                  total. Per partner{groupTotal ? ` × ${eff.N}` : ""}.
+                </p>
+              </div>
+            </div>
+          )}
+
+
 
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-ink/65">
             <button
@@ -351,6 +491,45 @@ export function SandboxCurve() {
               }}
             />
           </div>
+
+          {/* §2A workflow-layer assumptions — DASHED feed in the glyph. */}
+          <div className="mt-4 rounded-md border border-dashed border-paper/25 p-3">
+            <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-paper/55">
+              Workflow layer · from your worklist — estimate for now
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <NumField
+                label="night_share"
+                unit="0–1"
+                hint="Share of coverage work done after-hours. From your worklist — estimate for now."
+                value={Number(effWf.night_share.toFixed(2))}
+                step={0.05}
+                min={0}
+                onChange={(n) => setWf((p) => ({ ...p, night_share: Math.max(0, Math.min(1, n)) }))}
+              />
+              <NumField
+                label="y_night"
+                unit="$/wRVU"
+                hint={`After-hours yield. From your worklist — estimate for now. Default seeded below y_cov (${fmtDollarsPerWRVU(defaultYNight)}).`}
+                value={Number(yNight.toFixed(2))}
+                step={0.5}
+                min={0}
+                isOverride={wfOverrides.y_night !== undefined}
+                onReset={() => setWfOverrides((o) => ({ ...o, y_night: undefined }))}
+                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: n }))}
+              />
+              <NumField
+                label="avoidable_share"
+                unit="0–1"
+                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs Jonathan's low-yield definition."
+                value={Number(effWf.avoidable_share.toFixed(2))}
+                step={0.05}
+                min={0}
+                onChange={(n) => setWf((p) => ({ ...p, avoidable_share: Math.max(0, Math.min(1, n)) }))}
+              />
+            </div>
+          </div>
+
 
           <p className="font-mono-tab mt-5 text-[10px] uppercase tracking-[0.12em] text-paper/45">
             Shared constants (CF, payer multiples) read from the money module
