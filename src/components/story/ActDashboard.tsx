@@ -32,11 +32,10 @@ export function ActDashboard() {
         <div ref={ref} className="reveal">
           <SectionTag tone="teal">The Dashboard · The fall, in numbers</SectionTag>
           <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.1] md:text-[3rem]">
-            You're already generating all of this.
+            Every number opens to where it came from.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
-            One view. Joined across the systems that already record what
-            happened. The number is not new. The seeing is.
+            No model. No black box. Your own numbers, joined and checked to the dollar.
           </p>
         </div>
 
