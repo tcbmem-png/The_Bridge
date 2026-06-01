@@ -49,6 +49,10 @@ function SandboxPage() {
       </div>
 
       <div className="mt-5">
+        <ResidualToggle />
+      </div>
+
+      <div className="mt-5">
         <MathDrawer />
       </div>
     </main>
