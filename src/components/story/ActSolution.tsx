@@ -105,6 +105,69 @@ export function ActSolution() {
         <p className="font-mono-tab mt-6 text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
           Illustrative sample data. Tune the inputs in The Sandbox.
         </p>
+
+        {/* §3 — "What becomes possible" beat.
+            POSTURE: opportunity, not accusation. The join lets you do this.
+            Buyer is the hero completing the picture; harness made it visible.
+            Moves are theirs — hypotheses the data tests, not instructions.
+            COPY BELOW IS PROVISIONAL — final wording is a later tone pass. */}
+        <div className="mt-16 border-t border-ink/15 pt-12">
+          <SectionTag tone="teal">What becomes possible</SectionTag>
+          {/* PROVISIONAL */}
+          <h3 className="font-display mt-5 max-w-3xl text-[1.75rem] leading-[1.15] md:text-[2.5rem]">
+            Once you can see it, here's what opens up.
+          </h3>
+          {/* PROVISIONAL */}
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
+            None of this needs new systems or AI. It needs the join — and the join is cheap.
+          </p>
+
+          {/* Three move cards — possibility-framed. PROVISIONAL copy. */}
+          <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
+            {[
+              {
+                name: "Found studies",
+                line: "Reads completed but never billed, surfaced by joining worklist and billing — recovered dollars into the pool.",
+              },
+              {
+                name: "Underpayments caught",
+                line: "Commercial claims paid below contracted rate, flagged against the contract — recovered dollars into the pool.",
+              },
+              {
+                name: "The denial pattern, fixed",
+                line: "One CARC, one workflow tweak, one report — recovered dollars into the pool.",
+              },
+            ].map((m) => (
+              <article
+                key={m.name}
+                className="rounded-lg border border-ink/20 bg-paper p-5"
+              >
+                <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-[var(--teal)]">
+                  possibility
+                </div>
+                <h4 className="font-display mt-3 text-xl leading-snug">{m.name}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-ink/75">{m.line}</p>
+              </article>
+            ))}
+          </div>
+
+          {/* Close into the structural lever. PROVISIONAL copy. */}
+          <div className="mt-6 rounded-lg border border-ink bg-ink p-6 text-paper md:p-8">
+            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-paper/55">
+              The structural lever
+            </div>
+            <p className="font-display mt-3 max-w-3xl text-xl leading-snug md:text-2xl">
+              And the biggest one isn't a leak — it's getting paid for the coverage you're already required to provide.
+            </p>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-paper/70">
+              Because recovered dollars are near-pure margin, they land in the bonus pool — the number a partner feels. The do-first moves build the credibility and the cash to win the structural one.
+            </p>
+          </div>
+
+          <p className="font-mono-tab mt-4 text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
+            Illustrative. The moves are hypotheses the data tests — yours to choose.
+          </p>
+        </div>
       </div>
     </section>
   );
