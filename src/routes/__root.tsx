@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/Header";
 import { MoneyProvider } from "../lib/money/store";
+import { LensProvider } from "../lib/lens/store";
 
 function NotFoundComponent() {
   return (
@@ -129,11 +130,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <MoneyProvider>
-        <div className="min-h-screen bg-paper text-ink">
-          <Header />
-          {/* Required: nested routes render here. */}
-          <Outlet />
-        </div>
+        <LensProvider>
+          <div className="min-h-screen bg-paper text-ink">
+            <Header />
+            {/* Required: nested routes render here. */}
+            <Outlet />
+          </div>
+        </LensProvider>
       </MoneyProvider>
     </QueryClientProvider>
   );
