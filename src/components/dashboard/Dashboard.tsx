@@ -141,10 +141,33 @@ export function Dashboard({ spec, compact = false }: Props) {
     return domains[d];
   };
 
+  // ★ Lost-study reconciliation — two-domain gate.
+  // Live ONLY when BOTH billing AND worklist (engine: tat) are live, plus compliance.
+  // If exactly one is live → distinctive half-gated state (names the missing source).
+  // If compliance fails on either → pending_compliance.
+  const billingDs = domains.billing;
+  const tatDs = domains.tat;
+  const starStatus: "live" | "half" | "pending_source" | "pending_compliance" =
+    billingDs.status === "pending_compliance" || tatDs.status === "pending_compliance"
+      ? "pending_compliance"
+      : billingDs.status === "live" && tatDs.status === "live"
+      ? "live"
+      : billingDs.status === "live" || tatDs.status === "live"
+      ? "half"
+      : "pending_source";
+  const starMissing =
+    starStatus === "half"
+      ? billingDs.status === "live"
+        ? "worklist"
+        : "billing"
+      : null;
+
+  const TOTAL_PANELS = 9;
   const liveCount = useMemo(() => {
-    return PANELS.filter((p) => domainFor(p.domain).status === "live").length;
+    const baseLive = PANELS.filter((p) => domainFor(p.domain).status === "live").length;
+    return baseLive + (starStatus === "live" ? 1 : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [domains]);
+  }, [domains, starStatus]);
 
   return (
     <div className="rounded-xl border border-ink/15 bg-paper">
@@ -158,7 +181,7 @@ export function Dashboard({ spec, compact = false }: Props) {
             </div>
             <div className="font-display mt-1 text-lg leading-snug md:text-xl">
               <span className="font-mono-tab">{liveCount}</span> of{" "}
-              <span className="font-mono-tab">{PANELS.length}</span> panels wired from
+              <span className="font-mono-tab">{TOTAL_PANELS}</span> panels wired from
               data you already own
             </div>
           </div>
@@ -173,9 +196,24 @@ export function Dashboard({ spec, compact = false }: Props) {
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
           <div
             className="h-full bg-[var(--teal)] transition-[width] duration-500"
-            style={{ width: `${(liveCount / PANELS.length) * 100}%` }}
+            style={{ width: `${(liveCount / TOTAL_PANELS) * 100}%` }}
           />
         </div>
+      </div>
+
+      {/* ★ Lost-study reconciliation — featured 9th panel, two-domain gate */}
+      <div className="px-5 pt-4 md:px-6">
+        <LostStudyShowcase
+          status={starStatus}
+          missing={starMissing}
+          billingName={billingDs.sourceName}
+          tatName={tatDs.sourceName}
+          lostCount={derived.lost_study_count}
+          lostDollars={derived.lost_study_$}
+          coverageVolume={inputs.coverage_volume}
+          ratePct={inputs.lost_study_rate_pct}
+          blended={derived.blended_$_per_wRVU}
+        />
       </div>
 
       {/* Panel grid */}
