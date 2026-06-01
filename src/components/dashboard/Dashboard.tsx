@@ -6,6 +6,7 @@
 import { useMemo } from "react";
 import type { Spec, DomainState, DomainStatus } from "../../lib/engine/types";
 import { useMoney } from "../../lib/money/store";
+import { useLens } from "../../lib/lens/store";
 import {
   fmtCount,
   fmtDollarsPerWRVU,
@@ -14,6 +15,12 @@ import {
   fmtWRVU,
 } from "../../lib/money/format";
 import { FallToken } from "../FallToken";
+import { LensToggle } from "./LensToggle";
+import {
+  HOSPITAL_PANEL,
+  HOSPITAL_LOST_STUDY,
+  DUA_GATED_CUTS,
+} from "./hospitalNarration";
 
 // ---------- panel registry (verbatim from spec §2) ----------
 
