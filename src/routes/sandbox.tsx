@@ -4,6 +4,7 @@ import { SandboxInputs } from "../components/sandbox/Inputs";
 import { SandboxOutputs } from "../components/sandbox/Outputs";
 import { MathDrawer } from "../components/sandbox/MathDrawer";
 import { ResidualToggle } from "../components/sandbox/ResidualToggle";
+import { SandboxCurve } from "../components/sandbox/Curve";
 
 export const Route = createFileRoute("/sandbox")({
   head: () => ({
@@ -53,6 +54,8 @@ function SandboxPage() {
       <div className="mt-5">
         <MathDrawer />
       </div>
+
+      <SandboxCurve />
     </main>
   );
 }
