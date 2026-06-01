@@ -134,17 +134,14 @@ export function Dashboard({ spec, compact = false }: Props) {
   const { inputs, derived } = useMoney();
   const domains = spec.domainReadiness;
 
-  // Map "worklist" (dashboard domain name) → engine "tat" domain.
-  const domainFor = (d: DomainKey | "worklist"): DomainState => {
+  // Map dashboard panel domain → engine domain ("worklist" → "tat").
+  const domainFor = (d: PanelDomain): DomainState => {
     if (d === "worklist") return domains.tat;
     return domains[d];
   };
 
   const liveCount = useMemo(() => {
-    return PANELS.filter((p) => {
-      const ds = domainFor(p.domain as DomainKey | "worklist");
-      return ds.status === "live";
-    }).length;
+    return PANELS.filter((p) => domainFor(p.domain).status === "live").length;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domains]);
 
