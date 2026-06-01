@@ -249,7 +249,7 @@ export function SandboxInputs() {
             step={1}
             min={0}
             max={100}
-            source="Achievable reduction in needless 'fall' reads — your assumption."
+            source="Achievable reduction in unnecessary 'fall' reads — your assumption."
             isBenchmark={inputs.waste_reduction === DEFAULT_INPUTS.waste_reduction}
             onUseBenchmark={() => set("waste_reduction", DEFAULT_INPUTS.waste_reduction)}
             onChange={(n) => set("waste_reduction", n)}
