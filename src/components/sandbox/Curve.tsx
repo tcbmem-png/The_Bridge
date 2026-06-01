@@ -840,6 +840,7 @@ function NumField(props: {
           inputMode="decimal"
           step={props.step ?? 1}
           min={props.min}
+          max={props.max}
           value={Number.isFinite(props.value) ? props.value : 0}
           onChange={(e) => props.onChange(Number(e.target.value))}
           className="font-mono-tab w-full rounded border border-paper/15 bg-ink/40 px-2 py-1.5 text-right text-sm text-paper outline-none focus:border-[var(--teal)]"
