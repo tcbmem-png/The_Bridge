@@ -588,8 +588,15 @@ function LostStudyShowcase({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             ★ count + $ <span className="text-ink/35">· [p1][p7] · two-domain join</span>
           </div>
-          <h3 className="font-display mt-1 text-lg leading-snug md:text-xl">
-            {titleOverride ?? "Lost-study reconciliation · found money"}
+          <h3 className="font-display mt-1 flex flex-wrap items-center gap-2 text-lg leading-snug md:text-xl">
+            <span>{titleOverride ?? "Lost-study reconciliation · found money"}</span>
+            {status === "live" ? (
+              <FeedsGlyph
+                feeds={{ billing: true, production: true, workflow: false }}
+                sources={["p1 — 837/835 (billed reads)", "p7 — PACS timestamps (completed reads)"]}
+                note="Lost-study $ joins billing to production. The workflow feed isn't required for this number."
+              />
+            ) : null}
           </h3>
           {captionOverride ? (
             <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-ink/70">
