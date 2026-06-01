@@ -3,6 +3,7 @@ import { Hero } from "../components/story/Hero";
 import { ActProblem } from "../components/story/ActProblem";
 import { ActDashboard } from "../components/story/ActDashboard";
 import { ActSolution } from "../components/story/ActSolution";
+import { StorySources } from "../components/story/StorySources";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +32,7 @@ function StoryPage() {
       <ActProblem />
       <ActDashboard />
       <ActSolution />
+      <StorySources />
     </main>
   );
 }
