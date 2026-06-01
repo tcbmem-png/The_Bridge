@@ -108,6 +108,8 @@ residual_delta_wRVU     = recovered_$ ÷ blended_$_per_wRVU`}
                 <Row k="avoided_scans" v={fmtCount(derived.avoided_scans)} />
                 <Row k="avoided_tech_$ (hospital pocket)" v={fmtMoney(derived.avoided_technical_cost_$)} />
                 <Row k="denial_recovery_$ (scenario)" v={fmtMoney(derived.denial_recovery_scenario_$)} />
+                <Row k="lost_study_count (★)" v={fmtCount(derived.lost_study_count)} />
+                <Row k="lost_study_$ (★)" v={fmtMoney(derived.lost_study_$)} />
               </div>
             </div>
           </div>
