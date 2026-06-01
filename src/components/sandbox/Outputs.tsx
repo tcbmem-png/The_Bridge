@@ -95,8 +95,13 @@ export function SandboxOutputs() {
         <div className="mt-4 space-y-4">
           {/* (a) No-pay — the mix / stipend conversation */}
           <div className="border-l-2 border-[var(--red-clinical)]/60 pl-4">
-            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
-              No-pay (self-pay)
+            <div className="font-mono-tab flex items-center gap-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
+              <span>No-pay (self-pay)</span>
+              <FeedsGlyph
+                feeds={FEEDS_NO_PAY}
+                sources={["p1 — 837/835 (payer mix, payments)", "p5 — CMS RVU file (wRVU per CPT)"]}
+                note="No-pay $ joins billing to production (wRVU = work Relative Value Unit)."
+              />
             </div>
             <div className="font-mono-tab mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-2xl text-[var(--red-clinical)] md:text-3xl">
               <span><CountUp value={derived.noPay_wRVU} format={fmtWRVU} /></span>
@@ -110,8 +115,13 @@ export function SandboxOutputs() {
 
           {/* (b) Medicaid shortfall — the rate / structural-mandate point */}
           <div className="border-l-2 border-[var(--red-clinical)]/60 pl-4">
-            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
-              Underpayment shortfall (Medicaid below Medicare)
+            <div className="font-mono-tab flex items-center gap-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
+              <span>Underpayment shortfall (Medicaid below Medicare)</span>
+              <FeedsGlyph
+                feeds={FEEDS_MEDICAID}
+                sources={["p1 — 837/835", "p5 — CMS RVU file"]}
+                note="Medicaid shortfall joins billing to production."
+              />
             </div>
             <div className="font-mono-tab mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-2xl text-[var(--red-clinical)] md:text-3xl">
               <span><CountUp value={derived.medicaidShortfall_wRVU} format={fmtWRVU} /></span>
@@ -125,8 +135,13 @@ export function SandboxOutputs() {
 
           {/* Subtotal — relabeled */}
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-ink/15 pt-3">
-            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
-              Subtotal · Coverage gap vs Medicare
+            <div className="font-mono-tab flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+              <span>Subtotal · Coverage gap vs Medicare</span>
+              <FeedsGlyph
+                feeds={FEEDS_COVERAGE_GAP}
+                sources={["p1 — 837/835", "p5 — CMS RVU file"]}
+                note="Coverage gap = no-pay + Medicaid shortfall, at the Medicare conversion factor."
+              />
             </div>
             <div className="font-mono-tab text-xl text-ink md:text-2xl">
               <CountUp value={derived.coverageGapVsMedicare_$} format={fmtMoney} />
