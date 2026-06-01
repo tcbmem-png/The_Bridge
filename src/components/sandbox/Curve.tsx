@@ -515,9 +515,10 @@ export function SandboxCurve() {
                 value={Number(yNight.toFixed(2))}
                 step={0.5}
                 min={0}
+                max={yCore}
                 isOverride={wfOverrides.y_night !== undefined}
                 onReset={() => setWfOverrides((o) => ({ ...o, y_night: undefined }))}
-                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: n }))}
+                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: Math.min(n, yCore) }))}
               />
               <NumField
                 label="avoidable_share"
