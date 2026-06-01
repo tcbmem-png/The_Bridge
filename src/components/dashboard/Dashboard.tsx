@@ -342,6 +342,9 @@ export function Dashboard({ spec, compact = false }: Props) {
             </li>
           ))}
         </ul>
+        <div className="mt-4 border-t border-ink/10 pt-3">
+          <FeedsLegend />
+        </div>
       </div>
     </div>
   );
