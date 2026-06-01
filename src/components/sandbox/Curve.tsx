@@ -79,9 +79,25 @@ export function SandboxCurve() {
   // Optional phase-2 fair-coverage overlay: a stipend that lifts y_cov.
   const [y_cov_fair, setYCovFair] = useState<number>(() => Math.max(yCov * 1.6, yCore * 0.7));
 
+  // §2A workflow-layer assumptions. Seeded so y_night sits BELOW y_cov by
+  // default — illustrative "worse after-hours mix". User can move freely;
+  // setting y_night === y_core (or night_share === 0) zeroes the gap.
+  const defaultYNight = useMemo(() => Math.max(0, yCov * 0.8), [yCov]);
+  const [wf, setWf] = useState<WorkflowLayerInputs>({
+    ...DEFAULT_WORKFLOW_LAYER,
+    y_night: defaultYNight,
+  });
+  const [wfOverrides, setWfOverrides] = useState<{ y_night?: number }>({});
+  const yNight = wfOverrides.y_night ?? defaultYNight;
+  const effWf: WorkflowLayerInputs = useMemo(
+    () => ({ ...wf, y_night: yNight }),
+    [wf, yNight],
+  );
+
   // Clamp w to the (editable) range.
   const wClamped = Math.min(eff.w_max, Math.max(eff.w_min, w));
   const out = useMemo(() => computeAt(wClamped, eff), [wClamped, eff]);
+  const wfOut = useMemo(() => computeWorkflowLayer(wClamped, eff, effWf), [wClamped, eff, effWf]);
   const samples = useMemo(() => sampleBonusCurve(eff, 200), [eff]);
   const samplesFair = useMemo(
     () => sampleBonusCurve({ ...eff, y_cov: y_cov_fair }, 200),
@@ -102,6 +118,8 @@ export function SandboxCurve() {
     setW(DEFAULT_CURVE_INPUTS.w_default);
     setGroupTotal(false);
     setShowFair(false);
+    setWf({ ...DEFAULT_WORKFLOW_LAYER, y_night: defaultYNight });
+    setWfOverrides({});
   }
 
   return (
