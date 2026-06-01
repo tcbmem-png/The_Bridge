@@ -11,7 +11,7 @@
 // near y_core, the curve keeps climbing and next_1k stays large. The shape
 // carries the conclusion — no text states it.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMoney } from "../../lib/money/store";
 import {
   DEFAULT_CURVE_INPUTS,
@@ -93,6 +93,18 @@ export function SandboxCurve() {
     () => ({ ...wf, y_night: yNight }),
     [wf, yNight],
   );
+
+  // Bound y_cov and y_night at y_core. If y_core drops, clamp inputs down.
+  useEffect(() => {
+    if (yCov > yCore) {
+      setOverrides((o) => ({ ...o, y_cov: yCore }));
+    }
+  }, [yCore, yCov]);
+  useEffect(() => {
+    if (yNight > yCore) {
+      setWfOverrides((o) => ({ ...o, y_night: yCore }));
+    }
+  }, [yCore, yNight]);
 
   // Clamp w to the (editable) range.
   const wClamped = Math.min(eff.w_max, Math.max(eff.w_min, w));
@@ -444,9 +456,10 @@ export function SandboxCurve() {
               value={Number(yCov.toFixed(2))}
               step={0.5}
               min={0}
+              max={yCore}
               isOverride={overrides.y_cov !== undefined}
               onReset={() => setOverrides((o) => ({ ...o, y_cov: undefined }))}
-              onChange={(n) => setOverrides((o) => ({ ...o, y_cov: n }))}
+              onChange={(n) => setOverrides((o) => ({ ...o, y_cov: Math.min(n, yCore) }))}
             />
             <NumField
               label="F · overhead / partner / yr"
@@ -514,9 +527,10 @@ export function SandboxCurve() {
                 value={Number(yNight.toFixed(2))}
                 step={0.5}
                 min={0}
+                max={yCore}
                 isOverride={wfOverrides.y_night !== undefined}
                 onReset={() => setWfOverrides((o) => ({ ...o, y_night: undefined }))}
-                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: n }))}
+                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: Math.min(n, yCore) }))}
               />
               <NumField
                 label="avoidable_share"
@@ -815,6 +829,7 @@ function NumField(props: {
   value: number;
   step?: number;
   min?: number;
+  max?: number;
   onChange: (n: number) => void;
   isOverride?: boolean;
   onReset?: () => void;
@@ -839,6 +854,7 @@ function NumField(props: {
           inputMode="decimal"
           step={props.step ?? 1}
           min={props.min}
+          max={props.max}
           value={Number.isFinite(props.value) ? props.value : 0}
           onChange={(e) => props.onChange(Number(e.target.value))}
           className="font-mono-tab w-full rounded border border-paper/15 bg-ink/40 px-2 py-1.5 text-right text-sm text-paper outline-none focus:border-[var(--teal)]"
