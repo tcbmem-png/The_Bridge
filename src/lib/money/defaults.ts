@@ -61,10 +61,11 @@ export const BENCHMARKS = {
   },
 } as const;
 
-// Midpoint defaults for the model — labeled as replaceable.
+// Authored defaults — labeled replaceable.
 // Commercial: midpoint of 150–300% range = 2.25.
-// Medicaid: no quantified range in spec; use 0.65 as a credible commonly-cited
-//   midpoint placeholder. The UI must show "varies widely — replace".
+// Medicaid: 0.68 — Health Affairs / KFF Medicaid-to-Medicare fee index
+//   (~71% all services, ~68% for hospital/ED visits, 2024). TN omitted (TennCare
+//   is managed care; no published FFS physician fee).
 // Self-pay: ~0.
 export const DEFAULT_INPUTS: MoneyInputs = {
   coverage_volume: 150_000,
@@ -77,7 +78,7 @@ export const DEFAULT_INPUTS: MoneyInputs = {
     self_pay: 15,
   },
   payer_multipliers: {
-    medicaid: 0.65, // midpoint placeholder — replace
+    medicaid: 0.68, // Health Affairs / KFF — hospital/ED visit index
     commercial: 2.25, // midpoint of 150–300%
     self_pay: 0,
   },
@@ -85,9 +86,9 @@ export const DEFAULT_INPUTS: MoneyInputs = {
   fall_negative_rate: 55,
   waste_reduction: 20,
 
-  // Hospital-side — CFO enters; defaults are illustrative anchors only.
-  technical_cost_per_CT: 220, // illustrative; CFO replaces with actual
-  denial_writeoff_pct: 8, // illustrative; CFO replaces with actual
+  // Hospital-side — CFO-supplied · illustrative.
+  technical_cost_per_CT: 220, // CFO-supplied · illustrative
+  denial_writeoff_pct: 5, // PERMANENT write-off · scenario (net-collection benchmarks ~4–5%)
 };
 
 // Per-input source labels for the UI.
@@ -100,12 +101,12 @@ export const INPUT_SOURCES: Record<keyof MoneyInputs | "payer_mix.medicare" | "p
   fall_share_of_ED: "Illustrative — replace with measured share.",
   fall_negative_rate: "Illustrative — replace with measured negative-read rate.",
   waste_reduction: "Achievable reduction in needless reads — your assumption.",
-  technical_cost_per_CT: "Hospital-entered technical cost per CT.",
-  denial_writeoff_pct: "Hospital-entered denial/write-off percent on technical revenue.",
+  technical_cost_per_CT: "CFO-supplied · illustrative. Hospital technical-component cost per CT.",
+  denial_writeoff_pct: "PERMANENT write-off rate on technical revenue (not gross denial rate). Net-collection benchmarks ~4–5%. Scenario only — never compounded into the base hospital pocket.",
   "payer_mix.medicare": "Site-specific.",
   "payer_mix.medicaid": "Site-specific.",
   "payer_mix.commercial": "Site-specific.",
   "payer_mix.self_pay": "Site-specific.",
-  f_md: "Medicaid varies widely by state; often well below Medicare — replace.",
+  f_md: "Medicaid ~71% of Medicare (2024); ~68% for hospital/ED visits — Health Affairs / KFF Medicaid-to-Medicare fee index. Tennessee is omitted (TennCare is managed care, no published FFS physician fee), so derive your actual from your 835 remittances by MCO. Replace with your actual.",
   f_comm: "Commercial range ~150–300% of Medicare — replace with contracts.",
 };

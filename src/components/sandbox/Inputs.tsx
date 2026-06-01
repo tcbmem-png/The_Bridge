@@ -175,7 +175,7 @@ export function SandboxInputs() {
             value={inputs.payer_multipliers.medicaid}
             step={0.05}
             min={0}
-            source="Varies widely by state; often well below Medicare — replace with actual."
+            source="Medicaid ~71% of Medicare (2024); ~68% for hospital/ED visits — Health Affairs / KFF Medicaid-to-Medicare fee index. TN omitted (TennCare is managed care, no published FFS physician fee); derive your actual from 835 remittances by MCO. Replace with your actual."
             isBenchmark={
               inputs.payer_multipliers.medicaid === DEFAULT_INPUTS.payer_multipliers.medicaid
             }
@@ -258,12 +258,12 @@ export function SandboxInputs() {
 
         <Group title="Hospital-side (CFO enters)">
           <Field
-            label="Technical cost / CT"
+            label="Technical cost / CT · CFO-supplied · illustrative"
             unit="$"
             value={inputs.technical_cost_per_CT}
             step={5}
             min={0}
-            source="Hospital-entered technical-component cost per CT — replace with actual."
+            source="CFO-supplied · illustrative. Hospital technical-component cost per CT — replace with actual."
             isBenchmark={
               inputs.technical_cost_per_CT === DEFAULT_INPUTS.technical_cost_per_CT
             }
@@ -273,13 +273,13 @@ export function SandboxInputs() {
             onChange={(n) => set("technical_cost_per_CT", n)}
           />
           <Field
-            label="Denial write-off"
-            unit="% of TC revenue"
+            label="Denial write-off (permanent) · scenario"
+            unit="%"
             value={inputs.denial_writeoff_pct}
             step={0.5}
             min={0}
             max={100}
-            source="Hospital-entered denial/write-off percent on technical revenue — replace with actual."
+            source="PERMANENT write-off rate on technical revenue (not gross denial rate). Net-collection benchmarks ~4–5%. Feeds the separate denial-recovery scenario only — never compounded into the base hospital pocket."
             isBenchmark={inputs.denial_writeoff_pct === DEFAULT_INPUTS.denial_writeoff_pct}
             onUseBenchmark={() =>
               set("denial_writeoff_pct", DEFAULT_INPUTS.denial_writeoff_pct)

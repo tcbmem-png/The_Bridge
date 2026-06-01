@@ -26,8 +26,8 @@ export type MoneyInputs = {
   waste_reduction: number; // achievable reduction in needless "fall" reads (0-100)
 
   // Hospital / CFO-side — entered, not multiplied.
-  technical_cost_per_CT: number; // $ per CT, hospital technical-component cost
-  denial_writeoff_pct: number; // percent of technical revenue lost to denials/write-offs (0-100)
+  technical_cost_per_CT: number; // $ per CT, hospital technical-component cost (CFO-supplied · illustrative)
+  denial_writeoff_pct: number; // PERMANENT write-off rate on technical revenue (0-100); separate scenario, never compounded
 };
 
 export type MoneyDerived = {
@@ -35,18 +35,25 @@ export type MoneyDerived = {
   blended_$_per_wRVU: number;
   net_$_per_wRVU_by_payer: Record<PayerKey, number>;
 
-  uncompensated_wRVU: number;
-  uncompensated_$: number;
+  // Split honest lines (replaces the old "uncompensated" headline).
+  noPay_wRVU: number;
+  noPay_$: number; // = noPay_wRVU × conversion_factor (Medicare-equivalent)
+  medicaidShortfall_wRVU: number;
+  medicaidShortfall_$: number; // = medicaidShortfall_wRVU × conversion_factor
+  coverageGapVsMedicare_$: number; // subtotal — NEVER labeled "uncompensated"
 
   needless_fall_count: number;
   needless_fall_wRVU: number;
   recoverable_wRVU: number;
   recoverable_$: number;
 
-  // Hospital-side, from CFO-entered values (no multiplier).
-  avoided_technical_cost_$: number;
-  reduced_denial_writeoffs_$: number;
-  hospital_gain_$: number;
+  // Hospital-side — clean "cost the hospital didn't incur". No multiplier, no compounding.
+  avoided_scans: number;
+  avoided_technical_cost_$: number; // = avoided_scans × technical_cost_per_CT
+  hospital_gain_$: number; // = avoided_technical_cost_$ (no compounding)
+
+  // Optional secondary scenario — permanent write-off recovery. Not in headline.
+  denial_recovery_scenario_$: number; // = avoided_technical_cost_$ × denial_writeoff_pct
 
   // Headline win-row figures.
   group_gain_per_year_$: number;

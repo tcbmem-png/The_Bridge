@@ -1,5 +1,8 @@
 // Pure money-model math. No side effects. No randomness. No LLM.
-// Transcribed from docs/native-numbers-spec.md.
+// Transcribed from docs/native-numbers-spec.md, with authored refinements:
+// - Split "uncompensated" into no-pay + Medicaid shortfall (subtotal = coverage gap vs Medicare).
+// - Hospital pocket = avoided_scans × technical_cost_per_CT only (no compounding).
+// - Denial write-off is a SEPARATE permanent-leakage scenario (never compounded).
 
 import type { MoneyDerived, MoneyInputs, PayerKey } from "./types";
 
@@ -33,20 +36,20 @@ export function derive(inputs: MoneyInputs): MoneyDerived {
   const net_$_per_wRVU_by_payer = netDollarsPerWRVU(inputs);
   const blended = blendedDollarsPerWRVU(inputs);
 
-  // Uncompensated work = self-pay wRVUs in full + Medicaid wRVUs net of what
-  // Medicaid actually collects (the "uncollected Medicaid portion").
-  // uncollected_md_share_of_total = medicaid_share × (1 − f_md)
-  const self_pay_share = pct(inputs.payer_mix.self_pay);
-  const medicaid_share = pct(inputs.payer_mix.medicaid);
-  const uncollected_md_portion = medicaid_share * (1 - inputs.payer_multipliers.medicaid);
-  const uncompensated_wRVU =
-    total_wRVU * (self_pay_share + Math.max(0, uncollected_md_portion));
+  // --- Two honest lines (split from the old "uncompensated" headline) ---
+  // No-pay (self-pay): work that collected nothing, valued at Medicare CF.
+  const noPay_wRVU = total_wRVU * pct(inputs.payer_mix.self_pay);
+  const noPay_$ = noPay_wRVU * inputs.conversion_factor;
 
-  // Effective rate on that work = Medicare CF (what they would have collected
-  // had the work been paid at Medicare). Labeled explicitly in the math drawer.
-  const uncompensated_$ = uncompensated_wRVU * inputs.conversion_factor;
+  // Underpayment shortfall: gap vs Medicare on Medicaid volume.
+  const medicaidShortfall_wRVU =
+    total_wRVU * pct(inputs.payer_mix.medicaid) * (1 - inputs.payer_multipliers.medicaid);
+  const medicaidShortfall_$ = medicaidShortfall_wRVU * inputs.conversion_factor;
 
-  // Needless "fall" reads.
+  // Subtotal — explicitly relabeled. Never call this "uncompensated".
+  const coverageGapVsMedicare_$ = noPay_$ + medicaidShortfall_$;
+
+  // --- Needless "fall" reads ---
   const needless_fall_count =
     inputs.coverage_volume * pct(inputs.fall_share_of_ED) * pct(inputs.fall_negative_rate);
   const needless_fall_wRVU = needless_fall_count * inputs.avg_wRVU_per_read;
@@ -55,26 +58,36 @@ export function derive(inputs: MoneyInputs): MoneyDerived {
   // Capacity freed gets refilled at the blended rate → group $ gain.
   const recoverable_$ = recoverable_wRVU * blended;
 
-  // Hospital-side: CFO-entered values, no multiplier.
+  // --- Hospital-side: clean "cost the hospital didn't incur" ---
   const avoided_scans = needless_fall_count * pct(inputs.waste_reduction);
   const avoided_technical_cost_$ = avoided_scans * inputs.technical_cost_per_CT;
-  const reduced_denial_writeoffs_$ =
+  const hospital_gain_$ = avoided_technical_cost_$; // no compounding, no denial add
+
+  // Separate, optional scenario — permanent write-off recovery.
+  const denial_recovery_scenario_$ =
     avoided_technical_cost_$ * pct(inputs.denial_writeoff_pct);
-  const hospital_gain_$ = avoided_technical_cost_$ + reduced_denial_writeoffs_$;
 
   return {
     total_wRVU,
     blended_$_per_wRVU: blended,
     net_$_per_wRVU_by_payer,
-    uncompensated_wRVU,
-    uncompensated_$,
+
+    noPay_wRVU,
+    noPay_$,
+    medicaidShortfall_wRVU,
+    medicaidShortfall_$,
+    coverageGapVsMedicare_$,
+
     needless_fall_count,
     needless_fall_wRVU,
     recoverable_wRVU,
     recoverable_$,
+
+    avoided_scans,
     avoided_technical_cost_$,
-    reduced_denial_writeoffs_$,
     hospital_gain_$,
+    denial_recovery_scenario_$,
+
     group_gain_per_year_$: recoverable_$,
     hospital_gain_per_year_$: hospital_gain_$,
     fewer_needless_scans_per_year: avoided_scans,
