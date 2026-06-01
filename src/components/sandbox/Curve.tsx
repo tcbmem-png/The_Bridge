@@ -231,6 +231,117 @@ export function SandboxCurve() {
             />
           </div>
 
+          {/* §2A — workflow layer. Decomposes cov_w; does NOT feed back
+              into bonus_per_partner / avg_yield / next_1k. Two overlapping
+              lenses on the same coverage work — never sum them. */}
+          {wfOut.cov_w <= 0 ? (
+            <div className="rounded-lg border border-dashed border-ink/25 bg-paper p-4">
+              <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                Workflow layer
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-ink/70">
+                No coverage work at this productivity.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* After-hours coverage gap */}
+              <div className="rounded-lg border border-ink/20 bg-paper p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="font-mono-tab inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                    <span>After-hours coverage gap</span>
+                    <FeedsGlyph
+                      feeds={FEEDS_WORKFLOW_LAYER}
+                      sources={[
+                        "p1 — 837/835 (claim & remittance)",
+                        "p5 — CMS RVU file (wRVU per CPT)",
+                      ]}
+                      assumptions={[
+                        "night_share — from your worklist; estimate for now",
+                        "y_night — from your worklist; estimate for now",
+                      ]}
+                      note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
+                    />
+                  </div>
+                  <span className="font-mono-tab text-2xl text-ink md:text-3xl">
+                    {fmtMoney(wfOut.afterhours_gap * mult)}
+                  </span>
+                </div>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-ink/65">
+                  Here is the after-hours coverage the rate doesn't cover — the
+                  stipend ask, sized.
+                </p>
+                <p className="font-mono-tab mt-2 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                  night_w {fmtCount(wfOut.night_w)} wRVU × (y_core − y_night) ={" "}
+                  {fmtDollarsPerWRVU(eff.y_core - effWf.y_night)} · per partner
+                  {groupTotal ? ` × ${eff.N}` : ""}
+                </p>
+              </div>
+
+              {/* Structural vs avoidable split — visibly sums to coverage_shortfall. */}
+              <div className="rounded-lg border border-ink/20 bg-paper p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div className="font-mono-tab inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+                    <span>Structural vs avoidable split</span>
+                    <FeedsGlyph
+                      feeds={FEEDS_WORKFLOW_LAYER}
+                      sources={[
+                        "p1 — 837/835 (claim & remittance)",
+                        "p5 — CMS RVU file (wRVU per CPT)",
+                      ]}
+                      assumptions={[
+                        "avoidable_share — needs Jonathan's low-yield definition",
+                      ]}
+                      note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
+                    />
+                  </div>
+                  <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                    coverage_shortfall = {fmtMoney(wfOut.coverage_shortfall * mult)}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch">
+                  <div className="rounded-md border border-ink/15 bg-paper p-3">
+                    <div className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/55">
+                      avoidable_gap · hospital's lever
+                    </div>
+                    <div className="font-mono-tab mt-1 text-xl text-ink md:text-2xl">
+                      {fmtMoney(wfOut.avoidable_gap * mult)}
+                    </div>
+                    <p className="mt-1 text-[11.5px] leading-snug text-ink/65">
+                      This is the hospital's shared-waste lever — not money
+                      the group recovers. Reducing avoidable work reduces the
+                      group's own volume; we say so plainly.
+                    </p>
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    className="font-mono-tab self-center text-center text-base text-ink/45 md:px-1"
+                  >
+                    +
+                  </div>
+                  <div className="rounded-md border border-ink/15 bg-paper p-3">
+                    <div className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/55">
+                      structural_gap · what you carry
+                    </div>
+                    <div className="font-mono-tab mt-1 text-xl text-ink md:text-2xl">
+                      {fmtMoney(wfOut.structural_gap * mult)}
+                    </div>
+                    <p className="mt-1 text-[11.5px] leading-snug text-ink/65">
+                      Coverage you'd still be on the hook for. The stipend
+                      conversation.
+                    </p>
+                  </div>
+                </div>
+                <p className="font-mono-tab mt-3 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                  Overlapping lenses on the same cov_w — never one combined
+                  total. Per partner{groupTotal ? ` × ${eff.N}` : ""}.
+                </p>
+              </div>
+            </div>
+          )}
+
+
+
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-ink/65">
             <button
               type="button"
