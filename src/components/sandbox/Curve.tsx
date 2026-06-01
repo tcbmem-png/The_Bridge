@@ -94,6 +94,18 @@ export function SandboxCurve() {
     [wf, yNight],
   );
 
+  // Bound y_cov and y_night at y_core. If y_core drops, clamp inputs down.
+  useEffect(() => {
+    if (yCov > yCore) {
+      setOverrides((o) => ({ ...o, y_cov: yCore }));
+    }
+  }, [yCore, yCov]);
+  useEffect(() => {
+    if (yNight > yCore) {
+      setWfOverrides((o) => ({ ...o, y_night: yCore }));
+    }
+  }, [yCore, yNight]);
+
   // Clamp w to the (editable) range.
   const wClamped = Math.min(eff.w_max, Math.max(eff.w_min, w));
   const out = useMemo(() => computeAt(wClamped, eff), [wClamped, eff]);
