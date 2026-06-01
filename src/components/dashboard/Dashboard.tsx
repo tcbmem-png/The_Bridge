@@ -514,6 +514,8 @@ function LostStudyShowcase({
   coverageVolume,
   ratePct,
   blended,
+  titleOverride,
+  captionOverride,
 }: {
   status: "live" | "half" | "pending_source" | "pending_compliance";
   missing: "billing" | "worklist" | null;
@@ -524,6 +526,8 @@ function LostStudyShowcase({
   coverageVolume: number;
   ratePct: number;
   blended: number;
+  titleOverride?: string;
+  captionOverride?: string;
 }) {
   const shell =
     status === "live"
