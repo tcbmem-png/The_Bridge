@@ -97,6 +97,67 @@ export function computeAt(w: number, c: CurveInputs): CurveOutputs {
   return { core_w, cov_w, collections, avg_yield, bonus_per_partner, next_1k_bonus };
 }
 
+/* ----------------------------------------------------------------------
+ * §2A — workflow layer (decomposes cov_w; does NOT feed back into the
+ * core curve). Each output stays as a separate lens on the SAME cov_w.
+ * Inputs are estimates from the worklist (and Jonathan's low-yield
+ * definition for avoidable_share) — UI marks them dashed.
+ * -------------------------------------------------------------------- */
+
+export type WorkflowLayerInputs = {
+  night_share: number; // 0..1 — share of cov_w worked after-hours
+  y_night: number; // $/wRVU on after-hours coverage (typically < y_cov)
+  avoidable_share: number; // 0..1 — share of cov_w deemed avoidable (low-yield, hospital lever)
+};
+
+export const DEFAULT_WORKFLOW_LAYER: WorkflowLayerInputs = {
+  night_share: 0.5,
+  // y_night is seeded below y_cov at provider init; literal here is placeholder.
+  y_night: 18,
+  avoidable_share: 0.4,
+};
+
+export type WorkflowLayerOutputs = {
+  cov_w: number;
+  night_w: number;
+  afterhours_gap: number;
+  avoidable_w: number;
+  structural_w: number;
+  coverage_shortfall: number;
+  avoidable_gap: number;
+  structural_gap: number;
+};
+
+/** §2A verbatim. Pure function. */
+export function computeWorkflowLayer(
+  w: number,
+  c: CurveInputs,
+  wf: WorkflowLayerInputs,
+): WorkflowLayerOutputs {
+  const cov_w = Math.max(0, w - c.w_core);
+  const night_w = cov_w * wf.night_share;
+  const afterhours_gap = night_w * (c.y_core - wf.y_night);
+  const avoidable_w = cov_w * wf.avoidable_share;
+  const structural_w = cov_w * (1 - wf.avoidable_share);
+  const coverage_shortfall = cov_w * (c.y_core - c.y_cov);
+  const avoidable_gap = avoidable_w * (c.y_core - c.y_cov);
+  const structural_gap = structural_w * (c.y_core - c.y_cov);
+  // assert per spec — not enforced at runtime to avoid floating-point fragility,
+  // but holds by algebra: avoidable_gap + structural_gap
+  //   = cov_w*(c.y_core - c.y_cov)*(avoidable_share + (1-avoidable_share))
+  //   = coverage_shortfall.
+  return {
+    cov_w,
+    night_w,
+    afterhours_gap,
+    avoidable_w,
+    structural_w,
+    coverage_shortfall,
+    avoidable_gap,
+    structural_gap,
+  };
+}
+
 /** Sample the bonus curve over [w_min, w_max] for plotting. */
 export function sampleBonusCurve(c: CurveInputs, samples = 200): Array<{ w: number; p: number }> {
   const out: Array<{ w: number; p: number }> = [];
