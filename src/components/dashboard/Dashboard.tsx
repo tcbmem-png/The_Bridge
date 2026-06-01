@@ -140,6 +140,7 @@ type Props = {
 
 export function Dashboard({ spec, compact = false }: Props) {
   const { inputs, derived } = useMoney();
+  const { lens } = useLens();
   const domains = spec.domainReadiness;
 
   // Map dashboard panel domain → engine domain ("worklist" → "tat").
@@ -189,14 +190,35 @@ export function Dashboard({ spec, compact = false }: Props) {
             <div className="font-display mt-1 text-lg leading-snug md:text-xl">
               <span className="font-mono-tab">{liveCount}</span> of{" "}
               <span className="font-mono-tab">{TOTAL_PANELS}</span> panels wired from
-              data you already own
+              data {lens === "hospital" ? "the group already owns" : "you already own"}
             </div>
           </div>
         </div>
-        <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
-          Illustrative · sample data
+        <div className="flex flex-wrap items-center gap-4">
+          <LensToggle />
+          <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+            Illustrative · sample data
+          </div>
         </div>
       </div>
+
+      {/* Hospital-lens framing strip — same numbers, hospital chair. */}
+      {lens === "hospital" ? (
+        <div className="border-b border-ink/15 bg-[color-mix(in_oklab,var(--teal)_6%,var(--paper))] px-5 py-3 md:px-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="max-w-3xl text-[12.5px] leading-relaxed text-ink/75">
+              Same numbers, hospital chair. A shared scoreboard, not leverage.
+              The group owns its professional billing, reports, and worklist.
+              The hospital owns the technical billing and the full operational
+              record in its electronic health record (EHR). Cuts that need
+              hospital-owned data are gated behind a data-use agreement (DUA).
+            </p>
+            <span className="font-mono-tab shrink-0 rounded-full border border-ink/25 px-2 py-0.5 text-[9.5px] uppercase tracking-[0.12em] text-ink/60">
+              Provisional copy · tone pass pending
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {/* Foundation bar */}
       <div className="px-5 pt-4 md:px-6">
