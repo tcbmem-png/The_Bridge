@@ -165,7 +165,7 @@ export function SandboxOutputs() {
           tone={isFix ? "teal" : "red"}
           caption={
             isFix
-              ? `Capacity recovered from removing needless 'fall' reads, refilled at the blended rate (${fmtDollarsPerWRVU(derived.blended_$_per_wRVU)}). Illustrative.`
+              ? `Capacity recovered from removing unnecessary 'fall' reads, refilled at the blended rate (${fmtDollarsPerWRVU(derived.blended_$_per_wRVU)}). Illustrative.`
               : "Coverage gap vs Medicare today — no-pay + Medicaid shortfall, at the Medicare CF. Illustrative."
           }
         />
@@ -176,7 +176,7 @@ export function SandboxOutputs() {
           caption={
             isFix
               ? `Cost the hospital didn't incur on avoided scans (${fmtCount(derived.avoided_scans)} × $${inputs.technical_cost_per_CT}/CT, CFO-supplied · illustrative). Denial recovery shown separately below.`
-              : "Technical cost the hospital absorbs on the needless scans today. Illustrative."
+              : "Technical cost the hospital absorbs on the unnecessary scans today. Illustrative."
           }
         />
       </div>
@@ -228,7 +228,7 @@ export function SandboxOutputs() {
           tone="gold"
         />
         <Win
-          label="FEWER NEEDLESS SCANS / YR"
+          label="FEWER UNNECESSARY SCANS / YR"
           value={derived.fewer_needless_scans_per_year}
           format={fmtCount}
           tone="teal"
