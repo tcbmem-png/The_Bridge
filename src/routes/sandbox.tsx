@@ -3,6 +3,7 @@ import { FallToken } from "../components/FallToken";
 import { SandboxInputs } from "../components/sandbox/Inputs";
 import { SandboxOutputs } from "../components/sandbox/Outputs";
 import { MathDrawer } from "../components/sandbox/MathDrawer";
+import { ResidualToggle } from "../components/sandbox/ResidualToggle";
 
 export const Route = createFileRoute("/sandbox")({
   head: () => ({
