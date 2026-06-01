@@ -381,6 +381,45 @@ export function SandboxCurve() {
             />
           </div>
 
+          {/* §2A workflow-layer assumptions — DASHED feed in the glyph. */}
+          <div className="mt-4 rounded-md border border-dashed border-paper/25 p-3">
+            <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-paper/55">
+              Workflow layer · from your worklist — estimate for now
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <NumField
+                label="night_share"
+                unit="0–1"
+                hint="Share of coverage work done after-hours. From your worklist — estimate for now."
+                value={Number(effWf.night_share.toFixed(2))}
+                step={0.05}
+                min={0}
+                onChange={(n) => setWf((p) => ({ ...p, night_share: Math.max(0, Math.min(1, n)) }))}
+              />
+              <NumField
+                label="y_night"
+                unit="$/wRVU"
+                hint={`After-hours yield. From your worklist — estimate for now. Default seeded below y_cov (${fmtDollarsPerWRVU(defaultYNight)}).`}
+                value={Number(yNight.toFixed(2))}
+                step={0.5}
+                min={0}
+                isOverride={wfOverrides.y_night !== undefined}
+                onReset={() => setWfOverrides((o) => ({ ...o, y_night: undefined }))}
+                onChange={(n) => setWfOverrides((o) => ({ ...o, y_night: n }))}
+              />
+              <NumField
+                label="avoidable_share"
+                unit="0–1"
+                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs Jonathan's low-yield definition."
+                value={Number(effWf.avoidable_share.toFixed(2))}
+                step={0.05}
+                min={0}
+                onChange={(n) => setWf((p) => ({ ...p, avoidable_share: Math.max(0, Math.min(1, n)) }))}
+              />
+            </div>
+          </div>
+
+
           <p className="font-mono-tab mt-5 text-[10px] uppercase tracking-[0.12em] text-paper/45">
             Shared constants (CF, payer multiples) read from the money module
             — single source of truth.
