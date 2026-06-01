@@ -238,6 +238,10 @@ export function SandboxOutputs() {
       <p className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
         All figures illustrative. Sample data.
       </p>
+
+      <div className="border-t border-ink/10 pt-3">
+        <FeedsLegend />
+      </div>
     </div>
   );
 }
