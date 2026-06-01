@@ -42,10 +42,10 @@ export function SandboxOutputs() {
   const { inputs, derived, mode, setMode } = useMoney();
   const isFix = mode === "collaborative_fix";
 
-  const groupValue = isFix ? derived.group_gain_per_year_$ : derived.uncompensated_$;
+  const groupValue = isFix ? derived.group_gain_per_year_$ : derived.coverageGapVsMedicare_$;
   const hospitalValue = isFix
     ? derived.hospital_gain_per_year_$
-    : derived.avoided_technical_cost_$ + derived.reduced_denial_writeoffs_$;
+    : derived.avoided_technical_cost_$;
 
   return (
     <div className="space-y-4">
@@ -78,34 +78,59 @@ export function SandboxOutputs() {
         </div>
       </div>
 
-      {/* Headline — uncompensated coverage burden, both wRVUs and $ */}
+      {/* Headline — TWO honest lines + relabeled subtotal. Never "uncompensated". */}
       <div className="rounded-xl border border-ink/20 bg-paper p-5 md:p-6">
         <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
-          Uncompensated coverage burden · today
+          Coverage gap vs Medicare · today
         </div>
-        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <div className="font-mono-tab text-3xl text-[var(--red-clinical)] md:text-4xl">
-              <CountUp value={derived.uncompensated_wRVU} format={(n) => fmtWRVU(n)} />
+
+        <div className="mt-4 space-y-4">
+          {/* (a) No-pay — the mix / stipend conversation */}
+          <div className="border-l-2 border-[var(--red-clinical)]/60 pl-4">
+            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
+              No-pay (self-pay)
             </div>
-            <p className="mt-1 text-xs text-ink/65">
-              wRVUs delivered for ~nothing each year.
+            <div className="font-mono-tab mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-2xl text-[var(--red-clinical)] md:text-3xl">
+              <span><CountUp value={derived.noPay_wRVU} format={fmtWRVU} /></span>
+              <span className="text-ink/35">·</span>
+              <span><CountUp value={derived.noPay_$} format={fmtMoney} /></span>
+            </div>
+            <p className="mt-1 text-xs leading-snug text-ink/65">
+              Medicare-equivalent value of work that collected nothing.
             </p>
           </div>
-          <div>
-            <div className="font-mono-tab text-3xl text-[var(--red-clinical)] md:text-4xl">
-              <CountUp value={derived.uncompensated_$} format={(n) => fmtMoney(n)} />
+
+          {/* (b) Medicaid shortfall — the rate / structural-mandate point */}
+          <div className="border-l-2 border-[var(--red-clinical)]/60 pl-4">
+            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
+              Underpayment shortfall (Medicaid below Medicare)
             </div>
-            <p className="mt-1 text-xs text-ink/65">
-              at the Medicare CF as effective rate on that work.
+            <div className="font-mono-tab mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-2xl text-[var(--red-clinical)] md:text-3xl">
+              <span><CountUp value={derived.medicaidShortfall_wRVU} format={fmtWRVU} /></span>
+              <span className="text-ink/35">·</span>
+              <span><CountUp value={derived.medicaidShortfall_$} format={fmtMoney} /></span>
+            </div>
+            <p className="mt-1 text-xs leading-snug text-ink/65">
+              The gap vs Medicare on Medicaid volume.
             </p>
           </div>
+
+          {/* Subtotal — relabeled */}
+          <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-ink/15 pt-3">
+            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+              Subtotal · Coverage gap vs Medicare
+            </div>
+            <div className="font-mono-tab text-xl text-ink md:text-2xl">
+              <CountUp value={derived.coverageGapVsMedicare_$} format={fmtMoney} />
+            </div>
+          </div>
         </div>
+
         <p className="font-mono-tab mt-4 text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
           at {inputs.avg_wRVU_per_read.toFixed(2)} wRVU/read ·{" "}
           {fmtDollarsPerWRVU(inputs.conversion_factor)} · self-pay{" "}
           {inputs.payer_mix.self_pay}% · Medicaid {inputs.payer_mix.medicaid}% × f_md{" "}
-          {inputs.payer_multipliers.medicaid.toFixed(2)}
+          {inputs.payer_multipliers.medicaid.toFixed(2)} · illustrative
         </p>
       </div>
 
@@ -117,8 +142,8 @@ export function SandboxOutputs() {
           tone={isFix ? "teal" : "red"}
           caption={
             isFix
-              ? `Capacity recovered from removing needless 'fall' reads, refilled at the blended rate (${fmtDollarsPerWRVU(derived.blended_$_per_wRVU)}).`
-              : "Coverage work delivered for ~nothing — uncompensated wRVUs at the CF."
+              ? `Capacity recovered from removing needless 'fall' reads, refilled at the blended rate (${fmtDollarsPerWRVU(derived.blended_$_per_wRVU)}). Illustrative.`
+              : "Coverage gap vs Medicare today — no-pay + Medicaid shortfall, at the Medicare CF. Illustrative."
           }
         />
         <PocketCard
@@ -127,10 +152,28 @@ export function SandboxOutputs() {
           tone={isFix ? "teal" : "red"}
           caption={
             isFix
-              ? `Avoided technical cost + reduced denial write-offs on the needless scans — from CFO-entered values ($${inputs.technical_cost_per_CT}/CT · ${inputs.denial_writeoff_pct}% denials).`
-              : "Technical cost the hospital absorbs on the needless scans today, plus write-offs."
+              ? `Cost the hospital didn't incur on avoided scans (${fmtCount(derived.avoided_scans)} × $${inputs.technical_cost_per_CT}/CT, CFO-supplied · illustrative). Denial recovery shown separately below.`
+              : "Technical cost the hospital absorbs on the needless scans today. Illustrative."
           }
         />
+      </div>
+
+      {/* Optional secondary scenario — denial recovery */}
+      <div className="rounded-xl border border-dashed border-ink/25 bg-paper p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+              Denial recovery (scenario) · permanent write-off
+            </div>
+            <p className="mt-1 text-xs leading-snug text-ink/65">
+              avoided_scans × technical_cost_per_CT × denial_writeoff_pct. Add-on, not part of the headline hospital pocket.
+            </p>
+          </div>
+          <div className="font-mono-tab text-2xl text-ink">
+            <CountUp value={derived.denial_recovery_scenario_$} format={fmtMoney} />
+            <span className="ml-1 text-base text-ink/45">/ yr</span>
+          </div>
+        </div>
       </div>
 
       {/* Patient card */}

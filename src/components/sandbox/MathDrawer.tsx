@@ -37,21 +37,30 @@ export function MathDrawer() {
               Formulas (verbatim from the spec)
             </div>
             <pre className="font-mono-tab mt-3 overflow-x-auto whitespace-pre text-[11px] leading-relaxed text-ink/80">
-{`total_wRVU         = coverage_volume × avg_wRVU_per_read
-net_$_per_wRVU     = { Medicare: CF, Medicaid: f_md × CF,
-                       Commercial: f_comm × CF, Self-pay: 0 }
-blended_$_per_wRVU = Σ payer_share × net_$_per_wRVU_payer
-uncompensated_wRVU = total_wRVU × (self_pay_share
-                       + medicaid_share × (1 − f_md))
-uncompensated_$    = uncompensated_wRVU × CF  // effective rate label
-needless_fall_wRVU = coverage_volume × fall_share
-                       × fall_negative_rate × avg_wRVU_per_read
-recoverable_wRVU   = needless_fall_wRVU × waste_reduction
-recoverable_$      = recoverable_wRVU × blended_$_per_wRVU
-avoided_tech_$     = (needless_count × waste_reduction)
-                       × technical_cost_per_CT     // CFO-entered
-reduced_denials_$  = avoided_tech_$ × denial_writeoff_pct
-hospital_gain_$    = avoided_tech_$ + reduced_denials_$`}
+{`total_wRVU              = coverage_volume × avg_wRVU_per_read
+net_$_per_wRVU          = { Medicare: CF, Medicaid: f_md × CF,
+                            Commercial: f_comm × CF, Self-pay: 0 }
+blended_$_per_wRVU      = Σ payer_share × net_$_per_wRVU_payer
+
+// Two honest lines (replaces the old "uncompensated" headline)
+noPay_wRVU              = total_wRVU × self_pay_share
+noPay_$                 = noPay_wRVU × CF            // Medicare-equivalent
+medicaidShortfall_wRVU  = total_wRVU × medicaid_share × (1 − f_md)
+medicaidShortfall_$     = medicaidShortfall_wRVU × CF
+coverageGapVsMedicare_$ = noPay_$ + medicaidShortfall_$   // subtotal, never "uncompensated"
+
+// Needless reads → group recovery
+needless_fall_count     = coverage_volume × fall_share × fall_negative_rate
+recoverable_wRVU        = needless_fall_count × avg_wRVU_per_read × waste_reduction
+recoverable_$           = recoverable_wRVU × blended_$_per_wRVU
+
+// Hospital pocket — clean "cost not incurred". No compounding.
+avoided_scans           = needless_fall_count × waste_reduction
+avoided_tech_$          = avoided_scans × technical_cost_per_CT  // CFO-supplied · illustrative
+hospital_gain_$         = avoided_tech_$                         // no compounding
+
+// Separate scenario — permanent write-off (NOT in headline)
+denial_recovery_$       = avoided_tech_$ × denial_writeoff_pct   // permanent write-off · scenario`}
             </pre>
           </div>
 
@@ -71,22 +80,21 @@ hospital_gain_$    = avoided_tech_$ + reduced_denials_$`}
 
             <div className="rounded-md border border-ink/15 p-3">
               <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
-                Derived totals
+                Derived totals · illustrative
               </div>
               <div className="mt-2">
                 <Row k="total_wRVU" v={fmtWRVU(derived.total_wRVU)} />
-                <Row k="uncompensated_wRVU" v={fmtWRVU(derived.uncompensated_wRVU)} />
-                <Row k="uncompensated_$" v={fmtMoney(derived.uncompensated_$)} />
+                <Row k="noPay_wRVU" v={fmtWRVU(derived.noPay_wRVU)} />
+                <Row k="noPay_$" v={fmtMoney(derived.noPay_$)} />
+                <Row k="medicaidShortfall_wRVU" v={fmtWRVU(derived.medicaidShortfall_wRVU)} />
+                <Row k="medicaidShortfall_$" v={fmtMoney(derived.medicaidShortfall_$)} />
+                <Row k="coverageGapVsMedicare_$" v={fmtMoney(derived.coverageGapVsMedicare_$)} />
                 <Row k="needless_fall_count" v={fmtCount(derived.needless_fall_count)} />
-                <Row k="needless_fall_wRVU" v={fmtWRVU(derived.needless_fall_wRVU)} />
                 <Row k="recoverable_wRVU" v={fmtWRVU(derived.recoverable_wRVU)} />
                 <Row k="recoverable_$" v={fmtMoney(derived.recoverable_$)} />
-                <Row k="avoided_tech_$" v={fmtMoney(derived.avoided_technical_cost_$)} />
-                <Row
-                  k="reduced_denials_$"
-                  v={fmtMoney(derived.reduced_denial_writeoffs_$)}
-                />
-                <Row k="hospital_gain_$" v={fmtMoney(derived.hospital_gain_$)} />
+                <Row k="avoided_scans" v={fmtCount(derived.avoided_scans)} />
+                <Row k="avoided_tech_$ (hospital pocket)" v={fmtMoney(derived.avoided_technical_cost_$)} />
+                <Row k="denial_recovery_$ (scenario)" v={fmtMoney(derived.denial_recovery_scenario_$)} />
               </div>
             </div>
           </div>
