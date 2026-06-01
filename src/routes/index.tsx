@@ -8,13 +8,13 @@ import { StorySources } from "../components/story/StorySources";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "The Story — The Bridge" },
+      { title: "Story — The Bridge" },
       {
         name: "description",
         content:
           "Reading scans nobody pays for. The data is already there. Nobody has joined it.",
       },
-      { property: "og:title", content: "The Story — The Bridge" },
+      { property: "og:title", content: "Story — The Bridge" },
       {
         property: "og:description",
         content:

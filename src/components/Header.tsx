@@ -10,9 +10,9 @@ function BrandMark() {
 }
 
 const tabs = [
-  { to: "/", label: "The Story" },
+  { to: "/", label: "Story" },
   { to: "/under-the-hood", label: "Under the Hood" },
-  { to: "/sandbox", label: "The Sandbox" },
+  { to: "/sandbox", label: "Sandbox" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 

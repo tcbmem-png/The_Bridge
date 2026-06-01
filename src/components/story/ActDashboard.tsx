@@ -30,7 +30,7 @@ export function ActDashboard() {
     <section className="relative border-b border-ink/15">
       <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
         <div ref={ref} className="reveal">
-          <SectionTag tone="teal">The Dashboard · The fall, in numbers</SectionTag>
+          <SectionTag tone="teal">Dashboard · The fall, in numbers</SectionTag>
           <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.1] md:text-[3rem]">
             Every number opens to where it came from.
           </h2>
@@ -44,8 +44,7 @@ export function ActDashboard() {
         </div>
 
         <p className="font-mono-tab mt-4 text-[10.5px] uppercase tracking-[0.12em] text-ink/45">
-          Same component as Under the Hood — here in a representative,
-          fully-wired state. Tune the questionnaire there to watch panels flip.
+          Same view as Under the Hood, fully wired. Tune the questionnaire there to watch panels flip.
         </p>
       </div>
     </section>

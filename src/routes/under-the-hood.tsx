@@ -78,7 +78,7 @@ function UnderTheHoodPage() {
             You're not short on data. You're short on a harness.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink/80">
-            Every system already captures its piece. They don't talk — so the group ends up with three partial dashboards and no answer to the one question that matters.
+            Every system already captures its piece. They don't talk — so the group runs three partial dashboards and still can't answer the one question that matters.
           </p>
         </div>
       </section>
@@ -86,7 +86,7 @@ function UnderTheHoodPage() {
       {/* 2 + 3) Silos + provenance */}
       <section className="border-b border-ink/15">
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-          <SectionTag tone="teal">The silos · what each system already holds</SectionTag>
+          <SectionTag tone="teal">Silos · what each system already holds</SectionTag>
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-12">
             <div className="md:col-span-8">
               <SiloDiagram />
@@ -107,7 +107,7 @@ function UnderTheHoodPage() {
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
             <p className="text-base leading-relaxed text-ink/80">
-              Every tool the group already runs — mPower, the RCM portal, PACS analytics — does its job well and makes this faster to build. None of that spend is wasted; the harness sits on top of it.
+              Every tool the group already runs — mPower, the RCM portal, PACS analytics — does its job and makes this faster to build. None of that spend is wasted; the harness sits on top of it.
             </p>
             <p className="text-base leading-relaxed text-ink/80">
               The one thing no single vendor can sell is the layer that joins billing and reports and worklist by site of service. No vendor owns all three domains. That is market structure, not a judgment on what you bought.
@@ -136,9 +136,9 @@ function UnderTheHoodPage() {
       {/* 6) Engine */}
       <section>
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-          <SectionTag tone="ink">The engine · answers in, spec out</SectionTag>
+          <SectionTag tone="ink">Engine · answers in, spec out</SectionTag>
           <h2 className="font-display mt-5 max-w-3xl text-[1.75rem] leading-[1.15] md:text-[2.5rem]">
-            Eleven answers determine the entire build plan.
+            Eleven answers determine the build plan.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink/70">
             The rules are flat lookup. Same answers in, same spec out. No model is reasoning about your group — the spec follows directly from the rules.
@@ -193,7 +193,7 @@ function UnderTheHoodPage() {
 
           {/* Dashboard · faithful renderer of engine truth. Flips as answers land. */}
           <div className="mt-16">
-            <SectionTag tone="teal">The dashboard · engine truth, rendered</SectionTag>
+            <SectionTag tone="teal">Dashboard · engine truth, rendered</SectionTag>
             <h3 className="font-display mt-5 max-w-3xl text-[1.5rem] leading-[1.15] md:text-[2rem]">
               The same panels, eight of them, flip as the questionnaire is answered.
             </h3>
