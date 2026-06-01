@@ -11,7 +11,7 @@
 // near y_core, the curve keeps climbing and next_1k stays large. The shape
 // carries the conclusion — no text states it.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMoney } from "../../lib/money/store";
 import {
   DEFAULT_CURVE_INPUTS,
