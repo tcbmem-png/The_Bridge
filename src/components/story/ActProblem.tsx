@@ -36,8 +36,14 @@ export function ActProblem() {
         <div ref={headRef} className="reveal">
           <SectionTag tone="red">The Problem · Follow the fall</SectionTag>
           <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.1] md:text-[3rem]">
-            Reading scans nobody pays for — everywhere.
+            You can't read your way out of this.
           </h2>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-ink/75">
+            Reading scans nobody pays for.
+          </p>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
+            The reads aren't the problem — the yield is, and it's structural. This shows you where it actually goes, by shift and site, in numbers you can open.
+          </p>
         </div>
 
         {/* Players row */}

@@ -34,12 +34,10 @@ function SandboxPage() {
           <span>The Sandbox · The fall, priced</span>
         </div>
         <h1 className="font-display mt-5 text-[2.25rem] leading-[1.1] md:text-[3.25rem]">
-          Move the numbers you already know.
+          Set your own assumptions.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-ink/75">
-          Inputs are in native units. wRVUs. $/wRVU. Payer mix. Minutes. Counts. Each
-          is pre-filled with a sourced benchmark and overwritten with your actual.
-          The math is a pure function. Same numbers in, same numbers out.
+          We fixed the arithmetic, not the answer. Move any lever and the curve recomputes to the dollar.
         </p>
       </header>
 
