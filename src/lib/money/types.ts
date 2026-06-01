@@ -28,6 +28,11 @@ export type MoneyInputs = {
   // Hospital / CFO-side — entered, not multiplied.
   technical_cost_per_CT: number; // $ per CT, hospital technical-component cost (CFO-supplied · illustrative)
   denial_writeoff_pct: number; // PERMANENT write-off rate on technical revenue (0-100); separate scenario, never compounded
+
+  // Lost-study reconciliation (★ panel · two-domain join).
+  // Studies completed (worklist) − studies billed (billing). Illustrative.
+  // Default ~1% of coverage_volume; group reconciliation reveals the real figure.
+  lost_study_rate_pct: number; // 0-100 — share of coverage_volume that slips between worklist and billing
 };
 
 export type MoneyDerived = {
@@ -54,6 +59,11 @@ export type MoneyDerived = {
 
   // Optional secondary scenario — permanent write-off recovery. Not in headline.
   denial_recovery_scenario_$: number; // = avoided_technical_cost_$ × denial_writeoff_pct
+
+  // Lost-study reconciliation (★ panel).
+  lost_study_count: number; // = coverage_volume × lost_study_rate_pct
+  lost_study_$: number; // = lost_study_count × avg_wRVU_per_read × blended_$_per_wRVU
+
 
   // Headline win-row figures.
   group_gain_per_year_$: number;

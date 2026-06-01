@@ -67,6 +67,11 @@ export function derive(inputs: MoneyInputs): MoneyDerived {
   const denial_recovery_scenario_$ =
     avoided_technical_cost_$ * pct(inputs.denial_writeoff_pct);
 
+  // ★ Lost-study reconciliation — visible only when billing AND worklist both live.
+  // Math itself is unconditional (deterministic); the dashboard gates display.
+  const lost_study_count = inputs.coverage_volume * pct(inputs.lost_study_rate_pct);
+  const lost_study_$ = lost_study_count * inputs.avg_wRVU_per_read * blended;
+
   return {
     total_wRVU,
     blended_$_per_wRVU: blended,
@@ -87,6 +92,9 @@ export function derive(inputs: MoneyInputs): MoneyDerived {
     avoided_technical_cost_$,
     hospital_gain_$,
     denial_recovery_scenario_$,
+
+    lost_study_count,
+    lost_study_$,
 
     group_gain_per_year_$: recoverable_$,
     hospital_gain_per_year_$: hospital_gain_$,

@@ -3,6 +3,7 @@ import { FallToken } from "../components/FallToken";
 import { SandboxInputs } from "../components/sandbox/Inputs";
 import { SandboxOutputs } from "../components/sandbox/Outputs";
 import { MathDrawer } from "../components/sandbox/MathDrawer";
+import { ResidualToggle } from "../components/sandbox/ResidualToggle";
 
 export const Route = createFileRoute("/sandbox")({
   head: () => ({
@@ -45,6 +46,10 @@ function SandboxPage() {
       <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <SandboxInputs />
         <SandboxOutputs />
+      </div>
+
+      <div className="mt-5">
+        <ResidualToggle />
       </div>
 
       <div className="mt-5">

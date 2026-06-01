@@ -287,6 +287,21 @@ export function SandboxInputs() {
             onChange={(n) => set("denial_writeoff_pct", n)}
           />
         </Group>
+
+        <Group title="★ Lost-study reconciliation">
+          <Field
+            label="Lost-study rate · % of coverage"
+            unit="%"
+            value={inputs.lost_study_rate_pct}
+            step={0.1}
+            min={0}
+            max={100}
+            source="Share of completed reads (worklist) never billed (billing). Typical slip 0.5–1.5%; your reconciliation reveals the real figure. Illustrative."
+            isBenchmark={inputs.lost_study_rate_pct === DEFAULT_INPUTS.lost_study_rate_pct}
+            onUseBenchmark={() => set("lost_study_rate_pct", DEFAULT_INPUTS.lost_study_rate_pct)}
+            onChange={(n) => set("lost_study_rate_pct", n)}
+          />
+        </Group>
       </div>
     </div>
   );

@@ -89,6 +89,9 @@ export const DEFAULT_INPUTS: MoneyInputs = {
   // Hospital-side — CFO-supplied · illustrative.
   technical_cost_per_CT: 220, // CFO-supplied · illustrative
   denial_writeoff_pct: 5, // PERMANENT write-off · scenario (net-collection benchmarks ~4–5%)
+  // ★ Lost-study reconciliation — 1% slip is illustrative midpoint of 0.5–1.5% range.
+  // Reconciliation against the group's own data reveals the real figure.
+  lost_study_rate_pct: 1.0,
 };
 
 // Per-input source labels for the UI.
@@ -103,6 +106,7 @@ export const INPUT_SOURCES: Record<keyof MoneyInputs | "payer_mix.medicare" | "p
   waste_reduction: "Achievable reduction in needless reads — your assumption.",
   technical_cost_per_CT: "CFO-supplied · illustrative. Hospital technical-component cost per CT.",
   denial_writeoff_pct: "PERMANENT write-off rate on technical revenue (not gross denial rate). Net-collection benchmarks ~4–5%. Scenario only — never compounded into the base hospital pocket.",
+  lost_study_rate_pct: "Share of completed reads (worklist) never billed (billing). Typical slip 0.5–1.5%; your reconciliation reveals the real figure. Illustrative.",
   "payer_mix.medicare": "Site-specific.",
   "payer_mix.medicaid": "Site-specific.",
   "payer_mix.commercial": "Site-specific.",

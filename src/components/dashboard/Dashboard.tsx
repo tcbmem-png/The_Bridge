@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import type { Spec, DomainState, DomainStatus } from "../../lib/engine/types";
 import { useMoney } from "../../lib/money/store";
 import {
+  fmtCount,
   fmtDollarsPerWRVU,
   fmtMoney,
   fmtPct,
@@ -140,10 +141,33 @@ export function Dashboard({ spec, compact = false }: Props) {
     return domains[d];
   };
 
+  // ★ Lost-study reconciliation — two-domain gate.
+  // Live ONLY when BOTH billing AND worklist (engine: tat) are live, plus compliance.
+  // If exactly one is live → distinctive half-gated state (names the missing source).
+  // If compliance fails on either → pending_compliance.
+  const billingDs = domains.billing;
+  const tatDs = domains.tat;
+  const starStatus: "live" | "half" | "pending_source" | "pending_compliance" =
+    billingDs.status === "pending_compliance" || tatDs.status === "pending_compliance"
+      ? "pending_compliance"
+      : billingDs.status === "live" && tatDs.status === "live"
+      ? "live"
+      : billingDs.status === "live" || tatDs.status === "live"
+      ? "half"
+      : "pending_source";
+  const starMissing =
+    starStatus === "half"
+      ? billingDs.status === "live"
+        ? "worklist"
+        : "billing"
+      : null;
+
+  const TOTAL_PANELS = 9;
   const liveCount = useMemo(() => {
-    return PANELS.filter((p) => domainFor(p.domain).status === "live").length;
+    const baseLive = PANELS.filter((p) => domainFor(p.domain).status === "live").length;
+    return baseLive + (starStatus === "live" ? 1 : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [domains]);
+  }, [domains, starStatus]);
 
   return (
     <div className="rounded-xl border border-ink/15 bg-paper">
@@ -157,7 +181,7 @@ export function Dashboard({ spec, compact = false }: Props) {
             </div>
             <div className="font-display mt-1 text-lg leading-snug md:text-xl">
               <span className="font-mono-tab">{liveCount}</span> of{" "}
-              <span className="font-mono-tab">{PANELS.length}</span> panels wired from
+              <span className="font-mono-tab">{TOTAL_PANELS}</span> panels wired from
               data you already own
             </div>
           </div>
@@ -172,9 +196,24 @@ export function Dashboard({ spec, compact = false }: Props) {
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
           <div
             className="h-full bg-[var(--teal)] transition-[width] duration-500"
-            style={{ width: `${(liveCount / PANELS.length) * 100}%` }}
+            style={{ width: `${(liveCount / TOTAL_PANELS) * 100}%` }}
           />
         </div>
+      </div>
+
+      {/* ★ Lost-study reconciliation — featured 9th panel, two-domain gate */}
+      <div className="px-5 pt-4 md:px-6">
+        <LostStudyShowcase
+          status={starStatus}
+          missing={starMissing}
+          billingName={billingDs.sourceName}
+          tatName={tatDs.sourceName}
+          lostCount={derived.lost_study_count}
+          lostDollars={derived.lost_study_$}
+          coverageVolume={inputs.coverage_volume}
+          ratePct={inputs.lost_study_rate_pct}
+          blended={derived.blended_$_per_wRVU}
+        />
       </div>
 
       {/* Panel grid */}
@@ -366,3 +405,118 @@ function PayerMixBars({
 
 // Suppress unused-prop warning on the typing helper.
 export type _PanelBodyProps = PanelBodyProps;
+
+// ---------- ★ Lost-study reconciliation showcase ----------
+// Two-domain gate: visible only when billing AND worklist (engine: tat) are
+// both live. The half-gated state is the demo — names the missing source.
+// Reads useMoney(); single source of truth with the Sandbox/dashboard.
+function LostStudyShowcase({
+  status,
+  missing,
+  billingName,
+  tatName,
+  lostCount,
+  lostDollars,
+  coverageVolume,
+  ratePct,
+  blended,
+}: {
+  status: "live" | "half" | "pending_source" | "pending_compliance";
+  missing: "billing" | "worklist" | null;
+  billingName: string;
+  tatName: string;
+  lostCount: number;
+  lostDollars: number;
+  coverageVolume: number;
+  ratePct: number;
+  blended: number;
+}) {
+  const shell =
+    status === "live"
+      ? "border-[var(--teal)] bg-paper"
+      : status === "half"
+      ? "border-[var(--teal)]/55 bg-paper border-dashed"
+      : status === "pending_compliance"
+      ? "border-[var(--red-clinical)]/40 bg-[color-mix(in_oklab,var(--red-clinical)_5%,var(--paper))]"
+      : "border-ink/30 bg-paper border-dashed";
+
+  const tag =
+    status === "live"
+      ? "ACTUAL · illustrative"
+      : status === "half"
+      ? `HALF-GATED · ${missing === "worklist" ? "needs worklist" : "needs billing"}`
+      : status === "pending_compliance"
+      ? "PENDING — needs BAA / review"
+      : "PENDING — needs source";
+
+  const tagClasses =
+    status === "live"
+      ? "bg-[var(--teal)] text-paper"
+      : status === "half"
+      ? "border border-[var(--teal)]/60 text-[var(--teal)]"
+      : status === "pending_compliance"
+      ? "bg-[var(--red-clinical)]/15 text-[var(--red-clinical)]"
+      : "border border-ink/30 text-ink/65";
+
+  const showNumber = status === "live";
+  const valueTone = showNumber ? "text-ink" : "text-ink/35";
+
+  return (
+    <article className={`relative rounded-lg border p-5 transition-colors ${shell}`}>
+      <header className="flex items-start justify-between gap-2">
+        <div>
+          <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
+            ★ count + $ <span className="text-ink/35">· [p1][p7] · two-domain join</span>
+          </div>
+          <h3 className="font-display mt-1 text-lg leading-snug md:text-xl">
+            Lost-study reconciliation · found money
+          </h3>
+        </div>
+        <span
+          className={`font-mono-tab shrink-0 rounded-full px-2 py-0.5 text-[9.5px] uppercase tracking-[0.12em] ${tagClasses}`}
+        >
+          {tag}
+        </span>
+      </header>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <div className={`font-mono-tab text-3xl leading-none md:text-4xl ${valueTone}`}>
+            {showNumber ? fmtCount(lostCount) : "—"}
+          </div>
+          <div className={`font-mono-tab mt-2 text-[11px] uppercase tracking-[0.12em] ${valueTone}`}>
+            unbilled reads / yr
+          </div>
+        </div>
+        <div>
+          <div className={`font-mono-tab text-3xl leading-none md:text-4xl ${valueTone}`}>
+            {showNumber ? fmtMoney(lostDollars) : "—"}
+          </div>
+          <div className={`font-mono-tab mt-2 text-[11px] uppercase tracking-[0.12em] ${valueTone}`}>
+            at {fmtDollarsPerWRVU(blended)} · blended
+          </div>
+        </div>
+        <div className="text-xs leading-relaxed text-ink/70">
+          Completed reads (worklist) − billed reads (billing). Work already done,
+          charge never dropped. ~100% margin. Default ≈ {ratePct.toFixed(1)}% of{" "}
+          {fmtCount(coverageVolume)} reads — illustrative; 0.5–1.5% typically slips
+          until the join reveals it.
+        </div>
+      </div>
+
+      {status === "half" ? (
+        <p className="font-mono-tab mt-4 rounded-md border border-[var(--teal)]/40 bg-[var(--teal)]/8 p-3 text-[11px] leading-relaxed text-ink/75">
+          One source live ({missing === "worklist" ? billingName : tatName}). Add{" "}
+          {missing === "worklist" ? tatName : billingName} to light this panel — no
+          single vendor can produce this number on its own.
+        </p>
+      ) : null}
+
+      <footer className="font-mono-tab mt-4 flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+        <span>Source · {billingName} + {tatName}</span>
+        <span>Illustrative · sample data</span>
+      </footer>
+    </article>
+  );
+}
+

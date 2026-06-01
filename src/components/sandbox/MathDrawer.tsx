@@ -60,7 +60,20 @@ avoided_tech_$          = avoided_scans × technical_cost_per_CT  // CFO-supplie
 hospital_gain_$         = avoided_tech_$                         // no compounding
 
 // Separate scenario — permanent write-off (NOT in headline)
-denial_recovery_$       = avoided_tech_$ × denial_writeoff_pct   // permanent write-off · scenario`}
+denial_recovery_$       = avoided_tech_$ × denial_writeoff_pct   // permanent write-off · scenario
+
+// ★ Lost-study reconciliation — two-domain join (billing + worklist)
+lost_study_count        = coverage_volume × lost_study_rate_pct
+lost_study_$            = lost_study_count × avg_wRVU_per_read × blended_$_per_wRVU
+
+// Leak → residual (Sandbox toggle)
+recovered_$             = Σ active levers
+                          = lost_study_$
+                          + commercial_underpayment_$ × recovery_rate
+                          + preventable_denial_$ × fix_rate
+// Fixed cost base → near-pure margin → ~100% to the residual
+residual_delta_$        ≈ recovered_$
+residual_delta_wRVU     = recovered_$ ÷ blended_$_per_wRVU`}
             </pre>
           </div>
 
@@ -95,6 +108,8 @@ denial_recovery_$       = avoided_tech_$ × denial_writeoff_pct   // permanent w
                 <Row k="avoided_scans" v={fmtCount(derived.avoided_scans)} />
                 <Row k="avoided_tech_$ (hospital pocket)" v={fmtMoney(derived.avoided_technical_cost_$)} />
                 <Row k="denial_recovery_$ (scenario)" v={fmtMoney(derived.denial_recovery_scenario_$)} />
+                <Row k="lost_study_count (★)" v={fmtCount(derived.lost_study_count)} />
+                <Row k="lost_study_$ (★)" v={fmtMoney(derived.lost_study_$)} />
               </div>
             </div>
           </div>
