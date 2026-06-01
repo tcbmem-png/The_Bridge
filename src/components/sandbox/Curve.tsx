@@ -17,16 +17,27 @@ import {
   DEFAULT_CURVE_INPUTS,
   DEFAULT_CORE_MIX,
   DEFAULT_COVERAGE_MIX,
+  DEFAULT_WORKFLOW_LAYER,
   computeAt,
+  computeWorkflowLayer,
   deriveYieldForMix,
   sampleBonusCurve,
   type CurveInputs,
+  type WorkflowLayerInputs,
 } from "../../lib/curve/compute";
 import { fmtMoney, fmtCount, fmtDollarsPerWRVU } from "../../lib/money/format";
 import { FeedsGlyph } from "../provenance/FeedsGlyph";
 
 // avg_yield is a two-feed number on this site: billing + production only.
 const FEEDS_AVG_YIELD = { billing: true, production: true, workflow: false } as const;
+
+// §2A readouts: billing measured + production measured + workflow assumed
+// (worklist estimates). DASHED-three — never FILLED-three.
+const FEEDS_WORKFLOW_LAYER = {
+  billing: true,
+  production: true,
+  workflow: "assumption",
+} as const;
 
 type Overrides = Partial<Pick<CurveInputs, "y_core" | "y_cov">>;
 
