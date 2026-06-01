@@ -28,6 +28,11 @@ export type MoneyInputs = {
   // Hospital / CFO-side — entered, not multiplied.
   technical_cost_per_CT: number; // $ per CT, hospital technical-component cost (CFO-supplied · illustrative)
   denial_writeoff_pct: number; // PERMANENT write-off rate on technical revenue (0-100); separate scenario, never compounded
+
+  // Lost-study reconciliation (★ panel · two-domain join).
+  // Studies completed (worklist) − studies billed (billing). Illustrative.
+  // Default ~1% of coverage_volume; group reconciliation reveals the real figure.
+  lost_study_rate_pct: number; // 0-100 — share of coverage_volume that slips between worklist and billing
 };
 
 export type MoneyDerived = {
