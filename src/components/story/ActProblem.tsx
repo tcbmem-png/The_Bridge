@@ -92,7 +92,7 @@ export function ActProblem() {
 
         <div className="mt-12">
           <p className="text-base leading-relaxed text-ink/85">
-            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.
+            The old fear was that AI would replace radiologists. The opposite happened. AI made reading faster but concentrated the radiologist's real value in diagnosis, communication, and procedures — while imaging demand exploded and radiology became the bottleneck. Groups are more valuable now, not less. Yet they're still structurally underpaid for the mandated coverage that doesn't collect.<sup className="text-[0.65em] text-ink/60">[4]</sup>
           </p>
         </div>
 
