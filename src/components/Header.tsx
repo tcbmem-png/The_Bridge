@@ -13,6 +13,7 @@ const tabs = [
   { to: "/", label: "The Story" },
   { to: "/under-the-hood", label: "Under the Hood" },
   { to: "/sandbox", label: "The Sandbox" },
+  { to: "/faq", label: "FAQ" },
 ] as const;
 
 export function Header() {
