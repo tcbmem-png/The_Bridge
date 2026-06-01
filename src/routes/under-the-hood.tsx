@@ -190,6 +190,23 @@ function UnderTheHoodPage() {
               </pre>
             </div>
           ) : null}
+
+          {/* Dashboard · faithful renderer of engine truth. Flips as answers land. */}
+          <div className="mt-16">
+            <SectionTag tone="teal">The dashboard · engine truth, rendered</SectionTag>
+            <h3 className="font-display mt-5 max-w-3xl text-[1.5rem] leading-[1.15] md:text-[2rem]">
+              The same panels, eight of them, flip as the questionnaire is answered.
+            </h3>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">
+              Panel-level state comes from the engine. A whole panel flips when
+              its domain is ready. Compliance trumps. Money panels read the
+              shared model — a number here matches the Sandbox and the Story
+              win-row to the dollar.
+            </p>
+            <div className="mt-8">
+              <Dashboard spec={spec} />
+            </div>
+          </div>
         </div>
       </section>
     </main>
