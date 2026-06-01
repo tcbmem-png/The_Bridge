@@ -12,8 +12,8 @@ export function Hero() {
         </div>
 
         <h1 className="font-display max-w-4xl text-[2.25rem] leading-[1.05] tracking-tight text-ink md:text-[4rem]">
-          You're already generating the data. You're just not{" "}
-          <em className="italic text-[var(--teal)]">seeing</em> it.
+          You're generating the data. You just can't{" "}
+          <em className="italic text-[var(--teal)]">see</em> it yet.
         </h1>
 
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink/75 md:text-lg">
