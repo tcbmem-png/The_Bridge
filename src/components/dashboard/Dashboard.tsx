@@ -16,11 +16,26 @@ import {
 } from "../../lib/money/format";
 import { FallToken } from "../FallToken";
 import { LensToggle } from "./LensToggle";
+import { FeedsGlyph, FeedsLegend, type Feeds } from "../provenance/FeedsGlyph";
 import {
   HOSPITAL_PANEL,
   HOSPITAL_LOST_STUDY,
   DUA_GATED_CUTS,
 } from "./hospitalNarration";
+
+// Per-panel feeds binding. HARD rule: each glyph reads the feeds of the
+// EXACT number it sits on. Panels not in the spec's enumerated list get no
+// glyph rather than be hand-set or inflated.
+const PANEL_FEEDS: Record<number, { feeds: Feeds; sources: string[]; note: string } | undefined> = {
+  1: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835 claim & remittance"], note: "Net collections — billing-only." },
+  2: { feeds: { billing: true, production: true, workflow: false }, sources: ["p1 — 837/835", "p5 — CMS RVU file (CPT → wRVU)"], note: "Blended $/wRVU joins payments to work RVU output." },
+  3: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835"], note: "Payer mix — billing-only." },
+  4: { feeds: { billing: true, production: true, workflow: false }, sources: ["p1 — 837/835", "p5 — CMS RVU file"], note: "Coverage gap = no-pay + Medicaid shortfall, at the Medicare conversion factor — joins billing to wRVU output." },
+  5: { feeds: { billing: true, production: false, workflow: false }, sources: ["p2 — CARC/RARC denial codes from 835"], note: "Denials by CARC (Claim Adjustment Reason Code) — billing-only." },
+  6: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835"], note: "Days in A/R / procedure-to-cash — billing-only." },
+  // 7 (negative-read rate · fall) and 8 (TAT) are not enumerated in the
+  // provenance spec; omit the mark rather than overclaim.
+};
 
 // ---------- panel registry (verbatim from spec §2) ----------
 
@@ -327,6 +342,9 @@ export function Dashboard({ spec, compact = false }: Props) {
             </li>
           ))}
         </ul>
+        <div className="mt-4 border-t border-ink/10 pt-3">
+          <FeedsLegend />
+        </div>
       </div>
     </div>
   );
@@ -359,8 +377,15 @@ function PanelCard({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             {def.unit} <span className="text-ink/35">· {def.cite}</span>
           </div>
-          <h3 className="font-display mt-1 text-base leading-snug">
-            {titleOverride ?? def.title}
+          <h3 className="font-display mt-1 flex items-center gap-2 text-base leading-snug">
+            <span>{titleOverride ?? def.title}</span>
+            {PANEL_FEEDS[def.id] && (state.status === "live" || state.status === "assumed") ? (
+              <FeedsGlyph
+                feeds={PANEL_FEEDS[def.id]!.feeds}
+                sources={PANEL_FEEDS[def.id]!.sources}
+                note={PANEL_FEEDS[def.id]!.note}
+              />
+            ) : null}
           </h3>
         </div>
         <span
@@ -566,8 +591,15 @@ function LostStudyShowcase({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             ★ count + $ <span className="text-ink/35">· [p1][p7] · two-domain join</span>
           </div>
-          <h3 className="font-display mt-1 text-lg leading-snug md:text-xl">
-            {titleOverride ?? "Lost-study reconciliation · found money"}
+          <h3 className="font-display mt-1 flex flex-wrap items-center gap-2 text-lg leading-snug md:text-xl">
+            <span>{titleOverride ?? "Lost-study reconciliation · found money"}</span>
+            {status === "live" ? (
+              <FeedsGlyph
+                feeds={{ billing: true, production: true, workflow: false }}
+                sources={["p1 — 837/835 (billed reads)", "p7 — PACS timestamps (completed reads)"]}
+                note="Lost-study $ joins billing to production. The workflow feed isn't required for this number."
+              />
+            ) : null}
           </h3>
           {captionOverride ? (
             <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-ink/70">
