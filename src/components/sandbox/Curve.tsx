@@ -25,8 +25,8 @@ import {
 import { fmtMoney, fmtCount, fmtDollarsPerWRVU } from "../../lib/money/format";
 import { FeedsGlyph } from "../provenance/FeedsGlyph";
 
-// avg_yield is the all-three-feeds number on this site (per provenance spec).
-const FEEDS_AVG_YIELD = { billing: true, production: true, workflow: true } as const;
+// avg_yield is a two-feed number on this site: billing + production only.
+const FEEDS_AVG_YIELD = { billing: true, production: true, workflow: false } as const;
 
 type Overrides = Partial<Pick<CurveInputs, "y_core" | "y_cov">>;
 
@@ -162,7 +162,7 @@ export function SandboxCurve() {
 
           {/* Live readouts */}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {/* avg_yield — tagged with provenance glyph (all-three feeds). */}
+            {/* avg_yield — tagged with provenance glyph (two feeds: billing + production). */}
             <Readout
               label={
                 <span className="inline-flex items-center gap-2">
@@ -172,9 +172,8 @@ export function SandboxCurve() {
                     sources={[
                       "p1 — 837/835 (claim & remittance)",
                       "p5 — CMS RVU file (wRVU per CPT)",
-                      "p7 — PACS timestamps (shift / site)",
                     ]}
-                    note="Avg yield joins billing × production × workflow — the all-three number."
+                    note="Avg yield joins billing × production — a two-feed number."
                   />
                 </span>
               }
