@@ -60,6 +60,11 @@ export type MoneyDerived = {
   // Optional secondary scenario — permanent write-off recovery. Not in headline.
   denial_recovery_scenario_$: number; // = avoided_technical_cost_$ × denial_writeoff_pct
 
+  // Lost-study reconciliation (★ panel).
+  lost_study_count: number; // = coverage_volume × lost_study_rate_pct
+  lost_study_$: number; // = lost_study_count × avg_wRVU_per_read × blended_$_per_wRVU
+
+
   // Headline win-row figures.
   group_gain_per_year_$: number;
   hospital_gain_per_year_$: number;
