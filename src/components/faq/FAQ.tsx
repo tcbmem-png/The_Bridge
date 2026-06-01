@@ -24,6 +24,39 @@ const groups = [
     ],
   },
   {
+    title: "THE REAL PROBLEM",
+    items: [
+      {
+        q: "We're working as hard as we ever have, and the numbers are still down. What's going on?",
+        a: "The work isn't the problem — the yield on it is. When the same volume of reads brings in less, the cause isn't effort; it's the mix of who's paying and the coverage you're absorbing that nobody's paying for. That's a structural shift, and it has a consequence worth saying plainly: you can't work your way out of it. More reads at a lower yield is just more low-yield reads. The tool exists to show you the structure, so the fix can be aimed at the structure instead of at yourselves.",
+      },
+      {
+        q: "Can't we just get more efficient — clear the low-value scans faster, put AI on the read?",
+        a: "Speed is worth having, but it doesn't touch this. A study that won't pay doesn't pay any better for being read faster — you've just reached the same shortfall sooner. Efficiency lowers your cost per read; it does nothing to the yield per read, and yield is what moved. Throughput is the wrong knob for a margin problem. (It's worth knowing where the effort does pay off, though — that's the next answer.)",
+      },
+      {
+        q: "Then isn't the answer to get the emergency department (ED) to stop ordering them, or to code them right?",
+        a: "That instinct is closer to the truth than reading faster is — the low-yield, mis-coded order really is where much of this starts. But it isn't a lever you hold. Leaning on the emergency department from the radiology side earns friction, not change, because the ordering isn't yours to govern — it's the hospital's. It moves only when the hospital sees the same picture and decides to act on its own floor. That's not a reason to let it go; it's the reason the numbers have to be shared rather than aimed.",
+      },
+      {
+        q: "We run a tight ship — we reconcile charges and work our denials already. What's left for this to find?",
+        a: "If you're genuinely tight, then honestly: not much in the recover-it-now column. We won't pretend to find missed charges that aren't there — and if a tool promises a big recovery number to a clean shop, distrust it. For a tight group that number comes back small, and the small number is the point: it's proof the engine reports what's actually there, not what sells. That's what makes the other number — the one that isn't small — believable. The value here was never finding your mistakes; it's the picture no system you run produces, because they were never built to ask the question.",
+      },
+      {
+        q: "We already get a payer-mix report. Why isn't that enough?",
+        a: 'Because "the mix got worse" is true and you still can\'t do anything with it. It turns into a shrug and a thinner bonus nobody can quite explain. What\'s missing isn\'t precision — it\'s an address. Not yield fell, but yield fell on these reads, on this shift, at this site, for this payer. An average is a complaint; a located number is something you can put on a table. And locating it is the one thing your billing and your reports can\'t do by themselves — they know what and how much, never where and when.',
+      },
+      {
+        q: "Which numbers actually need all three feeds, not just two?",
+        a: "The ones you can't act on until you know where and when: the after-hours coverage you carry, in dollars, by site, shift, payer, and reading radiologist; the yield gap by location — what a work relative value unit (wRVU) collects on the night and whole-system coverage versus the daytime home base, which is where the loss concentrates; and the ordering signal — low-yield studies tied to who ordered them, where, and for which payer. Each needs billing for the dollars, your reports for the work, and the worklist for the where-and-when. One honest caveat: you can approximate the when from a report timestamp with two feeds. You can't fake the where — site is the piece only the worklist carries, and site is the whole point when one group reads a children's hospital by day and the entire system at night.",
+      },
+      {
+        q: "At year-end our doctors are frustrated and the hospital shrugs. What actually changes that?",
+        a: "That standoff is the disease itself. The doctors feel the loss and can't name it; the hospital hears a complaint it can't fix — so the year ends with resentment on one side, indifference on the other, and nothing moves. The numbers that need all three feeds break it on both ends at once. They give the doctors a fixable address instead of a vague decline — here is the specific uncompensated coverage, by shift and site — and they hand the hospital something inside its own house: coverage it directs, ordering it governs. That's the difference between 'not our department' and 'let's talk.' It's the same data the practice already half-keeps to pay its own doctors, pointed for the first time at the one question that gives both sides a reason to sit down.",
+      },
+    ],
+  },
+  {
     title: "WHY NOW",
     items: [
       {
