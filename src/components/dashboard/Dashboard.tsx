@@ -374,8 +374,15 @@ function PanelCard({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             {def.unit} <span className="text-ink/35">· {def.cite}</span>
           </div>
-          <h3 className="font-display mt-1 text-base leading-snug">
-            {titleOverride ?? def.title}
+          <h3 className="font-display mt-1 flex items-center gap-2 text-base leading-snug">
+            <span>{titleOverride ?? def.title}</span>
+            {PANEL_FEEDS[def.id] && (state.status === "live" || state.status === "assumed") ? (
+              <FeedsGlyph
+                feeds={PANEL_FEEDS[def.id]!.feeds}
+                sources={PANEL_FEEDS[def.id]!.sources}
+                note={PANEL_FEEDS[def.id]!.note}
+              />
+            ) : null}
           </h3>
         </div>
         <span
