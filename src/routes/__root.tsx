@@ -83,6 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "A white-label demo. Join the data you already generate. Illustrative sample data.",
       },
+      { property: "og:title", content: "The Bridge — Illustrative" },
+      { name: "twitter:title", content: "The Bridge — Illustrative" },
+      { name: "description", content: "A client-side web app that visualizes previously unseen data to reveal financial waste." },
+      { property: "og:description", content: "A client-side web app that visualizes previously unseen data to reveal financial waste." },
+      { name: "twitter:description", content: "A client-side web app that visualizes previously unseen data to reveal financial waste." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
