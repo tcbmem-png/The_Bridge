@@ -567,8 +567,13 @@ function LostStudyShowcase({
             ★ count + $ <span className="text-ink/35">· [p1][p7] · two-domain join</span>
           </div>
           <h3 className="font-display mt-1 text-lg leading-snug md:text-xl">
-            Lost-study reconciliation · found money
+            {titleOverride ?? "Lost-study reconciliation · found money"}
           </h3>
+          {captionOverride ? (
+            <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-ink/70">
+              {captionOverride}
+            </p>
+          ) : null}
         </div>
         <span
           className={`font-mono-tab shrink-0 rounded-full px-2 py-0.5 text-[9.5px] uppercase tracking-[0.12em] ${tagClasses}`}
