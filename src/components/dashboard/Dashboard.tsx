@@ -6,6 +6,7 @@
 import { useMemo } from "react";
 import type { Spec, DomainState, DomainStatus } from "../../lib/engine/types";
 import { useMoney } from "../../lib/money/store";
+import { useLens } from "../../lib/lens/store";
 import {
   fmtCount,
   fmtDollarsPerWRVU,
@@ -14,6 +15,12 @@ import {
   fmtWRVU,
 } from "../../lib/money/format";
 import { FallToken } from "../FallToken";
+import { LensToggle } from "./LensToggle";
+import {
+  HOSPITAL_PANEL,
+  HOSPITAL_LOST_STUDY,
+  DUA_GATED_CUTS,
+} from "./hospitalNarration";
 
 // ---------- panel registry (verbatim from spec §2) ----------
 
@@ -133,6 +140,7 @@ type Props = {
 
 export function Dashboard({ spec, compact = false }: Props) {
   const { inputs, derived } = useMoney();
+  const { lens } = useLens();
   const domains = spec.domainReadiness;
 
   // Map dashboard panel domain → engine domain ("worklist" → "tat").
@@ -182,14 +190,35 @@ export function Dashboard({ spec, compact = false }: Props) {
             <div className="font-display mt-1 text-lg leading-snug md:text-xl">
               <span className="font-mono-tab">{liveCount}</span> of{" "}
               <span className="font-mono-tab">{TOTAL_PANELS}</span> panels wired from
-              data you already own
+              data {lens === "hospital" ? "the group already owns" : "you already own"}
             </div>
           </div>
         </div>
-        <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
-          Illustrative · sample data
+        <div className="flex flex-wrap items-center gap-4">
+          <LensToggle />
+          <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.14em] text-ink/55">
+            Illustrative · sample data
+          </div>
         </div>
       </div>
+
+      {/* Hospital-lens framing strip — same numbers, hospital chair. */}
+      {lens === "hospital" ? (
+        <div className="border-b border-ink/15 bg-[color-mix(in_oklab,var(--teal)_6%,var(--paper))] px-5 py-3 md:px-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="max-w-3xl text-[12.5px] leading-relaxed text-ink/75">
+              Same numbers, hospital chair. A shared scoreboard, not leverage.
+              The group owns its professional billing, reports, and worklist.
+              The hospital owns the technical billing and the full operational
+              record in its electronic health record (EHR). Cuts that need
+              hospital-owned data are gated behind a data-use agreement (DUA).
+            </p>
+            <span className="font-mono-tab shrink-0 rounded-full border border-ink/25 px-2 py-0.5 text-[9.5px] uppercase tracking-[0.12em] text-ink/60">
+              Provisional copy · tone pass pending
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {/* Foundation bar */}
       <div className="px-5 pt-4 md:px-6">
@@ -213,6 +242,8 @@ export function Dashboard({ spec, compact = false }: Props) {
           coverageVolume={inputs.coverage_volume}
           ratePct={inputs.lost_study_rate_pct}
           blended={derived.blended_$_per_wRVU}
+          titleOverride={lens === "hospital" ? HOSPITAL_LOST_STUDY.title : undefined}
+          captionOverride={lens === "hospital" ? HOSPITAL_LOST_STUDY.caption : undefined}
         />
       </div>
 
@@ -225,13 +256,64 @@ export function Dashboard({ spec, compact = false }: Props) {
       >
         {PANELS.map((p) => {
           const ds = domainFor(p.domain);
+          const hosp = lens === "hospital" ? HOSPITAL_PANEL[p.id] : undefined;
           return (
-            <PanelCard key={p.id} def={p} state={ds}>
+            <PanelCard
+              key={p.id}
+              def={p}
+              state={ds}
+              titleOverride={hosp?.title}
+              captionOverride={hosp?.caption}
+            >
               {renderPanelBody(p, ds.status, inputs, derived)}
             </PanelCard>
           );
         })}
       </div>
+
+      {/* Hospital lens · DUA-gated joint cuts. Labeled placeholders only —
+          never a made-up hospital number. */}
+      {lens === "hospital" ? (
+        <div className="border-t border-ink/15 px-5 py-5 md:px-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h3 className="font-display text-lg leading-snug md:text-xl">
+              Unlocks with a data-use agreement (DUA)
+            </h3>
+            <span className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
+              Hospital-owned data · joint picture
+            </span>
+          </div>
+          <p className="mt-2 max-w-3xl text-[12.5px] leading-relaxed text-ink/70">
+            Prove value on group-owned data first. A DUA opens the joint view —
+            without bluffed numbers. Each row below is a labeled, replaceable
+            placeholder until the hospital-side join exists.
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+            {DUA_GATED_CUTS.map((c) => (
+              <article
+                key={c.label}
+                className="rounded-lg border border-dashed border-ink/30 bg-paper p-4"
+              >
+                <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
+                  {c.unit} <span className="text-ink/35">· DUA-gated</span>
+                </div>
+                <h4 className="font-display mt-1 text-base leading-snug">
+                  {c.label}
+                </h4>
+                <div className="mt-3 font-mono-tab text-3xl leading-none text-ink/25">
+                  —
+                </div>
+                <p className="mt-3 text-[11.5px] leading-relaxed text-ink/65">
+                  {c.note}
+                </p>
+                <footer className="font-mono-tab mt-3 text-[10px] uppercase tracking-[0.12em] text-ink/45">
+                  Needs · {c.needs}
+                </footer>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {/* Provenance endnotes — same style as Under the Hood */}
       <div className="border-t border-ink/15 px-5 py-4 md:px-6">
@@ -255,10 +337,14 @@ export function Dashboard({ spec, compact = false }: Props) {
 function PanelCard({
   def,
   state,
+  titleOverride,
+  captionOverride,
   children,
 }: {
   def: PanelDef;
   state: DomainState;
+  titleOverride?: string;
+  captionOverride?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -273,7 +359,9 @@ function PanelCard({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             {def.unit} <span className="text-ink/35">· {def.cite}</span>
           </div>
-          <h3 className="font-display mt-1 text-base leading-snug">{def.title}</h3>
+          <h3 className="font-display mt-1 text-base leading-snug">
+            {titleOverride ?? def.title}
+          </h3>
         </div>
         <span
           className={[
@@ -286,6 +374,12 @@ function PanelCard({
       </header>
 
       <div className="flex-1">{children}</div>
+
+      {captionOverride ? (
+        <p className="mt-3 text-[11.5px] leading-relaxed text-ink/65">
+          {captionOverride}
+        </p>
+      ) : null}
 
       <footer className="font-mono-tab mt-4 text-[10px] uppercase tracking-[0.12em] text-ink/45">
         {state.status === "live" || state.status === "assumed"
@@ -420,6 +514,8 @@ function LostStudyShowcase({
   coverageVolume,
   ratePct,
   blended,
+  titleOverride,
+  captionOverride,
 }: {
   status: "live" | "half" | "pending_source" | "pending_compliance";
   missing: "billing" | "worklist" | null;
@@ -430,6 +526,8 @@ function LostStudyShowcase({
   coverageVolume: number;
   ratePct: number;
   blended: number;
+  titleOverride?: string;
+  captionOverride?: string;
 }) {
   const shell =
     status === "live"
@@ -469,8 +567,13 @@ function LostStudyShowcase({
             ★ count + $ <span className="text-ink/35">· [p1][p7] · two-domain join</span>
           </div>
           <h3 className="font-display mt-1 text-lg leading-snug md:text-xl">
-            Lost-study reconciliation · found money
+            {titleOverride ?? "Lost-study reconciliation · found money"}
           </h3>
+          {captionOverride ? (
+            <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-ink/70">
+              {captionOverride}
+            </p>
+          ) : null}
         </div>
         <span
           className={`font-mono-tab shrink-0 rounded-full px-2 py-0.5 text-[9.5px] uppercase tracking-[0.12em] ${tagClasses}`}
