@@ -337,10 +337,14 @@ export function Dashboard({ spec, compact = false }: Props) {
 function PanelCard({
   def,
   state,
+  titleOverride,
+  captionOverride,
   children,
 }: {
   def: PanelDef;
   state: DomainState;
+  titleOverride?: string;
+  captionOverride?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -355,7 +359,9 @@ function PanelCard({
           <div className="font-mono-tab text-[10px] uppercase tracking-[0.14em] text-ink/55">
             {def.unit} <span className="text-ink/35">· {def.cite}</span>
           </div>
-          <h3 className="font-display mt-1 text-base leading-snug">{def.title}</h3>
+          <h3 className="font-display mt-1 text-base leading-snug">
+            {titleOverride ?? def.title}
+          </h3>
         </div>
         <span
           className={[
@@ -368,6 +374,12 @@ function PanelCard({
       </header>
 
       <div className="flex-1">{children}</div>
+
+      {captionOverride ? (
+        <p className="mt-3 text-[11.5px] leading-relaxed text-ink/65">
+          {captionOverride}
+        </p>
+      ) : null}
 
       <footer className="font-mono-tab mt-4 text-[10px] uppercase tracking-[0.12em] text-ink/45">
         {state.status === "live" || state.status === "assumed"
