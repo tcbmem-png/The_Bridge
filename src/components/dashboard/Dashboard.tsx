@@ -16,11 +16,26 @@ import {
 } from "../../lib/money/format";
 import { FallToken } from "../FallToken";
 import { LensToggle } from "./LensToggle";
+import { FeedsGlyph, FeedsLegend, type Feeds } from "../provenance/FeedsGlyph";
 import {
   HOSPITAL_PANEL,
   HOSPITAL_LOST_STUDY,
   DUA_GATED_CUTS,
 } from "./hospitalNarration";
+
+// Per-panel feeds binding. HARD rule: each glyph reads the feeds of the
+// EXACT number it sits on. Panels not in the spec's enumerated list get no
+// glyph rather than be hand-set or inflated.
+const PANEL_FEEDS: Record<number, { feeds: Feeds; sources: string[]; note: string } | undefined> = {
+  1: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835 claim & remittance"], note: "Net collections — billing-only." },
+  2: { feeds: { billing: true, production: true, workflow: false }, sources: ["p1 — 837/835", "p5 — CMS RVU file (CPT → wRVU)"], note: "Blended $/wRVU joins payments to work RVU output." },
+  3: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835"], note: "Payer mix — billing-only." },
+  4: { feeds: { billing: true, production: true, workflow: false }, sources: ["p1 — 837/835", "p5 — CMS RVU file"], note: "Coverage gap = no-pay + Medicaid shortfall, at the Medicare conversion factor — joins billing to wRVU output." },
+  5: { feeds: { billing: true, production: false, workflow: false }, sources: ["p2 — CARC/RARC denial codes from 835"], note: "Denials by CARC (Claim Adjustment Reason Code) — billing-only." },
+  6: { feeds: { billing: true, production: false, workflow: false }, sources: ["p1 — 837/835"], note: "Days in A/R / procedure-to-cash — billing-only." },
+  // 7 (negative-read rate · fall) and 8 (TAT) are not enumerated in the
+  // provenance spec; omit the mark rather than overclaim.
+};
 
 // ---------- panel registry (verbatim from spec §2) ----------
 
