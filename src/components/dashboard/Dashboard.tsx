@@ -16,13 +16,15 @@ import { FallToken } from "../FallToken";
 
 // ---------- panel registry (verbatim from spec §2) ----------
 
-type DomainKey = "billing" | "reporting" | "tat";
+// Dashboard panel domains map to engine domains:
+//   billing → billing · reporting → reporting · worklist → tat (PACS timestamps).
+type PanelDomain = "billing" | "reporting" | "worklist";
 
 type PanelDef = {
   id: number;
   title: string;
   unit: string;
-  domain: DomainKey;
+  domain: PanelDomain;
   cite: string; // e.g. "[p1]" / "[p1][p5]"
 };
 
