@@ -1,6 +1,14 @@
 import { useMoney } from "../../lib/money/store";
 import { fmtCount, fmtMoney, fmtWRVU, fmtDollarsPerWRVU } from "../../lib/money/format";
 import { CountUp } from "./CountUp";
+import { FeedsGlyph, FeedsLegend } from "../provenance/FeedsGlyph";
+
+// Per-spec feeds bindings for the sandbox readouts. HARD rule: each glyph
+// reads the feeds of the EXACT number it sits on. Sub-numbers DON'T inherit
+// from their panel.
+const FEEDS_NO_PAY = { billing: true, production: true, workflow: false } as const;
+const FEEDS_MEDICAID = { billing: true, production: true, workflow: false } as const;
+const FEEDS_COVERAGE_GAP = { billing: true, production: true, workflow: false } as const;
 
 function PocketCard(props: {
   label: string;
