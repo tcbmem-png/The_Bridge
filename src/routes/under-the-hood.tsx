@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { FallToken } from "../components/FallToken";
 import { SectionTag } from "../components/story/SectionTag";
 import { SiloDiagram, ProvenanceList } from "../components/hood/SiloDiagram";
