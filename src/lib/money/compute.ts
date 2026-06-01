@@ -93,6 +93,9 @@ export function derive(inputs: MoneyInputs): MoneyDerived {
     hospital_gain_$,
     denial_recovery_scenario_$,
 
+    lost_study_count,
+    lost_study_$,
+
     group_gain_per_year_$: recoverable_$,
     hospital_gain_per_year_$: hospital_gain_$,
     fewer_needless_scans_per_year: avoided_scans,
