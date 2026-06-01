@@ -6,6 +6,8 @@
 import type {
   Answers,
   Compliance,
+  DomainReadiness,
+  DomainState,
   Panel,
   PanelKey,
   Source,
