@@ -444,9 +444,10 @@ export function SandboxCurve() {
               value={Number(yCov.toFixed(2))}
               step={0.5}
               min={0}
+              max={yCore}
               isOverride={overrides.y_cov !== undefined}
               onReset={() => setOverrides((o) => ({ ...o, y_cov: undefined }))}
-              onChange={(n) => setOverrides((o) => ({ ...o, y_cov: n }))}
+              onChange={(n) => setOverrides((o) => ({ ...o, y_cov: Math.min(n, yCore) }))}
             />
             <NumField
               label="F · overhead / partner / yr"
