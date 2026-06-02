@@ -3,7 +3,7 @@
 // computeTwoNumbers (do not re-derive). Illustrative only.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/twonumbers")({
   head: () => ({
