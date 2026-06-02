@@ -93,17 +93,17 @@ const SRC: Record<
   { s: string; l?: [string, string][]; o?: string }
 > = {
   twonums: {
-    s: "The two inputs to the deficit method — ER wRVU and ER collections.",
+    s: "The deficit method takes exactly two inputs — ER collections (your books) and ER wRVU (a public CPT→CMS lookup). Everything else is arithmetic or a published benchmark.",
     l: [
       [
         "FMV subsidy method (CBIZ)",
         "https://www.cbiz.com/insights/article/fair-market-value-challenges-in-subsidies-paid-by-hospitals-to-radiologists-for-radiology-services",
       ],
     ],
-    o: "your data summary · the audit matrix",
+    o: "the two numbers, and how to pull them from your stack — open Data / Audit on the ○ card above.",
   },
   onlygroup: {
-    s: "The hospital sees only its facility fee — never your professional collections. That is why only you can build this number.",
+    s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side under the DRG and never sees professional collections. That's why only the group can build this number.",
     l: [
       [
         "Professional vs. technical billing (Noridian)",
@@ -112,7 +112,7 @@ const SRC: Record<
     ],
   },
   mechanism: {
-    s: "Hospital coverage stipends are an established, widely-used arrangement.",
+    s: "Hospital coverage stipends are established and widely used — a fixed subsidy/stipend, or a collections guarantee — to cover a documented professional-collections shortfall relative to cost.",
     l: [
       [
         "Hospital coverage agreements (VMG)",
@@ -125,7 +125,7 @@ const SRC: Record<
     ],
   },
   plugloss: {
-    s: "Funding the documented deficit is permitted at fair market value and must not be tied to referrals (Stark / Anti-Kickback).",
+    s: "Funding the documented deficit is permitted, but the payment must be fair market value, commercially reasonable, set in advance, and not tied to the volume or value of referrals (Stark / Anti-Kickback).",
     l: [
       [
         "FMV standards (Holland & Hart)",
@@ -138,7 +138,7 @@ const SRC: Record<
     ],
   },
   adjustvol: {
-    s: "Volume-indexed stipends with periodic true-up keep the subsidy at FMV as volume moves.",
+    s: "Volume-indexed stipends with a periodic (every 1–2 year) true-up keep the subsidy at FMV as volume moves — the FMV-preferred structure.",
     l: [
       [
         "Coverage agreements / true-up (VMG)",
@@ -147,7 +147,7 @@ const SRC: Record<
     ],
   },
   reducewaste: {
-    s: "Reduction must be clinical, never about who pays — EMTALA mandates screening regardless of ability to pay; appropriateness criteria target unnecessary imaging.",
+    s: "Reduction must be clinical, never about who pays — EMTALA mandates a medical screening regardless of ability to pay; appropriateness criteria target unnecessary imaging. Low-value imaging runs ~20–50% across systematic reviews, so the ~30% avoidable default sits inside the evidence range.",
     l: [
       [
         "EMTALA (CMS)",
@@ -160,19 +160,19 @@ const SRC: Record<
     ],
   },
   zeromargin: {
-    s: "Break-even work by design. Freed capacity redeploys at your local non-ER yield.",
-    o: "open the ER wRVU lever above — freed wRVU, 0–100%, at your non-ER yield",
+    s: "Break-even by design: the stipend tops ER coverage up to fair cost, so a for-profit group earns no margin on that slice — it neither loses on it nor profits from it. (It is not 'collects nothing' — the tool holds yield at the blended ER rate.) Cutting the avoidable slice frees capacity that redeploys at the group's local non-ER yield.",
+    o: "freed wRVU 0–100% × local non-ER yield — open the Hospital drawer on the △ card above. Our model, illustrative; no external authority.",
   },
   riskshift: {
-    s: "The shortfall traces to forces no one controls — Medicare conversion-factor cuts, payer mix, and Medicaid / TennCare changes.",
+    s: "The shortfall traces to forces no group controls — years of Medicare conversion-factor erosion (the CF fell >10% from 2020–2025; CY2026 reversed slightly to $33.4009, +3.26%, so this is the historical driver, not a 2026 cut), shifting payer mix, and Medicaid / TennCare changes (~25M disenrolled in the 2023–24 unwinding).",
     l: [
       [
         "Medicare fee schedule (CMS)",
         "https://www.cms.gov/medicare/payment/fee-schedules/physician",
       ],
       [
-        "Medicaid unwinding (KFF)",
-        "https://www.kff.org/medicaid/issue-brief/medicaid-enrollment-and-unwinding-tracker-overview/",
+        "Medicaid unwinding tracker (KFF)",
+        "https://www.kff.org/medicaid/medicaid-enrollment-and-unwinding-tracker/",
       ],
     ],
   },
@@ -198,7 +198,7 @@ const DEF: Record<
     c: "cms",
     a: "Your ER CPT codes run through the CMS Physician Fee Schedule (work-RVU column) — public, fixed, versioned.",
     m: "Σ (CPT → wRVU) for ER studies",
-    p: ["CMS PFS version — CY2026, CF $33.40"],
+    p: ["CMS PFS version — CY2026, CF $33.4009 (non-QP)"],
   },
   yield: {
     n: "ER yield",
@@ -597,10 +597,17 @@ function TwoNumbersPage() {
         <Erow op="=" name={<Term t="stip" onClick={setOpenTerm}>Stipend</Term>} value={fmtM(e.stipendP)} tot />
 
         <Sub title="Pins" authority="counsel">
-          <NumField label="Fair pay /wRVU" value={comp} onChange={setComp} />
+          <NumField
+            label={<>Fair pay /wRVU <span className="text-ink/40">· $58 ≈ 75th pct</span></>}
+            value={comp}
+            onChange={setComp}
+          />
+          <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
+            Median–75th range ≈ <span className="font-mono tabular-nums text-ink/70">$48–$58</span> (MGMA / SullivanCotter). Valuator sets the binding figure.
+          </p>
           <NumField label="Overhead /wRVU" value={ovh} onChange={setOvh} />
           <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-            Valuator sets the binding figure.
+            The $58 default sits at ~75th percentile; the median pulls the stipend down by a few $M. The Audit drawer (○ card) shows your books' own comp/overhead.
           </p>
         </Sub>
 
@@ -696,7 +703,7 @@ function TwoNumbersPage() {
         <SrcLink k="riskshift" open={openSrc} setOpen={setOpenSrc}>
           risk of the shortfall
         </SrcLink>{" "}
-        to the hospital — where it belongs.
+        {" "}to the hospital — the party that wants the coverage and can fund it.
       </Lead>
       <SrcBox k="riskshift" open={openSrc} />
 
