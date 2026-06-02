@@ -1,4 +1,4 @@
-// Illustrative defaults — labeled placeholders awaiting Taylor / Jonathan.
+// Illustrative defaults — labeled placeholders awaiting the group's clinical leadership.
 // The site list, is_catch_site, shares, and mixes are all pins.
 //
 // Group anchors (W_total, C_total) are NOT exposed by the money config today;
