@@ -296,6 +296,14 @@ function NumField({
         value={value}
         step={step}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        autoComplete="off"
+        data-private="true"
+        data-mp-mask="true"
+        data-fs-mask="true"
+        data-clarity-mask="true"
+        data-hj-suppress=""
+        data-rrweb-ignore="true"
+        data-analytics="ignore"
         className="font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
       />
     </label>
