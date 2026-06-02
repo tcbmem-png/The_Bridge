@@ -373,14 +373,17 @@ function Sub({
   title,
   authority,
   children,
+  id,
 }: {
   title: string;
   authority: "yours" | "counsel";
   children: React.ReactNode;
+  id?: string;
 }) {
   const a = authClasses(authority);
   return (
     <details
+      id={id}
       className={`mt-2 rounded-lg border border-ink/12 border-l-[3px] bg-ink/[0.025] ${a.bar}`}
     >
       <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
