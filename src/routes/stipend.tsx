@@ -602,10 +602,17 @@ function TwoNumbersPage() {
     );
 
   return (
-    <main className="mx-auto max-w-xl px-5 py-10 md:py-14">
+    <main className="mx-auto grid max-w-6xl gap-8 px-5 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+      <div className="min-w-0 lg:max-w-xl">
       <h1 className="font-display text-[28px] font-semibold leading-[1.1] tracking-tight text-ink md:text-[34px]">
         A Tale of Two Numbers
       </h1>
+      {rightSource === "derived-from-left" && (
+        <div className="font-mono-tab mt-2 inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
+          right side · derived from left audit
+        </div>
+      )}
+
 
       {/* Sentence 1 */}
       <Lead>
