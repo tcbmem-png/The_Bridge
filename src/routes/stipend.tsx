@@ -47,13 +47,15 @@ function computeTwoNumbers(i: EngineInputs) {
 
   const cut = Math.min(Math.max(i.cut, 0), AVOIDABLE_CAP);
   const wrvuP = i.baseWrvu * (1 - cut);
-  const collP = i.baseColl * (1 - cut); // collections track volume (stated contrivance) → yield holds
-  const yieldP = wrvuP > 0 ? collP / wrvuP : 0; // == yld by construction
+  const collP = i.baseColl * (1 - cut);
+  const yieldP = wrvuP > 0 ? collP / wrvuP : 0;
   const stipendP = wrvuP * deficit;
 
   const removed = i.baseWrvu * cut;
   const hospSave = removed * deficit;
-  const groupGain = Math.max(0, i.util * removed * (i.redep - fair));
+  // signed — sub-break-even redeploys read as a loss, not a wash
+  const groupGain = i.util * removed * (i.redep - fair);
+  const breakevenRedeploy = fair;
 
   return {
     fair,
@@ -67,6 +69,7 @@ function computeTwoNumbers(i: EngineInputs) {
     removed,
     hospSave,
     groupGain,
+    breakevenRedeploy,
   };
 }
 
@@ -424,7 +427,7 @@ function TwoNumbersPage() {
   const [baseColl, setBaseColl] = useState(8_316_000);
   const [baseWrvu, setBaseWrvu] = useState(297_000);
   // pins
-  const [comp, setComp] = useState(58);
+  const [comp, setComp] = useState(50);
   const [ovh, setOvh] = useState(12);
   // hospital
   const [redep, setRedep] = useState(90);
