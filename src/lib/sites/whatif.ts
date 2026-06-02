@@ -138,18 +138,17 @@ export function computeFallWhatIf(
 /** Adapt what-if output into a SitesOutputs shape so the existing Schematic
  *  can render it. y_bar is held to baseline y_bar0 (the reference line). */
 export function whatIfAsSitesOutputs(
-  baseline: SitesOutputs,
+  _baseline: SitesOutputs,
   wi: WhatIfOutputs,
 ): SitesOutputs {
   const C_total_prime = wi.per_site.reduce((s, r) => s + r.collections_i, 0);
   return {
-    y_bar: wi.y_bar0, // FIXED baseline reference
+    y_bar: wi.y_bar0, // FIXED baseline reference (never recomputed in what-if)
     W_total: wi.per_site.reduce((s, r) => s + r.wrvu_i, 0),
     C_total: C_total_prime,
     per_site: wi.per_site.map(({ removed_w_i: _r, redeployed_w_in: _d, ...rest }) => rest),
     stipend_need: wi.need_prime,
     identity_collections_ok: true,
     identity_gap_ok: true,
-    _ = baseline, // (silence unused)
-  } as unknown as SitesOutputs;
+  };
 }
