@@ -692,13 +692,14 @@ function TwoNumbersPage() {
 
       {/* Sentence 4 */}
       <Lead>
-        Reducing ER volume likewise sheds what is, for the group, functionally{" "}
+        Reducing ER volume likewise sheds work the stipend has already{" "}
         <SrcLink k="zeromargin" open={openSrc} setOpen={setOpenSrc}>
-          zero-margin work
+          made break-even
         </SrcLink>
-        .
+        {" "}— so for the group, there's no margin to lose.
       </Lead>
       <SrcBox k="zeromargin" open={openSrc} />
+
 
       {/* Sentence 5 */}
       <Lead>
