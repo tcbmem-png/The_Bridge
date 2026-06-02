@@ -432,7 +432,7 @@ export function SandboxCurve() {
             <NumField
               label="w_sustainable"
               unit="wRVU"
-              hint="Sustainable annual ceiling — greyed band beyond · PLACEHOLDER · Jonathan"
+              hint="Sustainable annual ceiling — greyed band beyond · PLACEHOLDER · clinical lead"
               value={c.w_sustainable}
               step={100}
               min={0}
