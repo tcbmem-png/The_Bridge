@@ -831,30 +831,35 @@ function TwoNumbersPage() {
         <div className="-mt-1 text-right text-[11.5px] text-ink/45">
           ≈ −{(cut * 100).toFixed(1)}% of total ER volume
         </div>
-        <p className="mt-2 text-[12.5px] leading-relaxed text-ink/55">{volNote}</p>
-
-        <div className="mt-3 space-y-2 rounded-md border border-ink/10 bg-ink/[0.025] p-3">
-          <div className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/50">
-            Stated assumptions
+        <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
+          <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
+            Notes & assumptions
+          </summary>
+          <div className="space-y-2 px-3 pb-3 pt-1">
+            <p className="text-[12.5px] leading-relaxed text-ink/55">{volNote}</p>
+            <div className="space-y-2 rounded-md border border-ink/10 bg-paper p-3">
+              <div className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/50">
+                Stated assumptions
+              </div>
+              <p className="text-[12px] leading-relaxed text-ink/60">
+                <b className="text-ink">1. Collections track volume → yield holds.</b>{" "}
+                When the avoidable slice is cut, ER collections fall in proportion to ER wRVU, so yield holds at $
+                {e.yld.toFixed(0)}. The slice carries roughly the same ER payer mix as the rest of the coverage, so the dollars come out in proportion — conservative; in reality collections flux on their own.
+              </p>
+              <p className="text-[12px] leading-relaxed text-ink/60">
+                <b className="text-ink">2. Avoidable cap ~30%.</b>{" "}
+                Only the medically-unnecessary slice can be cut — a clinical call. The necessary coverage, and its stipend, always remain. EMTALA: clinical, never about who pays.
+              </p>
+            </div>
+            <p className="text-[12.5px] leading-relaxed text-ink/45">
+              <b className="text-ink">Model note:</b>{" "}
+              <Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term> is one of
+              the two numbers you provide; when volume moves we assume it tracks,
+              so yield holds and the math runs in reverse.
+            </p>
+            <InlineDef k="coll" openTerm={openTerm} />
           </div>
-          <p className="text-[12px] leading-relaxed text-ink/60">
-            <b className="text-ink">1. Collections track volume → yield holds.</b>{" "}
-            When the avoidable slice is cut, ER collections fall in proportion to ER wRVU, so yield holds at $
-            {e.yld.toFixed(0)}. The slice carries roughly the same ER payer mix as the rest of the coverage, so the dollars come out in proportion — conservative; in reality collections flux on their own.
-          </p>
-          <p className="text-[12px] leading-relaxed text-ink/60">
-            <b className="text-ink">2. Avoidable cap ~30%.</b>{" "}
-            Only the medically-unnecessary slice can be cut — a clinical call. The necessary coverage, and its stipend, always remain. EMTALA: clinical, never about who pays.
-          </p>
-        </div>
-
-        <p className="mt-2 text-[12.5px] leading-relaxed text-ink/45">
-          <b className="text-ink">Model note:</b>{" "}
-          <Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term> is one of
-          the two numbers you provide; when volume moves we assume it tracks,
-          so yield holds and the math runs in reverse.
-        </p>
-        <InlineDef k="coll" openTerm={openTerm} />
+        </details>
 
         <Sub title="Hospital" authority="yours" id="hospital-drawer">
           <NumField label="Reclaimed time value /wRVU" value={redep} onChange={setRedep} />
