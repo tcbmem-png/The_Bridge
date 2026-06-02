@@ -595,8 +595,8 @@ function TwoNumbersPage() {
             <p className="mt-2 text-[11.5px] leading-relaxed text-ink/55">
               Your distribution — ownership return above the market wage. The slice that cratered, and the slice the stipend does not fund.
             </p>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-ink/40">
-              ⚠ Overhead caveat: per-wRVU band + billing-as-% of collections (5–10% in-house / 3–7% outsourced), NCR 95–99%. Avoid "55–65% of revenue" — that's all-practice and overstates pro-fee radiology ~3×.
+            <p className="mt-1.5 text-[11px] leading-relaxed text-ink/45">
+              Overhead here is professional-fee practice cost — about <b className="text-ink/70">$10–20 per wRVU</b> (billing, malpractice, staff, IT, occupancy). It excludes the imaging equipment and technical costs the hospital owns, so it runs well below an all-practice overhead figure.
             </p>
           </div>
         </Sub>
