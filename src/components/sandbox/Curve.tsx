@@ -482,7 +482,7 @@ export function SandboxCurve() {
             <NumField
               label="N · partners"
               unit="count"
-              hint="PLACEHOLDER · genericized fingerprint"
+              hint="PLACEHOLDER · partner count (genericize for white-label)"
               value={c.N}
               step={1}
               min={1}
