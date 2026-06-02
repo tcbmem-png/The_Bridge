@@ -243,7 +243,7 @@ export function PracticeDashboard({
                 Without stipend
               </div>
               <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--red)]">
-                {view === "perPartner" ? fmtMoneyK(noStipendDist) : fmtMoneyM(out!.scenarios.A_noStipend.distributionTotal)}
+                {view === "perPartner" ? fmtMoneyK(noStipendDist) : fmtMoneyM(noStipendTotal)}
               </div>
             </div>
             <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
@@ -251,7 +251,7 @@ export function PracticeDashboard({
                 With stipend
               </div>
               <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
-                {view === "perPartner" ? fmtMoneyK(withStipendDist) : fmtMoneyM(out!.scenarios.B_withStipend.distributionTotal)}
+                {view === "perPartner" ? fmtMoneyK(withStipendDist) : fmtMoneyM(withStipendTotal)}
               </div>
             </div>
           </div>
