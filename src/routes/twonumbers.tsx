@@ -666,7 +666,7 @@ function TwoNumbersPage() {
           so yield holds and the math runs in reverse.
         </p>
 
-        <Sub title="Hospital" authority="yours">
+        <Sub title="Hospital" authority="yours" id="hospital-drawer">
           <NumField label="Reclaimed time value /wRVU" value={redep} onChange={setRedep} />
           <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
             <span className="flex-1 text-ink/65">Time you use</span>
