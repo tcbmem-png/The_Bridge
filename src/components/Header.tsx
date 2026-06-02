@@ -13,9 +13,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink/15 bg-paper/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link to="/twonumbers" className="flex items-center gap-2.5">
+        <Link to="/stipend" className="flex items-center gap-2.5">
           <BrandMark />
-          <span className="font-display text-lg leading-none">The Bridge</span>
+          <span className="font-display text-lg leading-none">ER Stipend</span>
         </Link>
 
         <span
