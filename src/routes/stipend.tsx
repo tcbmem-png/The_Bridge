@@ -546,18 +546,40 @@ function TwoNumbersPage() {
     setCut(0);
   };
 
-  // When the user edits the two numbers, treat them as the new baseline.
-  // (The inputs ARE the baseline state; lever resets to 0 on edit.)
+  // When the user edits the two numbers, treat them as the new baseline
+  // (the inputs ARE the baseline state; lever resets to 0 on edit). Mark
+  // the field as user-typed and, if R2 is present, drive the bridge
+  // left→right.
   const onCollEdit = (v: number) => {
     setBaseColl(v);
     setCut(0);
-    markCustom();
+    setLeftCollSource("user");
+    if (erSharePct > 0) setBridge("left-to-right");
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
     setCut(0);
-    markCustom();
+    setLeftWrvuSource("user");
+    if (erSharePct > 0) setBridge("left-to-right");
   };
+  const unlinkLeftDerived = () => {
+    setLeftCollSource("user");
+    setLeftWrvuSource("user");
+    setBridge("none");
+  };
+
+  // Right-side input handlers — drive the bridge right→left.
+  const onCompPoolEdit = (v: number) => {
+    setCompPool(v);
+    setRightSource("user");
+    if (v > 0 && erSharePct > 0) setBridge("right-to-left");
+  };
+  const onErShareEdit = (v: number) => {
+    setErSharePct(v);
+    setRightSource("user");
+    if (compPool > 0 && v > 0) setBridge("right-to-left");
+  };
+
 
   // For the ER collections / ER wRVU inputs, when the lever is active we want
   // the field to reflect the lever-scaled value (the math runs in reverse and
