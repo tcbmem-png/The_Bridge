@@ -52,6 +52,10 @@ export function PracticeDashboard({
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
+  // Signed lever (−30%..+30% of today's ER volume). Negative drives the
+  // existing cut+redeploy machinery via `cut`. Positive adds ER volume —
+  // stipend rises by deficit × added wRVU; with-stipend partner stays flat.
+  const [addFrac, setAddFrac] = useState(0);
 
   const out = useMemo(() => {
     if (!armed) return null;
@@ -61,27 +65,55 @@ export function PracticeDashboard({
       partnerCount,
       stipendOn,
       cutFrac: cut,
-      redeployUtil,
+      redeployUtil: addFrac > 0 ? 0 : redeployUtil,
       fmvComp,
       compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
       compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
       overheadPerWrvu: overheadOverride,
       erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, cut, redeployUtil, fmvComp, overheadOverride]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, cut, redeployUtil, addFrac, fmvComp, overheadOverride]);
 
-  // Always need scenarios for the flip chip (even if stipendOn is true)
-  const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
-  const withStipendDist = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
-  const optimizedDist = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
+  // Add-side overlay (engine-consistent, just applied to today + delta):
+  const deficitPerWrvu = out ? out.fairCost - out.erYield : 0;
+  const addedErWrvu = out && addFrac > 0 ? out.erWrvu * addFrac : 0;
+  const addedStipend = addedErWrvu * deficitPerWrvu;
+  const N = Math.max(1, partnerCount);
+  const addedDistDropPerPartner = (addedErWrvu * deficitPerWrvu) / N;
+
+  // Scenario chips reflect the overlay so they never disagree with the lever.
+  const noStipendDistBase = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
+  const withStipendDistBase = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
+  const optimizedDistBase = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
+  const noStipendTotalBase = out?.scenarios.A_noStipend.distributionTotal ?? 0;
+  const withStipendTotalBase = out?.scenarios.B_withStipend.distributionTotal ?? 0;
+
+  const noStipendDist = noStipendDistBase - addedDistDropPerPartner;
+  const withStipendDist = withStipendDistBase; // flat — the FMV proof
+  const optimizedDist = addFrac > 0 ? withStipendDistBase : optimizedDistBase;
+  const noStipendTotal = noStipendTotalBase - addedStipend;
+  const withStipendTotal = withStipendTotalBase;
 
   const headlineVal = out
-    ? view === "perPartner"
-      ? out.distributionPerPartner
-      : out.distributionTotal
+    ? stipendOn
+      ? view === "perPartner" ? withStipendDist : withStipendTotal
+      : view === "perPartner" ? noStipendDist : noStipendTotal
     : 0;
 
-  const cutPct = Math.round((cut / AVOIDABLE_CAP) * 100);
+  // Signed lever value in [-30..+30] (% of today's ER volume).
+  const leverPct = addFrac > 0
+    ? Math.round(addFrac * 100)
+    : -Math.round((cut / AVOIDABLE_CAP) * 30);
+  const onLeverChange = (v: number) => {
+    const clamped = Math.max(-30, Math.min(30, v));
+    if (clamped >= 0) {
+      setCut(0);
+      setAddFrac(clamped / 100);
+    } else {
+      setAddFrac(0);
+      setCut((-clamped / 30) * AVOIDABLE_CAP);
+    }
+  };
 
   return (
     <aside className="rounded-xl border border-ink/15 bg-paper p-4 md:p-5">
@@ -211,7 +243,7 @@ export function PracticeDashboard({
                 Without stipend
               </div>
               <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--red)]">
-                {view === "perPartner" ? fmtMoneyK(noStipendDist) : fmtMoneyM(out!.scenarios.A_noStipend.distributionTotal)}
+                {view === "perPartner" ? fmtMoneyK(noStipendDist) : fmtMoneyM(noStipendTotal)}
               </div>
             </div>
             <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
@@ -219,7 +251,7 @@ export function PracticeDashboard({
                 With stipend
               </div>
               <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
-                {view === "perPartner" ? fmtMoneyK(withStipendDist) : fmtMoneyM(out!.scenarios.B_withStipend.distributionTotal)}
+                {view === "perPartner" ? fmtMoneyK(withStipendDist) : fmtMoneyM(withStipendTotal)}
               </div>
             </div>
           </div>
@@ -288,27 +320,32 @@ export function PracticeDashboard({
         </p>
       </div>
 
-      {/* CUT + REDEPLOY */}
+      {/* VOLUME LEVER + REDEPLOY */}
       <div className="mt-4 rounded-lg border border-ink/12 bg-paper p-3">
         <div className="font-mono-tab mb-1 text-[10px] uppercase tracking-[0.1em] text-ink/50">
-          Cut + redeploy · the only ER move that lifts the bonus
+          ER volume lever · the only operating move that bends the bonus
         </div>
-        <Slider
-          label="Avoidable cut"
-          pctValue={cutPct}
-          onPct={(p) => setCut((p / 100) * AVOIDABLE_CAP)}
-          rightHint={`≈ −${(cut * 100).toFixed(1)}% of total ER volume`}
+        <SignedLever
+          label="ER volume"
+          value={leverPct}
+          onChange={onLeverChange}
         />
-        <Slider
-          label="Redeploy utilization"
-          pctValue={Math.round(redeployUtil * 100)}
-          onPct={(p) => setRedeployUtil(p / 100)}
-          rightHint="0% = no gain, no loss"
-        />
+        <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
+          Slide right to add ER volume · left to cut it. Capped ±30% either way.
+        </p>
+        <div className={`mt-2 ${addFrac > 0 ? "opacity-50" : ""}`}>
+          <Slider
+            label="Redeploy utilization"
+            pctValue={Math.round(redeployUtil * 100)}
+            onPct={(p) => setRedeployUtil(p / 100)}
+            rightHint={addFrac > 0 ? "applies to cuts only" : "0% = no gain, no loss"}
+            disabled={addFrac > 0}
+          />
+        </div>
         <div className="mt-2 grid grid-cols-2 gap-2 text-[11.5px]">
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              Distribution /partner (optimized)
+              Distribution /partner {addFrac > 0 ? "(with stipend)" : "(optimized)"}
             </div>
             <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
               {armed ? fmtMoneyK(optimizedDist) : "—"}
@@ -316,18 +353,25 @@ export function PracticeDashboard({
           </div>
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              Hospital saves
+              {addFrac > 0 ? "Hospital stipend ↑" : "Hospital saves"}
             </div>
-            <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--gold)]">
-              {armed ? `+${fmtMoneyM(out!.hospitalSaves)}` : "—"}
+            <div
+              className={`font-mono text-[14px] font-semibold tabular-nums ${
+                addFrac > 0 ? "text-[var(--red)]" : "text-[var(--gold)]"
+              }`}
+            >
+              {armed
+                ? addFrac > 0
+                  ? `+${fmtMoneyM(addedStipend)}`
+                  : `+${fmtMoneyM(out!.hospitalSaves)}`
+                : "—"}
             </div>
           </div>
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          Covering the ER is the price of admission to the relationship — the
-          equipment, the referrals, the work that pays. That was a fair trade
-          while the rest carried it. The price of admission just can't be losing
-          money.
+          {addFrac > 0
+            ? "Add volume and the partner line stays flat — that's the FMV proof. The hospital's stipend rises by the same deficit that funded today's coverage; the owners' return doesn't move."
+            : "Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."}
         </p>
       </div>
 
@@ -435,11 +479,13 @@ function Slider({
   pctValue,
   onPct,
   rightHint,
+  disabled,
 }: {
   label: string;
   pctValue: number;
   onPct: (p: number) => void;
   rightHint?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="py-1">
@@ -450,14 +496,54 @@ function Slider({
           min={0}
           max={100}
           value={pctValue}
+          disabled={disabled}
           onChange={(ev) => onPct(parseFloat(ev.target.value))}
-          className="flex-[1.4] accent-[var(--teal)]"
+          className="flex-[1.4] accent-[var(--teal)] disabled:cursor-not-allowed"
         />
         <span className="font-mono w-[44px] text-right text-[12.5px] font-semibold tabular-nums">
           {pctValue}%
         </span>
       </div>
       {rightHint && <div className="text-right text-[10.5px] text-ink/40">{rightHint}</div>}
+    </div>
+  );
+}
+
+function SignedLever({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number; // -30..+30
+  onChange: (v: number) => void;
+}) {
+  const display = value === 0 ? "0%" : `${value > 0 ? "+" : "−"}${Math.abs(value)}%`;
+  const tone =
+    value > 0 ? "text-[var(--red)]" : value < 0 ? "text-[var(--teal)]" : "text-ink/55";
+  return (
+    <div className="py-1">
+      <div className="flex items-center gap-3 text-[12.5px]">
+        <span className="flex-1 text-ink/65">{label}</span>
+        <input
+          type="range"
+          min={-30}
+          max={30}
+          step={1}
+          value={value}
+          onChange={(ev) => onChange(parseFloat(ev.target.value))}
+          className="flex-[1.4] accent-[var(--teal)]"
+          style={{ accentColor: value > 0 ? "var(--red)" : "var(--teal)" }}
+        />
+        <span className={`font-mono w-[52px] text-right text-[12.5px] font-semibold tabular-nums ${tone}`}>
+          {display}
+        </span>
+      </div>
+      <div className="font-mono-tab mt-0.5 flex justify-between text-[9.5px] uppercase tracking-[0.08em] text-ink/35">
+        <span>−30% cut</span>
+        <span>0 (today)</span>
+        <span>+30% add</span>
+      </div>
     </div>
   );
 }
