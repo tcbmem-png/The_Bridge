@@ -9,14 +9,7 @@ function BrandMark() {
   );
 }
 
-const tabs = [
-  { to: "/", label: "Story" },
-  { to: "/under-the-hood", label: "Under the Hood" },
-  { to: "/sandbox", label: "Sandbox" },
-  { to: "/site", label: "Site" },
-  { to: "/twonumbers", label: "Two Numbers" },
-  { to: "/faq", label: "FAQ" },
-] as const;
+const tabs = [] as const;
 
 export function Header() {
   return (
