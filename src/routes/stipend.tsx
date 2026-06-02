@@ -808,49 +808,41 @@ function SrcBox({ k, open }: { k: SrcKey; open: SrcKey | null }) {
 function Term({
   t,
   onClick,
+  openTerm,
   children,
 }: {
   t: TermKey;
-  onClick: (t: TermKey) => void;
+  onClick: (t: TermKey | null) => void;
+  openTerm?: TermKey | null;
   children: React.ReactNode;
 }) {
+  const active = openTerm === t;
   return (
     <button
       type="button"
-      onClick={() => onClick(t)}
-      className="border-b border-dotted border-ink/35 hover:border-ink"
+      onClick={() => onClick(active ? null : t)}
+      className={`border-b border-dotted ${active ? "border-ink text-ink" : "border-ink/35"} hover:border-ink`}
     >
       {children}
     </button>
   );
 }
 
-function DefBox({ term }: { term: TermKey | null }) {
-  const placeholder = (
-    <span className="text-ink/40">
-      tap any underlined term for its definition, authority, and pins.
-    </span>
-  );
-  if (!term) {
-    return (
-      <div className="mt-4 rounded-lg border border-ink/12 border-l-[3px] border-l-ink/25 bg-paper px-3.5 py-3 text-[12.5px]">
-        {placeholder}
-      </div>
-    );
-  }
-  const d = DEF[term];
+function InlineDef({ k, openTerm }: { k: TermKey; openTerm: TermKey | null }) {
+  if (openTerm !== k) return null;
+  const d = DEF[k];
   const a = authClasses(d.c);
   return (
     <div
-      className={`mt-4 rounded-lg border border-ink/12 border-l-[3px] bg-paper px-3.5 py-3 text-[13px] ${a.bar}`}
+      className={`mt-1.5 mb-1 rounded-lg border border-ink/12 border-l-[3px] bg-ink/[0.025] px-3 py-2 text-[12.5px] ${a.bar}`}
     >
-      <span className="text-[15px] font-semibold text-ink">{d.n}</span>
+      <span className="text-[14px] font-semibold text-ink">{d.n}</span>
       <span
         className={`font-mono-tab ml-2 rounded px-1.5 py-[1px] align-[1px] text-[10px] uppercase tracking-[0.05em] font-semibold ${a.chipBg} ${a.chipFg}`}
       >
         {AUTH_LABEL[d.c]}
       </span>
-      <div className="mt-2 text-ink/65">{d.a}</div>
+      <div className="mt-1.5 text-ink/65">{d.a}</div>
       <div className="font-mono mt-1.5 text-ink/70">{d.m}</div>
       <div className="mt-1.5 text-ink/65">
         <b className="text-ink">depends on:</b> {d.p.join(" · ")}
@@ -858,6 +850,7 @@ function DefBox({ term }: { term: TermKey | null }) {
     </div>
   );
 }
+
 
 function AuditRow({
   l,
