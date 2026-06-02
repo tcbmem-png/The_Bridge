@@ -575,7 +575,7 @@ function TwoNumbersPage() {
 
       {/* Sentence 2 */}
       <Lead>
-        Those two numbers trigger an{" "}
+        The numbers trigger an{" "}
         <SrcLink k="mechanism" open={openSrc} setOpen={setOpenSrc}>
           established contract mechanism
         </SrcLink>{" "}
