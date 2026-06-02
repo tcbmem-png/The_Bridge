@@ -8,13 +8,13 @@ import { useMemo, useState } from "react";
 export const Route = createFileRoute("/stipend")({
   head: () => ({
     meta: [
-      { title: "A Tale of Two Numbers — The Bridge" },
+      { title: "A Tale of Two Numbers — ER Stipend" },
       {
         name: "description",
         content:
           "Illustrative two-number deficit method for ER coverage stipends.",
       },
-      { property: "og:title", content: "A Tale of Two Numbers — The Bridge" },
+      { property: "og:title", content: "A Tale of Two Numbers — ER Stipend" },
       {
         property: "og:description",
         content:
