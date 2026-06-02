@@ -535,7 +535,7 @@ export function SandboxCurve() {
               <NumField
                 label="avoidable_share"
                 unit="0–1"
-                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs Jonathan's low-yield definition."
+                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs the group's clinical low-yield definition."
                 value={Number(effWf.avoidable_share.toFixed(2))}
                 step={0.05}
                 min={0}
