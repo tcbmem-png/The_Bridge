@@ -529,24 +529,27 @@ function TwoNumbersPage() {
       {/* Card ○ — ER yield */}
       <ShapeCard ico="○" authority="yours">
         <NumField
-          label={<Term t="coll" onClick={setOpenTerm}>ER collections</Term>}
+          label={<Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term>}
           value={showColl}
           onChange={onCollEdit}
           step={100000}
         />
+        <InlineDef k="coll" openTerm={openTerm} />
         <div className="ml-1 text-[12px] text-ink/40">÷</div>
         <NumField
-          label={<Term t="wrvu" onClick={setOpenTerm}>ER wRVU</Term>}
+          label={<Term t="wrvu" onClick={setOpenTerm} openTerm={openTerm}>ER wRVU</Term>}
           value={showWrvu}
           onChange={onWrvuEdit}
           step={10000}
         />
+        <InlineDef k="wrvu" openTerm={openTerm} />
         <Erow
           op="="
-          name={<Term t="yield" onClick={setOpenTerm}>ER yield</Term>}
+          name={<Term t="yield" onClick={setOpenTerm} openTerm={openTerm}>ER yield</Term>}
           value={`$${e.yld.toFixed(2)} /wRVU`}
           tot
         />
+        <InlineDef k="yield" openTerm={openTerm} />
 
         <Sub title="Data" authority="yours">
           <NumField label="Net before distributions" value={net} onChange={setNet} step={1000000} />
