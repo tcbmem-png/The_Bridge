@@ -302,7 +302,7 @@ export function SandboxCurve() {
                         "p5 — CMS RVU file (wRVU per CPT)",
                       ]}
                       assumptions={[
-                        "avoidable_share — needs Jonathan's low-yield definition",
+                        "avoidable_share — needs the group's low-yield definition",
                       ]}
                       note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
                     />
@@ -423,7 +423,7 @@ export function SandboxCurve() {
             <NumField
               label="w_core"
               unit="wRVU"
-              hint="Productivity up to which work is core/well-paid · PLACEHOLDER · Jonathan"
+              hint="Productivity up to which work is core/well-paid · PLACEHOLDER · clinical lead"
               value={c.w_core}
               step={100}
               min={0}
@@ -432,7 +432,7 @@ export function SandboxCurve() {
             <NumField
               label="w_sustainable"
               unit="wRVU"
-              hint="Sustainable annual ceiling — greyed band beyond · PLACEHOLDER · Jonathan"
+              hint="Sustainable annual ceiling — greyed band beyond · PLACEHOLDER · clinical lead"
               value={c.w_sustainable}
               step={100}
               min={0}
@@ -482,7 +482,7 @@ export function SandboxCurve() {
             <NumField
               label="N · partners"
               unit="count"
-              hint="PLACEHOLDER · genericized fingerprint"
+              hint="PLACEHOLDER · partner count (genericize for white-label)"
               value={c.N}
               step={1}
               min={1}
@@ -491,7 +491,7 @@ export function SandboxCurve() {
             <NumField
               label="Range · w_min – w_max"
               unit="wRVU"
-              hint={`Default slider range. Default w = ${fmtCount(DEFAULT_CURVE_INPUTS.w_default)}. PLACEHOLDER · Jonathan.`}
+              hint={`Default slider range. Default w = ${fmtCount(DEFAULT_CURVE_INPUTS.w_default)}. PLACEHOLDER · clinical lead.`}
               value={c.w_min}
               step={500}
               min={0}
@@ -535,7 +535,7 @@ export function SandboxCurve() {
               <NumField
                 label="avoidable_share"
                 unit="0–1"
-                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs Jonathan's low-yield definition."
+                hint="Share of coverage work deemed avoidable (low-yield). From your worklist — estimate for now. Needs the group's clinical low-yield definition."
                 value={Number(effWf.avoidable_share.toFixed(2))}
                 step={0.05}
                 min={0}
