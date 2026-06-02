@@ -784,6 +784,24 @@ function SrcBox({ k, open }: { k: SrcKey; open: SrcKey | null }) {
       {d.o && (
         <div className="mt-1.5 text-ink/65">
           <b className="text-ink">ours:</b> {d.o}
+          {k === "zeromargin" && (
+            <>
+              {" "}
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("hospital-drawer") as HTMLDetailsElement | null;
+                  if (el) {
+                    el.open = true;
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                }}
+                className="font-mono-tab ml-1 rounded border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-2 py-0.5 text-[10.5px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_18%,transparent)]"
+              >
+                ↓ open Hospital lever
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
