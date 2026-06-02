@@ -57,7 +57,7 @@ export function WhatIfPanel({
         />
         <Slider
           label="redeploy · freed capacity finds high-value work"
-          note={`Jonathan's "unlimited demand." Below ${Math.round(breakEven * 100)}% the group loses volume.`}
+          note={`The group's clinical "unlimited demand." Below ${Math.round(breakEven * 100)}% the group loses volume.`}
           value={inp.redeploy}
           onChange={(v) => set("redeploy", v)}
           dashed
