@@ -703,26 +703,41 @@ function TwoNumbersPage() {
       {/* Card △ — the lever */}
       <ShapeCard ico="△" authority="yours">
         <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
-          <span className="flex-1 text-ink/65">Cut unnecessary ER volume</span>
+          <span className="flex-1 text-ink/65">% of avoidable cut</span>
           <input
             type="range"
             min={0}
-            max={AVOIDABLE_CAP * 100}
-            value={Math.round(cut * 100)}
-            onChange={(ev) => setCut(parseFloat(ev.target.value) / 100)}
+            max={100}
+            value={Math.round((cut / AVOIDABLE_CAP) * 100)}
+            onChange={(ev) =>
+              setCut((parseFloat(ev.target.value) / 100) * AVOIDABLE_CAP)
+            }
             className="flex-[1.4] accent-[var(--teal)]"
           />
           <span className="font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums">
-            −{Math.round(cut * 100)}%
+            {Math.round((cut / AVOIDABLE_CAP) * 100)}%
           </span>
         </div>
+        <div className="-mt-1 text-right text-[11.5px] text-ink/45">
+          ≈ −{(cut * 100).toFixed(1)}% of total ER volume
+        </div>
         <p className="mt-2 text-[12.5px] leading-relaxed text-ink/55">{volNote}</p>
-        <p className="mt-2 text-[12.5px] leading-relaxed text-ink/45">
-          <b className="text-ink">You never stop covering the ER.</b> Only the
-          avoidable, medically-unnecessary slice can be cut — about{" "}
-          <b className="text-ink">30%</b>, a clinical call. The necessary
-          coverage you're paid for always remains, and so does its stipend.
-        </p>
+
+        <div className="mt-3 space-y-2 rounded-md border border-ink/10 bg-ink/[0.025] p-3">
+          <div className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/50">
+            Stated assumptions
+          </div>
+          <p className="text-[12px] leading-relaxed text-ink/60">
+            <b className="text-ink">1. Collections track volume → yield holds.</b>{" "}
+            When the avoidable slice is cut, ER collections fall in proportion to ER wRVU, so yield holds at $
+            {e.yld.toFixed(0)}. The slice carries roughly the same ER payer mix as the rest of the coverage, so the dollars come out in proportion — conservative; in reality collections flux on their own.
+          </p>
+          <p className="text-[12px] leading-relaxed text-ink/60">
+            <b className="text-ink">2. Avoidable cap ~30%.</b>{" "}
+            Only the medically-unnecessary slice can be cut — a clinical call. The necessary coverage, and its stipend, always remain. EMTALA: clinical, never about who pays.
+          </p>
+        </div>
+
         <p className="mt-2 text-[12.5px] leading-relaxed text-ink/45">
           <b className="text-ink">Model note:</b>{" "}
           <Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term> is one of
@@ -748,8 +763,15 @@ function TwoNumbersPage() {
             </span>
           </div>
           <OutRow l="Hospital saves" r={`+${fmtM(e.hospSave)}`} />
-          <OutRow l="Your gain" r={`${e.groupGain > 0 ? "+" : ""}${fmtM(e.groupGain)}`} />
+          <OutRow
+            l={<>Your gain <span className="text-ink/40">· break-even ${e.breakevenRedeploy.toFixed(0)}/wRVU</span></>}
+            r={`${e.groupGain >= 0 ? "+" : ""}${fmtM(e.groupGain)}`}
+          />
+          <p className="mt-1 text-[11.5px] leading-relaxed text-ink/45">
+            Redeploy below break-even reads as a loss, not a wash.
+          </p>
         </Sub>
+      </ShapeCard>
       </ShapeCard>
 
 
