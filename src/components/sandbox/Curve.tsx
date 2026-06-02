@@ -423,7 +423,7 @@ export function SandboxCurve() {
             <NumField
               label="w_core"
               unit="wRVU"
-              hint="Productivity up to which work is core/well-paid · PLACEHOLDER · Jonathan"
+              hint="Productivity up to which work is core/well-paid · PLACEHOLDER · clinical lead"
               value={c.w_core}
               step={100}
               min={0}
