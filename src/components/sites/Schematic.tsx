@@ -180,7 +180,40 @@ export function Schematic({
           </foreignObject>
         </g>
 
+        {/* What-if redeploy arc: freed capacity flowing catch → target */}
+        {redeployArc && redeployArc.w > 0 && LAYOUT[redeployArc.fromId] && LAYOUT[redeployArc.toId] ? (() => {
+          const a = LAYOUT[redeployArc.fromId];
+          const b = LAYOUT[redeployArc.toId];
+          const mx = (a.cx + b.cx) / 2;
+          const my = Math.min(a.cy, b.cy) - 60;
+          const wPct = Math.min(1, redeployArc.w / Math.max(1, redeployArc.wMax));
+          const sw = 1 + wPct * 5;
+          return (
+            <g>
+              <path
+                d={`M ${a.cx} ${a.cy} Q ${mx} ${my} ${b.cx} ${b.cy}`}
+                fill="none"
+                stroke="var(--teal)"
+                strokeOpacity="0.55"
+                strokeWidth={sw}
+                strokeDasharray="6 4"
+              />
+              <text
+                x={mx}
+                y={my - 4}
+                textAnchor="middle"
+                className="font-mono-tab"
+                fontSize="10"
+                fill="var(--teal)"
+              >
+                freed capacity · {Math.round(redeployArc.w).toLocaleString()} wRVU
+              </text>
+            </g>
+          );
+        })() : null}
+
         {/* Nodes */}
+
         {nodes.map((n) => {
           const site = siteById.get(n.id)!;
           const c = byId.get(n.id)!;
