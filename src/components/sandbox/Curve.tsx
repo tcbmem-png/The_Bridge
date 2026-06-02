@@ -302,7 +302,7 @@ export function SandboxCurve() {
                         "p5 — CMS RVU file (wRVU per CPT)",
                       ]}
                       assumptions={[
-                        "avoidable_share — needs Jonathan's low-yield definition",
+                        "avoidable_share — needs the group's low-yield definition",
                       ]}
                       note="Two feeds measured, workflow assumed. Dashed-three: never filled-three until the worklist is live."
                     />
