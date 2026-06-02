@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "ER Stipend — Illustrative" },
       { name: "twitter:title", content: "ER Stipend — Illustrative" },
       { property: "og:description", content: "Illustrative two-number deficit method for ER coverage stipends." },
-      { name: "twitter:description", content: "Join the billing, production, and workflow data you already generate. Illustrative demo." },
+      { name: "twitter:description", content: "Illustrative two-number deficit method for ER coverage stipends." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
       { name: "twitter:card", content: "summary_large_image" },
