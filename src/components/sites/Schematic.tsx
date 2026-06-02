@@ -154,12 +154,26 @@ export function Schematic({
             y_bar · group reference {fmtDollarsPerWRVU(out.y_bar)} ·
             collections ÷ wRVU
           </text>
+          {/* Two-feed glyph for y_bar — not sliced by site, workflow not consumed */}
+          <foreignObject x="320" y="436" width="40" height="20">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+              <FeedsGlyph
+                feeds={{ billing: true, production: true, workflow: false }}
+                note="Group blended yield — collections ÷ wRVU at the group total. Not sliced by site, so the workflow feed is not consumed here."
+                sources={[
+                  "billing 837/835 · group total",
+                  "production · group wRVU output",
+                ]}
+              />
+            </div>
+          </foreignObject>
         </g>
 
         {/* Nodes */}
         {nodes.map((n) => {
           const site = siteById.get(n.id)!;
           const c = byId.get(n.id)!;
+          const d = displayById.get(n.id)!;
           const radius = r(c.wrvu_i);
           const fill = nodeFill(c.gap_i, gapScale);
           const stroke = nodeStroke(c.gap_i);
@@ -169,14 +183,12 @@ export function Schematic({
             <g
               key={n.id}
               transform={`translate(${n.cx} ${n.cy})`}
-              style={{ cursor: "pointer" }}
-              onClick={() => setOpen(isOpen ? null : n.id)}
               tabIndex={0}
               role="button"
-              aria-label={`${site.label}: ${fmtMoney(c.collections_i)} collections, gap ${fmtMoney(c.gap_i)}`}
+              aria-label={`${site.label}: ${fmtMoneyK(d.collections_display)} collections, gap ${fmtMoneyK(d.gap_display)}`}
             >
               {/* deficit cuff */}
-              {c.gap_i > 0 ? (
+              {d.gap_display > 0 ? (
                 <circle
                   r={radius + 7}
                   fill="none"
@@ -191,6 +203,8 @@ export function Schematic({
                 fill={fill}
                 stroke={stroke}
                 strokeWidth={isCatch ? 1.75 : 1.25}
+                onClick={() => setOpen(isOpen ? null : n.id)}
+                style={{ cursor: "pointer" }}
               />
               {/* label inside */}
               <text
@@ -199,6 +213,7 @@ export function Schematic({
                 fontSize="11.5"
                 fontFamily="Fraunces, serif"
                 fill="var(--ink)"
+                style={{ pointerEvents: "none" }}
               >
                 {site.label}
               </text>
@@ -208,23 +223,41 @@ export function Schematic({
                 className="font-mono-tab"
                 fontSize="10"
                 fill="rgba(14,27,44,0.70)"
+                style={{ pointerEvents: "none" }}
               >
                 {fmtWRVU(c.wrvu_i)}
               </text>
-              {/* gap cuff text below */}
-              {Math.abs(c.gap_i) >= 1 ? (
+              {/* gap cuff text below — display precision so it sums on screen */}
+              {Math.abs(d.gap_display) >= 1 ? (
                 <text
                   textAnchor="middle"
                   y={radius + 22}
                   className="font-mono-tab"
                   fontSize="10.5"
-                  fill={c.gap_i > 0 ? "var(--red-clinical)" : "var(--teal)"}
-                  style={{ fontWeight: 500 }}
+                  fill={d.gap_display > 0 ? "var(--red-clinical)" : "var(--teal)"}
+                  style={{ fontWeight: 500, pointerEvents: "none" }}
                 >
-                  {c.gap_i > 0 ? "−" : "+"}
-                  {fmtMoney(Math.abs(c.gap_i))}
+                  {d.gap_display > 0 ? "−" : "+"}
+                  {fmtMoneyK(Math.abs(d.gap_display))}
                 </text>
               ) : null}
+              {/* Per-site provenance glyph — every by-site number is a modeled three */}
+              <foreignObject x={-18} y={-(radius + 22)} width="40" height="20">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                  <FeedsGlyph
+                    feeds={{ billing: true, production: true, workflow: "assumption" }}
+                    note={`Per-site slice for ${site.label}: billing and production live in their feeds; the by-site cut is an assumption until the worklist is joined.`}
+                    sources={[
+                      "billing 837/835 · group total",
+                      "production · group wRVU output",
+                    ]}
+                    assumptions={[
+                      "per-site wRVU share · needs the worklist",
+                      "per-site payer mix · needs billing-by-site",
+                    ]}
+                  />
+                </div>
+              </foreignObject>
             </g>
           );
         })}
