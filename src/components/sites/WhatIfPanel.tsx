@@ -68,7 +68,7 @@ export function WhatIfPanel({
       <div className="mt-5 space-y-2 border-t border-ink/10 pt-3">
         <div className="font-mono-tab text-[10.5px] uppercase tracking-[0.12em] text-ink/55">
           Avoidable share · per catch site
-          <span className="ml-1 text-ink/40">· needs Jonathan's low-yield definition</span>
+          <span className="ml-1 text-ink/40">· needs the group's low-yield definition</span>
         </div>
         {catchSites.map((s) => {
           const v = inp.avoidable_share[s.id] ?? 0;
