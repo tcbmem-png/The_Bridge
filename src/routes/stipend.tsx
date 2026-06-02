@@ -103,7 +103,7 @@ const SRC: Record<
         "https://www.cbiz.com/insights/article/fair-market-value-challenges-in-subsidies-paid-by-hospitals-to-radiologists-for-radiology-services",
       ],
     ],
-    o: "the two numbers, and how to pull them from your stack — open Data / Audit on the ○ card above.",
+    o: "The only hard part is getting the two numbers auditably. Five properties make them defensible — claim-line billing with POS 23, a study-level export, the CMS wRVU map, reconciliation to your books, a measure you can re-run each period. For most groups that's a setting or an email, not an IT project — and the hospital can't build this at all, because it never sees professional collections. Open Data / Audit / Self-audit on the ○ card above.",
   },
   onlygroup: {
     s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side (OPPS/APC for ER outpatient; DRG is inpatient) and never sees professional collections. That's why only the group can build this number.",
@@ -555,13 +555,21 @@ function TwoNumbersPage() {
         <InlineDef k="yield" openTerm={openTerm} />
 
         <Sub title="Data" authority="yours">
-          <NumField label="Net before distributions" value={net} onChange={setNet} step={1000000} />
+          <NumField
+            label={<>Physician compensation pool <span className="text-ink/40">· MGMA: Total Physician Compensation</span></>}
+            value={net}
+            onChange={setNet}
+            step={1000000}
+          />
+          <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
+            What the group distributes to its doctors. The known anchor.
+          </p>
           <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} />
           <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} />
           <NumField label="ER share %" value={ershare} onChange={setErshare} />
-          <NumField label="ER yield (est.)" value={eryield} onChange={setEryield} />
-          <OutRow l="Suggested ER collections" r={fmtM(sugC)} />
-          <OutRow l="Suggested ER wRVU" r={`${fmtNum(sugW)} wRVU`} />
+          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
+          <OutRow l="Suggested ER collections (benchmark estimate)" r={fmtM(sugC)} />
+          <OutRow l="Suggested ER wRVU (benchmark estimate)" r={`${fmtNum(sugW)} wRVU`} />
           <button
             type="button"
             onClick={useSuggested}
@@ -572,10 +580,41 @@ function TwoNumbersPage() {
         </Sub>
 
         <Sub title="Audit" authority="yours">
-          <AuditRow l="Comp /wRVU" yours={`$${aComp.toFixed(2)}`} pin={`$${comp.toFixed(2)}`} />
+          <AuditRow l="Comp pool /wRVU (yours)" yours={`$${aComp.toFixed(2)}`} pin={`$${comp.toFixed(2)}`} />
           <AuditRow l="Overhead /wRVU" yours={`$${aOvh.toFixed(2)}`} pin={`$${ovh.toFixed(2)}`} />
           <AuditRow l="All-in /wRVU" yours={`$${aAll.toFixed(2)}`} pin={`$${e.fair.toFixed(2)}`} />
           <AuditRow l="ER all-in" yours={fmtM(aAll * baseWrvu)} pin={fmtM(e.fair * baseWrvu)} />
+          <div className="mt-3 border-t border-ink/15 pt-2">
+            <div className="font-mono-tab mb-1 text-[10px] uppercase tracking-[0.1em] text-ink/50">
+              Funded / unfunded split (per wRVU)
+            </div>
+            <OutRow l="FMV clinical comp (funded by stipend)" r={`$${comp.toFixed(2)}`} />
+            <OutRow l="Your comp pool" r={`$${aComp.toFixed(2)}`} />
+            <OutRow l="Distribution = pool − FMV (NOT funded)" r={`$${Math.max(0, aComp - comp).toFixed(2)}`} />
+            <OutRow l="All-in = fair (funded) + distribution" r={`$${(e.fair + Math.max(0, aComp - comp)).toFixed(2)}`} />
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink/55">
+              Your distribution — ownership return above the market wage. The slice that cratered, and the slice the stipend does not fund.
+            </p>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-ink/40">
+              ⚠ Overhead caveat: per-wRVU band + billing-as-% of collections (5–10% in-house / 3–7% outsourced), NCR 95–99%. Avoid "55–65% of revenue" — that's all-practice and overstates pro-fee radiology ~3×.
+            </p>
+          </div>
+        </Sub>
+
+        <Sub title="Self-audit" authority="yours">
+          <p className="text-[12.5px] leading-relaxed text-ink/70">
+            Are the two numbers defensible? Five properties:
+          </p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-[12.5px] leading-relaxed text-ink/65">
+            <li>Claim-line billing with POS 23 — ER origin on every claim.</li>
+            <li>Study-level export — one row per study, joinable to billing.</li>
+            <li>CMS wRVU map applied at the current PFS version (CY2026, CF $33.4009 non-QP).</li>
+            <li>Reconciliation to your books — payments tie to your G/L.</li>
+            <li>A measure you can re-run each period — not a one-off pull.</li>
+          </ol>
+          <p className="mt-3 text-[12px] leading-relaxed text-ink/55">
+            Given your stack — integrated platform / outsourced RCM / BI overlay / separate systems — getting all five is usually a toggle, an email, or a bounded job. You're already generating the data; you just may not be seeing it.
+          </p>
         </Sub>
       </ShapeCard>
 
@@ -609,16 +648,33 @@ function TwoNumbersPage() {
 
         <Sub title="Pins" authority="counsel">
           <NumField
-            label={<>Fair pay /wRVU <span className="text-ink/40">· $58 ≈ 75th pct</span></>}
+            label={<>FMV clinical comp /wRVU</>}
             value={comp}
             onChange={setComp}
           />
-          <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
-            Median–75th range ≈ <span className="font-mono tabular-nums text-ink/70">$48–$58</span> (MGMA / SullivanCotter). Valuator sets the binding figure.
+          <div className="-mt-1 mb-1 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setComp(50)}
+              className={`font-mono-tab rounded-full border px-2 py-0.5 text-[10.5px] uppercase tracking-[0.08em] ${comp === 50 ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_15%,transparent)] text-[var(--gold)]" : "border-ink/20 text-ink/55 hover:border-ink/40"}`}
+            >
+              ● Median $50
+            </button>
+            <button
+              type="button"
+              onClick={() => setComp(58)}
+              className={`font-mono-tab rounded-full border px-2 py-0.5 text-[10.5px] uppercase tracking-[0.08em] ${comp === 58 ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_15%,transparent)] text-[var(--gold)]" : "border-ink/20 text-ink/55 hover:border-ink/40"}`}
+            >
+              ○ 75th $58
+            </button>
+          </div>
+          <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/55">
+            <b>Median $50</b> — MGMA / SullivanCotter (band $48–52). The conservative floor.<br />
+            <b>75th $58</b> — justify with IR/subspecialty mix, the national radiologist shortage, or an ED-coverage premium.
           </p>
-          <NumField label="Overhead /wRVU" value={ovh} onChange={setOvh} />
+          <NumField label="Overhead /wRVU (range $10–20)" value={ovh} onChange={setOvh} />
           <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-            The $58 default sits at ~75th percentile; the median pulls the stipend down by a few $M. The Audit drawer (○ card) shows your books' own comp/overhead.
+            Walks the headline ≈ <span className="font-mono tabular-nums text-ink/75">$10.1M → $12.5M</span> across the percentile range. Valuator sets the binding figure. The Audit drawer (○ card) shows your books' own comp/overhead.
           </p>
         </Sub>
 
