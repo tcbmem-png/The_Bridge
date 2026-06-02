@@ -320,27 +320,32 @@ export function PracticeDashboard({
         </p>
       </div>
 
-      {/* CUT + REDEPLOY */}
+      {/* VOLUME LEVER + REDEPLOY */}
       <div className="mt-4 rounded-lg border border-ink/12 bg-paper p-3">
         <div className="font-mono-tab mb-1 text-[10px] uppercase tracking-[0.1em] text-ink/50">
-          Cut + redeploy · the only ER move that lifts the bonus
+          ER volume lever · the only operating move that bends the bonus
         </div>
-        <Slider
-          label="Avoidable cut"
-          pctValue={cutPct}
-          onPct={(p) => setCut((p / 100) * AVOIDABLE_CAP)}
-          rightHint={`≈ −${(cut * 100).toFixed(1)}% of total ER volume`}
+        <SignedLever
+          label="ER volume"
+          value={leverPct}
+          onChange={onLeverChange}
         />
-        <Slider
-          label="Redeploy utilization"
-          pctValue={Math.round(redeployUtil * 100)}
-          onPct={(p) => setRedeployUtil(p / 100)}
-          rightHint="0% = no gain, no loss"
-        />
+        <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
+          Slide right to add ER volume · left to cut it. Capped ±30% either way.
+        </p>
+        <div className={`mt-2 ${addFrac > 0 ? "opacity-50" : ""}`}>
+          <Slider
+            label="Redeploy utilization"
+            pctValue={Math.round(redeployUtil * 100)}
+            onPct={(p) => setRedeployUtil(p / 100)}
+            rightHint={addFrac > 0 ? "applies to cuts only" : "0% = no gain, no loss"}
+            disabled={addFrac > 0}
+          />
+        </div>
         <div className="mt-2 grid grid-cols-2 gap-2 text-[11.5px]">
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              Distribution /partner (optimized)
+              Distribution /partner {addFrac > 0 ? "(with stipend)" : "(optimized)"}
             </div>
             <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
               {armed ? fmtMoneyK(optimizedDist) : "—"}
@@ -348,18 +353,25 @@ export function PracticeDashboard({
           </div>
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              Hospital saves
+              {addFrac > 0 ? "Hospital stipend ↑" : "Hospital saves"}
             </div>
-            <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--gold)]">
-              {armed ? `+${fmtMoneyM(out!.hospitalSaves)}` : "—"}
+            <div
+              className={`font-mono text-[14px] font-semibold tabular-nums ${
+                addFrac > 0 ? "text-[var(--red)]" : "text-[var(--gold)]"
+              }`}
+            >
+              {armed
+                ? addFrac > 0
+                  ? `+${fmtMoneyM(addedStipend)}`
+                  : `+${fmtMoneyM(out!.hospitalSaves)}`
+                : "—"}
             </div>
           </div>
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          Covering the ER is the price of admission to the relationship — the
-          equipment, the referrals, the work that pays. That was a fair trade
-          while the rest carried it. The price of admission just can't be losing
-          money.
+          {addFrac > 0
+            ? "Add volume and the partner line stays flat — that's the FMV proof. The hospital's stipend rises by the same deficit that funded today's coverage; the owners' return doesn't move."
+            : "Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."}
         </p>
       </div>
 
