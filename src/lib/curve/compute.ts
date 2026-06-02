@@ -100,7 +100,7 @@ export function computeAt(w: number, c: CurveInputs): CurveOutputs {
 /* ----------------------------------------------------------------------
  * §2A — workflow layer (decomposes cov_w; does NOT feed back into the
  * core curve). Each output stays as a separate lens on the SAME cov_w.
- * Inputs are estimates from the worklist (and Jonathan's low-yield
+ * Inputs are estimates from the worklist (and the group's clinical low-yield
  * definition for avoidable_share) — UI marks them dashed.
  * -------------------------------------------------------------------- */
 
