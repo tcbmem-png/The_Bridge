@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnderTheHoodRouteImport } from './routes/under-the-hood'
 import { Route as TwonumbersRouteImport } from './routes/twonumbers'
+import { Route as StoryRouteImport } from './routes/story'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -24,6 +25,11 @@ const UnderTheHoodRoute = UnderTheHoodRouteImport.update({
 const TwonumbersRoute = TwonumbersRouteImport.update({
   id: '/twonumbers',
   path: '/twonumbers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoryRoute = StoryRouteImport.update({
+  id: '/story',
+  path: '/story',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SiteRoute = SiteRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
+  '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
+  '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
+  '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/faq'
     | '/sandbox'
     | '/site'
+    | '/story'
     | '/twonumbers'
     | '/under-the-hood'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/faq' | '/sandbox' | '/site' | '/twonumbers' | '/under-the-hood'
+  to:
+    | '/'
+    | '/faq'
+    | '/sandbox'
+    | '/site'
+    | '/story'
+    | '/twonumbers'
+    | '/under-the-hood'
   id:
     | '__root__'
     | '/'
     | '/faq'
     | '/sandbox'
     | '/site'
+    | '/story'
     | '/twonumbers'
     | '/under-the-hood'
   fileRoutesById: FileRoutesById
@@ -98,6 +116,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
+  StoryRoute: typeof StoryRoute
   TwonumbersRoute: typeof TwonumbersRoute
   UnderTheHoodRoute: typeof UnderTheHoodRoute
 }
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/twonumbers'
       fullPath: '/twonumbers'
       preLoaderRoute: typeof TwonumbersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/story': {
+      id: '/story'
+      path: '/story'
+      fullPath: '/story'
+      preLoaderRoute: typeof StoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/site': {
@@ -154,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
+  StoryRoute: StoryRoute,
   TwonumbersRoute: TwonumbersRoute,
   UnderTheHoodRoute: UnderTheHoodRoute,
 }

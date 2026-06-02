@@ -103,7 +103,7 @@ const SRC: Record<
     o: "the two numbers, and how to pull them from your stack — open Data / Audit on the ○ card above.",
   },
   onlygroup: {
-    s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side under the DRG and never sees professional collections. That's why only the group can build this number.",
+    s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side (OPPS/APC for ER outpatient; DRG is inpatient) and never sees professional collections. That's why only the group can build this number.",
     l: [
       [
         "Professional vs. technical billing (Noridian)",
@@ -160,7 +160,7 @@ const SRC: Record<
     ],
   },
   zeromargin: {
-    s: "Break-even by design: the stipend tops ER coverage up to fair cost, so a for-profit group earns no margin on that slice — it neither loses on it nor profits from it. (It is not 'collects nothing' — the tool holds yield at the blended ER rate.) Cutting the avoidable slice frees capacity that redeploys at the group's local non-ER yield.",
+    s: "Break-even by design: the stipend tops ER coverage up to fair cost, so the group earns no margin on that slice — it neither loses on it nor profits from it. So shedding the avoidable part costs no profit, and it frees capacity that redeploys at the group's local non-ER yield. (Not 'collects nothing' — the tool holds yield at the blended ER rate.)",
     o: "freed wRVU 0–100% × local non-ER yield — open the Hospital drawer on the △ card above. Our model, illustrative; no external authority.",
   },
   riskshift: {
@@ -213,7 +213,7 @@ const DEF: Record<
     a: "The all-in cost to produce a wRVU — fair physician pay plus overhead. The valuator sets the binding figure in a written FMV opinion.",
     m: "fair cost = comp/wRVU + overhead/wRVU",
     p: [
-      "Comp/wRVU — MGMA / SullivanCotter median",
+      "Comp/wRVU — MGMA / SullivanCotter, 75th-pct default (median–75th $48–58)",
       "Overhead/wRVU — practice-expense benchmark",
     ],
   },
@@ -296,6 +296,14 @@ function NumField({
         value={value}
         step={step}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        autoComplete="off"
+        data-private="true"
+        data-mp-mask="true"
+        data-fs-mask="true"
+        data-clarity-mask="true"
+        data-hj-suppress=""
+        data-rrweb-ignore="true"
+        data-analytics="ignore"
         className="font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
       />
     </label>
@@ -373,14 +381,17 @@ function Sub({
   title,
   authority,
   children,
+  id,
 }: {
   title: string;
   authority: "yours" | "counsel";
   children: React.ReactNode;
+  id?: string;
 }) {
   const a = authClasses(authority);
   return (
     <details
+      id={id}
       className={`mt-2 rounded-lg border border-ink/12 border-l-[3px] bg-ink/[0.025] ${a.bar}`}
     >
       <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
@@ -663,7 +674,7 @@ function TwoNumbersPage() {
           so yield holds and the math runs in reverse.
         </p>
 
-        <Sub title="Hospital" authority="yours">
+        <Sub title="Hospital" authority="yours" id="hospital-drawer">
           <NumField label="Reclaimed time value /wRVU" value={redep} onChange={setRedep} />
           <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
             <span className="flex-1 text-ink/65">Time you use</span>
@@ -689,13 +700,14 @@ function TwoNumbersPage() {
 
       {/* Sentence 4 */}
       <Lead>
-        Reducing ER volume likewise sheds what is, for the group, functionally{" "}
+        Reducing ER volume likewise sheds work the stipend has already{" "}
         <SrcLink k="zeromargin" open={openSrc} setOpen={setOpenSrc}>
-          zero-margin work
+          made break-even
         </SrcLink>
-        .
+        {" "}— so for the group, there's no margin to lose.
       </Lead>
       <SrcBox k="zeromargin" open={openSrc} />
+
 
       {/* Sentence 5 */}
       <Lead>
@@ -708,10 +720,12 @@ function TwoNumbersPage() {
       <SrcBox k="riskshift" open={openSrc} />
 
       <p className="mt-8 border-t border-ink/15 pt-4 text-[11.5px] leading-relaxed text-ink/45">
-        <span className="text-[var(--gold)]">gold</span> public ·{" "}
-        <span className="text-[var(--teal)]">teal</span> yours. Illustrative
-        defaults — replace with your own. Not legal, financial, or valuation
-        advice; benchmarks and the contract belong to counsel and a valuator.
+        <span className="text-[var(--gold)]">gold</span> = CMS / public ·{" "}
+        <span className="text-[var(--teal)]">teal</span> = your books ·{" "}
+        <span className="text-[var(--gold)]">counsel + valuator</span> ·{" "}
+        <span className="text-ink/65">arithmetic</span>. Illustrative defaults —
+        replace with your own. Not legal, financial, or valuation advice;
+        benchmarks and the contract belong to counsel and a valuator.
         "Avoidable" means medically unnecessary, defined by clinical
         leadership — never by who pays.
       </p>
@@ -778,6 +792,24 @@ function SrcBox({ k, open }: { k: SrcKey; open: SrcKey | null }) {
       {d.o && (
         <div className="mt-1.5 text-ink/65">
           <b className="text-ink">ours:</b> {d.o}
+          {k === "zeromargin" && (
+            <>
+              {" "}
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("hospital-drawer") as HTMLDetailsElement | null;
+                  if (el) {
+                    el.open = true;
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                }}
+                className="font-mono-tab ml-1 rounded border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-2 py-0.5 text-[10.5px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_18%,transparent)]"
+              >
+                ↓ open Hospital lever
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
