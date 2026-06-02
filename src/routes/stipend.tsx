@@ -636,6 +636,9 @@ function TwoNumbersPage() {
           onChange={onCollEdit}
           step={100000}
         />
+        {leftCollSource === "derived-from-right" && (
+          <DerivedChip onUnlink={unlinkLeftDerived} />
+        )}
         <InlineDef k="coll" openTerm={openTerm} />
         <div className="ml-1 text-[12px] text-ink/40">÷</div>
         <NumField
@@ -644,7 +647,11 @@ function TwoNumbersPage() {
           onChange={onWrvuEdit}
           step={10000}
         />
+        {leftWrvuSource === "derived-from-right" && (
+          <DerivedChip onUnlink={unlinkLeftDerived} />
+        )}
         <InlineDef k="wrvu" openTerm={openTerm} />
+
         <Erow
           op="="
           name={<Term t="yield" onClick={setOpenTerm} openTerm={openTerm}>ER yield</Term>}
