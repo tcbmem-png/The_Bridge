@@ -712,10 +712,12 @@ function TwoNumbersPage() {
       <SrcBox k="riskshift" open={openSrc} />
 
       <p className="mt-8 border-t border-ink/15 pt-4 text-[11.5px] leading-relaxed text-ink/45">
-        <span className="text-[var(--gold)]">gold</span> public ·{" "}
-        <span className="text-[var(--teal)]">teal</span> yours. Illustrative
-        defaults — replace with your own. Not legal, financial, or valuation
-        advice; benchmarks and the contract belong to counsel and a valuator.
+        <span className="text-[var(--gold)]">gold</span> = CMS / public ·{" "}
+        <span className="text-[var(--teal)]">teal</span> = your books ·{" "}
+        <span className="text-[var(--gold)]">counsel + valuator</span> ·{" "}
+        <span className="text-ink/65">arithmetic</span>. Illustrative defaults —
+        replace with your own. Not legal, financial, or valuation advice;
+        benchmarks and the contract belong to counsel and a valuator.
         "Avoidable" means medically unnecessary, defined by clinical
         leadership — never by who pays.
       </p>
