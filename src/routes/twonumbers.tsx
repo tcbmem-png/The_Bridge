@@ -247,14 +247,14 @@ function authClasses(c: Authority) {
     case "yours":
       return {
         bar: "border-l-[var(--teal)]",
-        chipBg: "bg-[var(--teal)]/12",
+        chipBg: "bg-[color-mix(in_oklab,var(--teal)_12%,transparent)]",
         chipFg: "text-[var(--teal)]",
         accent: "text-[var(--teal)]",
       };
     case "counsel":
       return {
         bar: "border-l-[var(--gold)]",
-        chipBg: "bg-[var(--gold)]/15",
+        chipBg: "bg-[color-mix(in_oklab,var(--gold)_15%,transparent)]",
         chipFg: "text-[var(--gold)]",
         accent: "text-[var(--gold)]",
       };
@@ -559,7 +559,7 @@ function TwoNumbersPage() {
           <button
             type="button"
             onClick={useSuggested}
-            className="font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[var(--teal)]/10 px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[var(--teal)]/15"
+            className="font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_15%,transparent)]"
           >
             ↺ use these
           </button>
@@ -748,7 +748,7 @@ function SrcBox({ k, open }: { k: SrcKey; open: SrcKey | null }) {
   if (open !== k) return null;
   const d = SRC[k];
   return (
-    <div className="mx-0.5 mt-2 rounded-lg border-l-[3px] border-[var(--gold)] bg-[var(--gold)]/8 px-3 py-2.5 text-[12.5px] leading-relaxed">
+    <div className="mx-0.5 mt-2 rounded-lg border-l-[3px] border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-3 py-2.5 text-[12.5px] leading-relaxed">
       <div className="text-ink">{d.s}</div>
       {d.l && d.l.length > 0 && (
         <div className="mt-1.5 text-ink/65">
