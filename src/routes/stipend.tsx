@@ -693,8 +693,6 @@ function TwoNumbersPage() {
         </Sub>
       </ShapeCard>
 
-      {/* Definition box */}
-      <DefBox term={openTerm} />
 
       {/* Sentence 4 */}
       <Lead>
