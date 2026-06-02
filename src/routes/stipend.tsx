@@ -506,10 +506,12 @@ function TwoNumbersPage() {
   const onCollEdit = (v: number) => {
     setBaseColl(v);
     setCut(0);
+    markCustom();
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
     setCut(0);
+    markCustom();
   };
 
   // For the ER collections / ER wRVU inputs, when the lever is active we want
