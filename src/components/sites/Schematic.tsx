@@ -43,12 +43,18 @@ function nodeStroke(gap: number): string {
 export function Schematic({
   sites,
   out,
+  mode = "reveal",
+  redeployArc,
 }: {
   sites: Site[];
   out: SitesOutputs;
+  mode?: "reveal" | "whatif";
+  /** Optional what-if redeploy arc: from a catch source → target, sized by w. */
+  redeployArc?: { fromId: string; toId: string; w: number; wMax: number } | null;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const titleId = useId();
+  const isWhatIf = mode === "whatif";
 
   // Node-radius scale from wrvu_i. Min 26, max 64.
   const maxWrvu = Math.max(...out.per_site.map((p) => p.wrvu_i), 1);
@@ -73,11 +79,16 @@ export function Schematic({
 
   return (
     <div className="relative">
+      {isWhatIf ? (
+        <div className="font-mono-tab pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center rounded-full border border-dashed border-ink/55 bg-paper px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-ink/75">
+          what-if · totals move
+        </div>
+      ) : null}
       <svg
         viewBox="0 0 880 460"
         role="img"
         aria-labelledby={titleId}
-        className="dot-grid w-full rounded-md border border-ink/15 bg-paper"
+        className={`dot-grid w-full rounded-md border bg-paper ${isWhatIf ? "border-dashed border-ink/45" : "border-ink/15"}`}
         style={{ aspectRatio: "880 / 460" }}
       >
         <title id={titleId}>
