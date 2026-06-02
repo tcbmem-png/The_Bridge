@@ -103,7 +103,7 @@ const SRC: Record<
     o: "the two numbers, and how to pull them from your stack — open Data / Audit on the ○ card above.",
   },
   onlygroup: {
-    s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side under the DRG and never sees professional collections. That's why only the group can build this number.",
+    s: "In a hospital setting the radiologist bills the professional component; the hospital receives the technical/facility side (OPPS/APC for ER outpatient; DRG is inpatient) and never sees professional collections. That's why only the group can build this number.",
     l: [
       [
         "Professional vs. technical billing (Noridian)",
