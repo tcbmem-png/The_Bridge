@@ -3,7 +3,13 @@
 // computeTwoNumbers (do not re-derive). Illustrative only.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PracticeDashboard } from "@/components/stipend/PracticeDashboard";
+import {
+  PRACTICE_IMPACT_DEFAULTS,
+  backfillFromLeft,
+  computePracticeImpact,
+} from "@/lib/stipend/practiceImpact";
 
 export const Route = createFileRoute("/stipend")({
   head: () => ({
