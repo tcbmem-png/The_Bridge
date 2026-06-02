@@ -918,6 +918,27 @@ function TwoNumbersPage() {
           taylor@tcblaw.org
         </a>
       </p>
+      </div>
+
+      {/* Right column — practice-impact dashboard */}
+      <div className="min-w-0">
+        <PracticeDashboard
+          compPool={compPool}
+          setCompPool={onCompPoolEdit}
+          erSharePct={erSharePct}
+          setErSharePct={onErShareEdit}
+          partnerCount={partnerCount}
+          setPartnerCount={setPartnerCount}
+          view={view}
+          setView={setView}
+          cut={cut}
+          setCut={setCut}
+          redeployUtil={redeployUtilD}
+          setRedeployUtil={setRedeployUtilD}
+          fmvComp={comp}
+          overheadOverride={ovh}
+        />
+      </div>
     </main>
   );
 }
