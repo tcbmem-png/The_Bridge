@@ -59,6 +59,11 @@ export function Schematic({
   const byId = new Map(out.per_site.map((p) => [p.id, p]));
   const siteById = new Map(sites.map((s) => [s.id, s]));
 
+  // Display-precision per-site values so the on-screen gap cuff agrees with
+  // the Readouts panel (residual derived by subtraction → lines hand-sum).
+  const { rows: displayRows } = buildDisplay(out.per_site, out.C_total);
+  const displayById = new Map(displayRows.map((d) => [d.id, d]));
+
   const hospitalIds = sites.filter((s) => s.kind === "hospital").map((s) => s.id);
   const outsideIds = sites.filter((s) => s.kind === "group_outside").map((s) => s.id);
 
