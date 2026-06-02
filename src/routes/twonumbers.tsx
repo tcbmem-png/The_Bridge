@@ -198,7 +198,7 @@ const DEF: Record<
     c: "cms",
     a: "Your ER CPT codes run through the CMS Physician Fee Schedule (work-RVU column) — public, fixed, versioned.",
     m: "Σ (CPT → wRVU) for ER studies",
-    p: ["CMS PFS version — CY2026, CF $33.40"],
+    p: ["CMS PFS version — CY2026, CF $33.4009 (non-QP)"],
   },
   yield: {
     n: "ER yield",
@@ -597,10 +597,17 @@ function TwoNumbersPage() {
         <Erow op="=" name={<Term t="stip" onClick={setOpenTerm}>Stipend</Term>} value={fmtM(e.stipendP)} tot />
 
         <Sub title="Pins" authority="counsel">
-          <NumField label="Fair pay /wRVU" value={comp} onChange={setComp} />
+          <NumField
+            label={<>Fair pay /wRVU <span className="text-ink/40">· $58 ≈ 75th pct</span></>}
+            value={comp}
+            onChange={setComp}
+          />
+          <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
+            Median–75th range ≈ <span className="font-mono tabular-nums text-ink/70">$48–$58</span> (MGMA / SullivanCotter). Valuator sets the binding figure.
+          </p>
           <NumField label="Overhead /wRVU" value={ovh} onChange={setOvh} />
           <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-            Valuator sets the binding figure.
+            The $58 default sits at ~75th percentile; the median pulls the stipend down by a few $M. The Audit drawer (○ card) shows your books' own comp/overhead.
           </p>
         </Sub>
 
@@ -696,7 +703,7 @@ function TwoNumbersPage() {
         <SrcLink k="riskshift" open={openSrc} setOpen={setOpenSrc}>
           risk of the shortfall
         </SrcLink>{" "}
-        to the hospital — where it belongs.
+        {" "}to the hospital — the party that wants the coverage and can fund it.
       </Lead>
       <SrcBox k="riskshift" open={openSrc} />
 
