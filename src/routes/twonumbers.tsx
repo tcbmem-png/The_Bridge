@@ -160,7 +160,7 @@ const SRC: Record<
     ],
   },
   zeromargin: {
-    s: "Break-even by design: the stipend tops ER coverage up to fair cost, so a for-profit group earns no margin on that slice — it neither loses on it nor profits from it. (It is not 'collects nothing' — the tool holds yield at the blended ER rate.) Cutting the avoidable slice frees capacity that redeploys at the group's local non-ER yield.",
+    s: "Break-even by design: the stipend tops ER coverage up to fair cost, so the group earns no margin on that slice — it neither loses on it nor profits from it. So shedding the avoidable part costs no profit, and it frees capacity that redeploys at the group's local non-ER yield. (Not 'collects nothing' — the tool holds yield at the blended ER rate.)",
     o: "freed wRVU 0–100% × local non-ER yield — open the Hospital drawer on the △ card above. Our model, illustrative; no external authority.",
   },
   riskshift: {
