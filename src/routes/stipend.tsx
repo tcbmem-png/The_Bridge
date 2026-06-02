@@ -216,7 +216,7 @@ const DEF: Record<
     a: "The all-in cost to produce a wRVU — fair physician pay plus overhead. The valuator sets the binding figure in a written FMV opinion.",
     m: "fair cost = comp/wRVU + overhead/wRVU",
     p: [
-      "Comp/wRVU — MGMA / SullivanCotter, 75th-pct default (median–75th $48–58)",
+      "Comp/wRVU — MGMA / SullivanCotter, median default (median band $48–52; 75th ≈ $58). Valuator sets the binding percentile.",
       "Overhead/wRVU — practice-expense benchmark",
     ],
   },
