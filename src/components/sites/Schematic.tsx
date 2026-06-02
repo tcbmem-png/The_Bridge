@@ -156,7 +156,7 @@ export function Schematic({
           </text>
           {/* Two-feed glyph for y_bar — not sliced by site, workflow not consumed */}
           <foreignObject x="320" y="436" width="40" height="20">
-            <div xmlns="http://www.w3.org/1999/xhtml">
+            <div>
               <FeedsGlyph
                 feeds={{ billing: true, production: true, workflow: false }}
                 note="Group blended yield — collections ÷ wRVU at the group total. Not sliced by site, so the workflow feed is not consumed here."
@@ -243,7 +243,7 @@ export function Schematic({
               ) : null}
               {/* Per-site provenance glyph — every by-site number is a modeled three */}
               <foreignObject x={-18} y={-(radius + 22)} width="40" height="20">
-                <div xmlns="http://www.w3.org/1999/xhtml">
+                <div>
                   <FeedsGlyph
                     feeds={{ billing: true, production: true, workflow: "assumption" }}
                     note={`Per-site slice for ${site.label}: billing and production live in their feeds; the by-site cut is an assumption until the worklist is joined.`}
