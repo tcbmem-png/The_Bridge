@@ -440,6 +440,29 @@ function TwoNumbersPage() {
   const [twrvu, setTwrvu] = useState(1_100_000);
   const [ershare, setErshare] = useState(27);
   const [eryield, setEryield] = useState(28);
+  // Scale preset — sets aggregates + ER numbers; comp percentile + ER share/yield stay independent.
+  type Scale = "mid" | "large" | "custom";
+  const [scale, setScale] = useState<Scale>("mid");
+  const applyScale = (s: "mid" | "large") => {
+    if (s === "mid") {
+      setNet(63_800_000);
+      setTotcoll(77_000_000);
+      setTwrvu(1_100_000);
+      setBaseWrvu(297_000);
+      setBaseColl(8_316_000);
+    } else {
+      setNet(130_000_000);
+      setTotcoll(156_400_000);
+      setTwrvu(2_200_000);
+      setBaseWrvu(594_000);
+      setBaseColl(16_632_000);
+    }
+    setCut(0);
+    setScale(s);
+  };
+  const markCustom = () => {
+    if (scale !== "custom") setScale("custom");
+  };
 
   // term/source UI state
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
