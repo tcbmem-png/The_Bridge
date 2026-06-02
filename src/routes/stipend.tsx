@@ -1100,3 +1100,20 @@ function AuditRow({
     </div>
   );
 }
+
+function DerivedChip({ onUnlink }: { onUnlink: () => void }) {
+  return (
+    <div className="-mt-0.5 mb-1 flex items-center gap-1.5">
+      <span className="font-mono-tab rounded-full border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--teal)]">
+        ← derived from right · benchmark estimate
+      </span>
+      <button
+        type="button"
+        onClick={onUnlink}
+        className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45 hover:text-ink"
+      >
+        unlink
+      </button>
+    </div>
+  );
+}
