@@ -491,7 +491,7 @@ export function SandboxCurve() {
             <NumField
               label="Range · w_min – w_max"
               unit="wRVU"
-              hint={`Default slider range. Default w = ${fmtCount(DEFAULT_CURVE_INPUTS.w_default)}. PLACEHOLDER · Jonathan.`}
+              hint={`Default slider range. Default w = ${fmtCount(DEFAULT_CURVE_INPUTS.w_default)}. PLACEHOLDER · clinical lead.`}
               value={c.w_min}
               step={500}
               min={0}
