@@ -772,7 +772,6 @@ function TwoNumbersPage() {
           </p>
         </Sub>
       </ShapeCard>
-      </ShapeCard>
 
 
       {/* Sentence 4 */}
