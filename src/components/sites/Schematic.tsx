@@ -5,7 +5,7 @@
 
 import { useState, useId } from "react";
 import { FeedsGlyph } from "../provenance/FeedsGlyph";
-import type { Site, SitesOutputs } from "../../lib/sites/types";
+import type { Site, SiteComputed, SitesOutputs } from "../../lib/sites/types";
 import { fmtMoney, fmtWRVU, fmtPct, fmtDollarsPerWRVU } from "../../lib/money/format";
 
 type NodeLayout = { id: string; cx: number; cy: number };
@@ -285,7 +285,7 @@ function NodeDetail({
   onClose,
 }: {
   site: Site;
-  row: ReturnType<SitesOutputs["per_site"]["map"]> extends never ? never : SitesOutputs["per_site"][number];
+  row: SiteComputed;
   y_bar: number;
   onClose: () => void;
 }) {
