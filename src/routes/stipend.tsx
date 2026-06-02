@@ -3,7 +3,13 @@
 // computeTwoNumbers (do not re-derive). Illustrative only.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PracticeDashboard } from "@/components/stipend/PracticeDashboard";
+import {
+  PRACTICE_IMPACT_DEFAULTS,
+  backfillFromLeft,
+  computePracticeImpact,
+} from "@/lib/stipend/practiceImpact";
 
 export const Route = createFileRoute("/stipend")({
   head: () => ({
@@ -440,29 +446,68 @@ function TwoNumbersPage() {
   const [twrvu, setTwrvu] = useState(1_100_000);
   const [ershare, setErshare] = useState(27);
   const [eryield, setEryield] = useState(28);
-  // Scale preset — sets aggregates + ER numbers; comp percentile + ER share/yield stay independent.
-  type Scale = "mid" | "large" | "custom";
-  const [scale, setScale] = useState<Scale>("mid");
-  const applyScale = (s: "mid" | "large") => {
-    if (s === "mid") {
-      setNet(63_800_000);
-      setTotcoll(77_000_000);
-      setTwrvu(1_100_000);
-      setBaseWrvu(297_000);
-      setBaseColl(8_316_000);
-    } else {
-      setNet(130_000_000);
-      setTotcoll(156_400_000);
-      setTwrvu(2_200_000);
-      setBaseWrvu(594_000);
-      setBaseColl(16_632_000);
-    }
-    setCut(0);
-    setScale(s);
-  };
-  const markCustom = () => {
-    if (scale !== "custom") setScale("custom");
-  };
+
+  /* ─── right-column practice dashboard state ──────────────────────────── */
+  // Drivers boot at zero; the right side stays zeroed until both are entered.
+  const [compPool, setCompPool] = useState(0);
+  const [erSharePct, setErSharePct] = useState(0);
+  const [partnerCount, setPartnerCount] = useState(100);
+  const [view, setView] = useState<"total" | "perPartner">("perPartner");
+  const [redeployUtilD, setRedeployUtilD] = useState(0);
+
+  // Bridge direction — drives which side derives from the other.
+  // "none" = both sides independent (user has unlinked or no R2 yet)
+  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("none");
+  // Per-left-field source flag — controls the "← derived" chip.
+  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("user");
+  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("user");
+  // Right-side derived label flag
+  const [rightSource, setRightSource] = useState<"user" | "derived-from-left">("user");
+
+  // Bridge — eager with ~200ms debounce; one-way each tick per `bridge` mode.
+  const bridgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
+    if (bridge === "none") return;
+    bridgeTimer.current = setTimeout(() => {
+      if (bridge === "right-to-left" && compPool > 0 && erSharePct > 0) {
+        const o = computePracticeImpact({
+          compPool,
+          erShare: erSharePct / 100,
+          partnerCount,
+          stipendOn: true,
+          cutFrac: 0,
+          redeployUtil: 0,
+          fmvComp: comp,
+          compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
+          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
+          overheadPerWrvu: ovh,
+          erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+        });
+        setBaseColl(Math.round(o.erColl));
+        setBaseWrvu(Math.round(o.erWrvu));
+        setLeftCollSource("derived-from-right");
+        setLeftWrvuSource("derived-from-right");
+        setCut(0);
+      } else if (bridge === "left-to-right" && baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
+        const b = backfillFromLeft({
+          erColl: baseColl,
+          erWrvu: baseWrvu,
+          erShare: erSharePct / 100,
+          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
+          // residual-ish; default benchmark while users have only the two
+          nonErYieldBench: 85,
+        });
+        setCompPool(Math.round(b.compPool));
+        setRightSource("derived-from-left");
+      }
+    }, 200);
+    return () => {
+      if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
+    };
+  }, [bridge, compPool, erSharePct, baseColl, baseWrvu, partnerCount, comp, ovh]);
+
+
 
   // term/source UI state
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
@@ -501,18 +546,40 @@ function TwoNumbersPage() {
     setCut(0);
   };
 
-  // When the user edits the two numbers, treat them as the new baseline.
-  // (The inputs ARE the baseline state; lever resets to 0 on edit.)
+  // When the user edits the two numbers, treat them as the new baseline
+  // (the inputs ARE the baseline state; lever resets to 0 on edit). Mark
+  // the field as user-typed and, if R2 is present, drive the bridge
+  // left→right.
   const onCollEdit = (v: number) => {
     setBaseColl(v);
     setCut(0);
-    markCustom();
+    setLeftCollSource("user");
+    if (erSharePct > 0) setBridge("left-to-right");
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
     setCut(0);
-    markCustom();
+    setLeftWrvuSource("user");
+    if (erSharePct > 0) setBridge("left-to-right");
   };
+  const unlinkLeftDerived = () => {
+    setLeftCollSource("user");
+    setLeftWrvuSource("user");
+    setBridge("none");
+  };
+
+  // Right-side input handlers — drive the bridge right→left.
+  const onCompPoolEdit = (v: number) => {
+    setCompPool(v);
+    setRightSource("user");
+    if (v > 0 && erSharePct > 0) setBridge("right-to-left");
+  };
+  const onErShareEdit = (v: number) => {
+    setErSharePct(v);
+    setRightSource("user");
+    if (compPool > 0 && v > 0) setBridge("right-to-left");
+  };
+
 
   // For the ER collections / ER wRVU inputs, when the lever is active we want
   // the field to reflect the lever-scaled value (the math runs in reverse and
@@ -535,10 +602,17 @@ function TwoNumbersPage() {
     );
 
   return (
-    <main className="mx-auto max-w-xl px-5 py-10 md:py-14">
+    <main className="mx-auto grid max-w-6xl gap-8 px-5 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+      <div className="min-w-0 lg:max-w-xl">
       <h1 className="font-display text-[28px] font-semibold leading-[1.1] tracking-tight text-ink md:text-[34px]">
         A Tale of Two Numbers
       </h1>
+      {rightSource === "derived-from-left" && (
+        <div className="font-mono-tab mt-2 inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
+          right side · derived from left audit
+        </div>
+      )}
+
 
       {/* Sentence 1 */}
       <Lead>
@@ -562,6 +636,9 @@ function TwoNumbersPage() {
           onChange={onCollEdit}
           step={100000}
         />
+        {leftCollSource === "derived-from-right" && (
+          <DerivedChip onUnlink={unlinkLeftDerived} />
+        )}
         <InlineDef k="coll" openTerm={openTerm} />
         <div className="ml-1 text-[12px] text-ink/40">÷</div>
         <NumField
@@ -570,7 +647,11 @@ function TwoNumbersPage() {
           onChange={onWrvuEdit}
           step={10000}
         />
+        {leftWrvuSource === "derived-from-right" && (
+          <DerivedChip onUnlink={unlinkLeftDerived} />
+        )}
         <InlineDef k="wrvu" openTerm={openTerm} />
+
         <Erow
           op="="
           name={<Term t="yield" onClick={setOpenTerm} openTerm={openTerm}>ER yield</Term>}
@@ -580,45 +661,20 @@ function TwoNumbersPage() {
         <InlineDef k="yield" openTerm={openTerm} />
 
         <Sub title="Data" authority="yours">
-          <div className="mb-3 rounded-md border border-ink/10 bg-ink/[0.025] p-2.5">
-            <div className="font-mono-tab mb-1.5 text-[10px] uppercase tracking-[0.1em] text-ink/50">
-              Scale <span className="text-ink/35">· illustrative scale — replace with your own</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {([
-                ["mid", "Mid-size · ~100 rads"],
-                ["large", "Large · ~200 rads"],
-                ["custom", "Custom"],
-              ] as const).map(([key, label]) => {
-                const active = scale === key;
-                const isCustom = key === "custom";
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      if (isCustom) setScale("custom");
-                      else applyScale(key);
-                    }}
-                    className={`font-mono-tab rounded-full border px-2 py-0.5 text-[10.5px] uppercase tracking-[0.08em] ${active ? "border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_12%,transparent)] text-[var(--teal)]" : "border-ink/20 text-ink/55 hover:border-ink/40"} ${isCustom && !active ? "opacity-70" : ""}`}
-                  >
-                    {active ? "● " : "○ "}{label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
           <NumField
             label={<>Physician compensation pool <span className="text-ink/40">· MGMA: Total Physician Compensation</span></>}
             value={net}
-            onChange={(v) => { setNet(v); markCustom(); }}
+            onChange={setNet}
             step={1000000}
           />
           <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
             What the group distributes to its doctors. The known anchor.
           </p>
-          <NumField label="Total collections" value={totcoll} onChange={(v) => { setTotcoll(v); markCustom(); }} step={1000000} />
-          <NumField label="Total wRVU" value={twrvu} onChange={(v) => { setTwrvu(v); markCustom(); }} step={10000} />
+          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} />
+          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} />
+          <NumField label="ER share %" value={ershare} onChange={setErshare} />
+          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
+
           <NumField label="ER share %" value={ershare} onChange={setErshare} />
           <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
           <OutRow l="Suggested ER collections (benchmark estimate)" r={fmtM(sugC)} />
@@ -869,6 +925,27 @@ function TwoNumbersPage() {
           taylor@tcblaw.org
         </a>
       </p>
+      </div>
+
+      {/* Right column — practice-impact dashboard */}
+      <div className="min-w-0">
+        <PracticeDashboard
+          compPool={compPool}
+          setCompPool={onCompPoolEdit}
+          erSharePct={erSharePct}
+          setErSharePct={onErShareEdit}
+          partnerCount={partnerCount}
+          setPartnerCount={setPartnerCount}
+          view={view}
+          setView={setView}
+          cut={cut}
+          setCut={setCut}
+          redeployUtil={redeployUtilD}
+          setRedeployUtil={setRedeployUtilD}
+          fmvComp={comp}
+          overheadOverride={ovh}
+        />
+      </div>
     </main>
   );
 }
@@ -1020,6 +1097,23 @@ function AuditRow({
         <span className="mx-1.5 text-[11px] text-ink/40">vs</span>
         <span className="font-semibold text-[var(--gold)]">{pin}</span>
       </span>
+    </div>
+  );
+}
+
+function DerivedChip({ onUnlink }: { onUnlink: () => void }) {
+  return (
+    <div className="-mt-0.5 mb-1 flex items-center gap-1.5">
+      <span className="font-mono-tab rounded-full border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--teal)]">
+        ← derived from right · benchmark estimate
+      </span>
+      <button
+        type="button"
+        onClick={onUnlink}
+        className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45 hover:text-ink"
+      >
+        unlink
+      </button>
     </div>
   );
 }

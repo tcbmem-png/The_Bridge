@@ -1,91 +1,98 @@
+# /stipend — Practice-Impact Dashboard (right column)
 
-## The Bridge — build plan
+The left ○□△ instrument is untouched. A right column joins it, driven by the
+two numbers a partner actually knows: **comp pool (R1)** and **ER share (R2)**.
+One pure engine; the view renders it. Engine-verified, generic, illustrative.
 
-A client-side-only TanStack Start + Tailwind app. No backend, no AI, no real names. This plan covers the initial scaffold and the **Story view** only. Under the Hood and Sandbox are left as empty stub routes for the next pass. AI-reframe and AUC copy, plus the dashboard component, are left as clearly marked placeholders pending your wording.
+## 1. Layout
+- Desktop ≥1024px: two columns inside `/stipend` → `[ left instrument | right dashboard ]`. Left keeps its width and $10.10M demo default.
+- <1024px: stack — instrument first, dashboard below.
+- Persistent "Illustrative · sample data" header pill kept. No new links out.
+- **Remove** Mid / Large / Custom scale chips and the `applyScale()` + `markCustom()` plumbing from `stipend.tsx`. Restore plain onChange handlers on `net`, `totcoll`, `twrvu`, `baseColl`, `baseWrvu`.
 
-### 1. Standing rules (pinned to project memory)
+## 2. Driver inputs (right hero, empty-state)
+Right boots fully zeroed — every KPI `$0 / —`. Empty-state copy verbatim:
+> "Enter the two numbers you already know — your physician compensation pool and your ER share of work — and your whole picture fills in (this side and the stipend on the left)."
 
-Save these as `mem://` rules so they survive every future change:
+- **R1 · Physician compensation pool** ($, MGMA Total Physician Compensation)
+- **R2 · ER share of work** (%)
+- **Secondary, optional:** partner count N (toggle total ↔ per partner). **Default N = 100.**
 
-- **Constraints**: client-side only, PHI-free, no backend/DB/auth/uploads, no AI/LLM/chatbot, no "connect your data".
-- **CONFIG**: single source of entity names — `groupName = "the Physician Group"`, `hospitalName = "the Hospital"`, `examsPerYear = 800000`, `partnerCount = 200`. No real names anywhere.
-- **Voice**: editorial-clinical. Short declarative sentences. Periods, not commas. No marketing register (no "trusted by", badge rows, urgency, hype adjectives, emoji, exclamation points, transformation arcs).
-- **Design tokens**: Fraunces (display), IBM Plex Sans (body), IBM Plex Mono (all numbers, tabular). Palette: ink `#0E1B2C`, paper `#F6F2E9`, teal `#0E8C8C`, gold `#C2902B → #E0A93D`, red `#BB4332`. Faint dot-grid on paper bg.
-- **Header pill**: persistent "Illustrative · sample data".
+Two inputs are the visual hero — large fields, arrow glyph, "start here" affordance. Nothing on the right renders a number until both R1 and R2 are non-empty.
 
-### 2. Design system wiring
+## 3. The bridge (left ↔ right, both labeled)
+1. **Top-down (primary):** R1 + R2 → W, C, overhead, ER wRVU, ER yield (benchmark), ER coll, non-ER yield. Derived ER coll + ER wRVU **sync into** the left's `baseColl` + `baseWrvu`, labeled "benchmark estimate — replace with your audited number." A small **"← derived from right"** chip appears on the affected left fields; clicking it unlinks (user edit wins from then on).
+2. **Bottom-up:** user types left fields AND R2 is present → back-fill R1, W, C on the right via benchmarks; labeled "derived from left audit." Same unlink chip.
+3. **Left-only, no share:** stipend on the left computes as today; right stays zeroed.
 
-- Add Google Fonts links (Fraunces, IBM Plex Sans, IBM Plex Mono) in `__root.tsx` head.
-- Extend `src/styles.css` with the palette as oklch tokens (`--ink`, `--paper`, `--teal`, `--gold`, `--gold-2`, `--red`) and register them in `@theme inline` so utilities like `bg-paper text-ink` work. Override `--background`/`--foreground` to paper/ink.
-- Body font → Plex Sans. Add font utility classes: `font-display` (Fraunces), `font-mono-tab` (Plex Mono with `font-variant-numeric: tabular-nums`).
-- Add a `.dot-grid` background utility (subtle radial-gradient dot pattern on paper).
+Precedence: most recent user edit wins; derived fields carry the benchmark chip, user-typed fields don't. Bridge is **eager with ~200ms debounce**.
 
-### 3. App shell
+Encoded as per-field `source: "user" | "derived-from-right" | "derived-from-left" | "empty"` so the bridge effect knows what is safe to overwrite.
 
-- `src/config.ts` — exports the `CONFIG` object. All copy that references entity names or numbers reads from here.
-- `src/routes/__root.tsx` — add the sticky header: small circular brand mark (SVG circle with a teal inner dot, the recurring "fall token" motif), wordmark "The Bridge" in Fraunces, 3-tab nav using `<Link>` to `/`, `/under-the-hood`, `/sandbox` with `activeProps` for the active tab, and the right-aligned "Illustrative · sample data" pill (paper-on-ink small rounded pill). Update meta title/description to "The Bridge — Illustrative".
-- `src/components/FallToken.tsx` — the small dot/tag motif, reused in all three views (sized prop).
+## 4. Engine — one pure function
+**New:** `src/lib/stipend/practiceImpact.ts`. Signed, no floors, deterministic, no network. Does NOT alter the left engine (`computeTwoNumbers` in `stipend.tsx`).
 
-### 4. Routes
+Benchmark pins (visible/sourced in the UI):
+`compActualPerWrvu = 58`, `compToCollections = 0.83`, `overheadPerWrvu = 12`, `fmvComp = 50`, **`erYield = 28` (demo default — the page reconciles to $10.10M at 28, NOT 26)**, `nonErYieldBench = residual`.
 
-- `/` → Story view (full build below).
-- `/under-the-hood` → stub: just the section frame, H1 "Under the Hood", and a muted "Coming next." line.
-- `/sandbox` → stub: same treatment, H1 "The Sandbox".
+```
+TOP-DOWN  (P = comp pool, s = ER share)
+  W       = P / compActualPerWrvu
+  C       = P / compToCollections
+  ovh     = (C − P) / W                  // ≈ $12
+  erWrvu  = W × s
+  erYield = 28                            // demo default; audit replaces
+  erColl  = erWrvu × erYield
+  nonErYield = (C − erColl) / (W − erWrvu)
+  fairCost = fmvComp + ovh = $62
+  distPerWrvu = compActualPerWrvu − fmvComp = $8
 
-Each route sets its own `head()` with distinct title/description per route-architecture rules.
+BOTTOM-UP (E_c = ER coll, E_w = ER wRVU, s = ER share)
+  W = E_w / s ; nonErColl = (W − E_w) × nonErYieldBench
+  C = E_c + nonErColl ; P = C × compToCollections
+```
 
-### 5. Story view (`src/routes/index.tsx`)
+Returns: `totalWrvu, collections, overheadPerWrvu, erWrvu, erColl, erYield, nonErYield, fairCost, distributionPerWrvu, stipend, distributionTotal, distributionPerPartner, hospitalSaves, freedWrvu, redeployGain, scenarios{A_noStipend,B_withStipend,C_optimized}, volumeSweep[{erWrvu,distWith,distWithout}]`.
 
-Single scroll. Components broken out into `src/components/story/`:
+## 5. Right-column KPIs
+- **Headline:** distribution per partner (total ↔ per-partner toggle).
+- **5a · With/without-stipend flip** — segmented control snaps the headline between **Without ≈ $88k** and **With ≈ $189k** (engine-driven; not hardcoded).
+- **5b · ER-volume sweep chart** — hand-rolled inline SVG. x = ER volume (0.5×…4× today), y = distribution per partner.
+  - With-stipend line: flat ~$188k (the break-even ceiling).
+  - Without-stipend line: downhill, zero ≈ 1.9×, ≈ −$216k at 4×.
+  - **Marker boots at today's 1× tick (zero-change rest).** Drag right = add volume, left = cut. Both lines pre-drawn so the consequence shows the instant the marker moves. Pointer events; respects `prefers-reduced-motion`.
+  - Caption frames the flat line as the win (copy in §7).
+- **5c · Cut + redeploy** — avoidable-cut % (0–100% of ~30%) + redeploy util (0–100%) bend the with-stipend line up to **≈ $210k/partner** at 30%/100%; hospital saves **≈ $3.03M**. Live `$/partner` lift + `hospital saves $X` deltas. Util 0% → no gain, no loss.
+- **5d · Practice vs ER table** — same cost $62/wRVU both sides; yield $28 ER vs ~$85 non-ER; margin −$34 vs +$23.53. Caption: "Same cost to read either study; the ER collects a third as much — payer mix, not effort."
 
-**Hero** (`Hero.tsx`)
-- Kicker (mono, uppercase, tracked): "Problem → Dashboard → Solution"
-- H1 (Fraunces, large, ink): "You're already generating the data. You're just not *seeing* it." — `seeing` wrapped in `<em>`.
-- Sub (Plex Sans, muted ink): the exact paragraph from the brief.
-- Two buttons: primary "Open the sandbox →" (ink bg, paper text) linking `/sandbox`; ghost "See how it works" (ink border) scrolling to Act 1.
-- Subtle FallToken in the corner.
+## 6. Files
+- **New:** `src/lib/stipend/practiceImpact.ts`
+- **New:** `src/components/stipend/PracticeDashboard.tsx`
+- **New:** `src/components/stipend/VolumeSweepChart.tsx`
+- **New:** `src/components/stipend/PracticeVsErTable.tsx`
+- **Edit:** `src/routes/stipend.tsx` — two-column wrapper, page-level state (`compPool`, `erShare`, `partnerCount`, `view`, `cut`, `redeployUtil`, per-field `source` flags), bridge effect (debounced 200ms, both directions), benchmark chip on derived left fields, remove Mid/Large/Custom plumbing.
 
-**Act 1 — The Problem** (`ActProblem.tsx`)
-- Tag row: FallToken + "The Problem · Follow the fall" (mono, small).
-- H2 (Fraunces): "Reading scans nobody pays for — everywhere."
-- **Players row**: 3 cards driven by CONFIG — `the Physician Group`, `the Hospital`, `the ED`. Each card: role label (mono), name (Fraunces), one-line plain description (Plex Sans). Equal-height, paper cards with a thin ink border, stack on mobile.
-- **Industry-reality** paragraph (body copy, plain and declarative, no hype). Draft: "Emergency volume runs through imaging. Scans are ordered, acquired, and read. The read produces a report, a claim, and a set of timestamps. The work happens. The economics of the work go unobserved."
-- **AI-reframe placeholder**: a clearly marked block — dashed ink border, mono label `PLACEHOLDER · AI-reframe copy`, body "Awaiting wording." Easy to find and replace.
-- **AUC callout placeholder**: same treatment, label `PLACEHOLDER · AUC callout`.
-- **Fall vignette card**: dark card (ink bg, paper text), oversized Fraunces pull-quote treatment, a single FallToken falling on the right, mono caption underneath. Body kept minimal until you supply final wording — use a placeholder line "The read happens. The dollar falls."
+## 7. Framing copy (verbatim — the soul)
+Inline editorial captions on the dashboard:
+- **Break-even is ER's ceiling — the win, not a letdown.** *"The stipend can't make ER a profit center — that would be funding profit, and the law forbids it. Its job is to stop ER from being a loss center. Best case, ER is break-even — and getting to zero is the win."*
+- **The flat line is the proof it's FMV.** *"More ER volume never raises your partner profit by a dollar — and that's exactly why this is a fair coverage payment and not a kickback. The stipend funds the cost of coverage, never the owners' return."*
+- **Without stipend = subsidizing a mandate.** *Frame the downhill line as the group covering the hospital's obligation out of its own partners' pockets — the risk the stipend removes.*
+- **Why the group covers it (generic — no hospital names).** *"Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."*
+- **The invisibility/unlock.** *"Nothing ever segmented your ER, so the loss hid inside the blended book — until the surplus thinned and the bonus fell. Turn the ER on as its own segment and the shape tells you where it went."*
+- Labels: derived = "benchmark estimate"; ER yield = "your audit replaces this"; non-ER = "derived (residual)."
 
-**Act 2 — The Dashboard** (`ActDashboard.tsx`)
-- Tag: FallToken + "The Dashboard · The fall, in numbers".
-- H2 (Fraunces): "Data becomes information."
-- **Dashboard placeholder box**: large paper card with dashed ink border, mono label `PLACEHOLDER · Dashboard component`, sized to roughly the final footprint so layout reads correctly. No fake charts.
+## 8. Guardrails (don't regress)
+- Left ○□△ instrument unchanged; median $50 → fair $62 → **$10.10M** still holds.
+- No new links from `/stipend` to other depth pages. Only self + contact email.
+- Signed math, deterministic, view-renders-engine. No real names. No leaked builder text.
 
-**Act 3 — The Solution** (`ActSolution.tsx`)
-- Tag: FallToken + "The Solution · The fall, removed".
-- H2 (Fraunces): "Everyone earns more by removing waste."
-- **Three pillars**: Collaborate / Quantify / Structure. Each: pillar name (Fraunces), one short declarative sentence (Plex Sans). Drafted plainly, no marketing verbs; easy to revise.
-- **Win-row**: 3 tiles. Each tile shows a mono number (illustrative, from CONFIG-derived math or simple sample like `+$X / exam`) in gold/teal, with a short ink label below. Numbers clearly illustrative; tabular-nums.
-
-### 6. Motion
-
-- Motion is restrained. Use CSS-only transitions plus one `IntersectionObserver`-driven fade/translate on Act headers and the fall-vignette token. No library needed for this pass. Respect `prefers-reduced-motion`.
-
-### 7. Mobile
-
-- Single column at `<768px`. Header collapses to brand + pill; nav becomes a row beneath. Type scale steps down for H1/H2. Players row, pillars, and win-row all stack. Tap targets ≥44px.
-
-### 8. What is explicitly NOT in this pass
-
-- AI-reframe wording, AUC callout wording, fall-vignette final copy — placeholders only.
-- Dashboard component internals — placeholder box only.
-- Under the Hood and Sandbox content — empty stub routes.
-- Any persistence, data fetching, uploads, or external calls.
-
-### Technical notes
-
-- Stack stays TanStack Start + Tailwind v4 (template default). Tokens added via `@theme inline` in `src/styles.css`; no `tailwind.config.js` changes needed.
-- Fonts loaded via `<link>` tags in `__root.tsx` `head()` (preconnect to `fonts.googleapis.com` + `fonts.gstatic.com`).
-- All copy strings that reference entities or numbers go through `CONFIG` — never hardcoded.
-- File layout: `src/config.ts`, `src/components/FallToken.tsx`, `src/components/Header.tsx`, `src/components/story/{Hero,ActProblem,ActDashboard,ActSolution,Placeholder}.tsx`, routes `index.tsx`, `under-the-hood.tsx`, `sandbox.tsx`.
-- Memory: write `mem://index.md` Core rules covering constraints/voice/tokens/CONFIG so every future edit honors them without re-prompting.
-
-Ready to build on approval.
+## 9. Acceptance checks
+- Right all-zeros until BOTH R1 and R2 entered; empty-state names exactly those two.
+- Top-down at (pool $63.8M, share 27%): 1.1M wRVU, $77M collections, $12 overhead, $8 distribution, **$10.10M stipend** on the left; left ER fields populated + benchmark-labeled.
+- Bottom-up: left two + share → back-fills R1 ≈ **$63.8M**, labeled.
+- Left-only, no share: stipend computes; right stays zero.
+- With/without flip: **≈ $88k ↔ ≈ $189k** at N=100 / demo inputs.
+- Volume slider rests at zero-change tick; right = add, left = cut. With-stipend flat ~$188k; without-stipend zero ≈ 1.9×, ≈ −$216k at 4×.
+- Cut 30% + redeploy 100% → **≈ $210k/partner**, hospital saves **≈ $3.03M**; util 0% = no gain, no loss.
+- erYield demo default = **$28** (reproduces $10.10M).
+- Mid/Large/Custom chips + plumbing removed.
