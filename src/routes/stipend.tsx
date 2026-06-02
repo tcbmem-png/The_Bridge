@@ -586,9 +586,9 @@ function TwoNumbersPage() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               {([
-                ["mid", "● Mid-size · ~100 rads"],
-                ["large", "○ Large · ~200 rads"],
-                ["custom", "○ Custom"],
+                ["mid", "Mid-size · ~100 rads"],
+                ["large", "Large · ~200 rads"],
+                ["custom", "Custom"],
               ] as const).map(([key, label]) => {
                 const active = scale === key;
                 const isCustom = key === "custom";
@@ -602,7 +602,7 @@ function TwoNumbersPage() {
                     }}
                     className={`font-mono-tab rounded-full border px-2 py-0.5 text-[10.5px] uppercase tracking-[0.08em] ${active ? "border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_12%,transparent)] text-[var(--teal)]" : "border-ink/20 text-ink/55 hover:border-ink/40"} ${isCustom && !active ? "opacity-70" : ""}`}
                   >
-                    {label}
+                    {active ? "● " : "○ "}{label}
                   </button>
                 );
               })}
