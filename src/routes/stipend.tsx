@@ -666,10 +666,11 @@ function TwoNumbersPage() {
         </p>
         <p className="mt-2 text-[12.5px] leading-relaxed text-ink/45">
           <b className="text-ink">Model note:</b>{" "}
-          <Term t="coll" onClick={setOpenTerm}>ER collections</Term> is one of
+          <Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term> is one of
           the two numbers you provide; when volume moves we assume it tracks,
           so yield holds and the math runs in reverse.
         </p>
+        <InlineDef k="coll" openTerm={openTerm} />
 
         <Sub title="Hospital" authority="yours" id="hospital-drawer">
           <NumField label="Reclaimed time value /wRVU" value={redep} onChange={setRedep} />
