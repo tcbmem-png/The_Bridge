@@ -7,6 +7,7 @@ import { useState, useId } from "react";
 import { FeedsGlyph } from "../provenance/FeedsGlyph";
 import type { Site, SiteComputed, SitesOutputs } from "../../lib/sites/types";
 import { fmtMoney, fmtWRVU, fmtPct, fmtDollarsPerWRVU } from "../../lib/money/format";
+import { buildDisplay, fmtMoneyK } from "../../lib/sites/display";
 
 type NodeLayout = { id: string; cx: number; cy: number };
 
