@@ -508,17 +508,6 @@ function TwoNumbersPage() {
 
   return (
     <main className="mx-auto max-w-xl px-5 py-10 md:py-14">
-      {/* pill */}
-      <div className="mb-6">
-        <span
-          className="font-mono-tab inline-flex items-center rounded-full border border-ink/25 bg-paper px-2.5 py-1 text-[10.5px] uppercase tracking-[0.08em] text-ink/75"
-          aria-label="Illustrative sample data"
-        >
-          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-[var(--teal)]" />
-          Illustrative · sample data
-        </span>
-      </div>
-
       <h1 className="font-display text-[28px] font-semibold leading-[1.1] tracking-tight text-ink md:text-[34px]">
         A Tale of Two Numbers
       </h1>
