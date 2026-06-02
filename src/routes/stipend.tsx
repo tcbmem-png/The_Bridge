@@ -446,29 +446,68 @@ function TwoNumbersPage() {
   const [twrvu, setTwrvu] = useState(1_100_000);
   const [ershare, setErshare] = useState(27);
   const [eryield, setEryield] = useState(28);
-  // Scale preset — sets aggregates + ER numbers; comp percentile + ER share/yield stay independent.
-  type Scale = "mid" | "large" | "custom";
-  const [scale, setScale] = useState<Scale>("mid");
-  const applyScale = (s: "mid" | "large") => {
-    if (s === "mid") {
-      setNet(63_800_000);
-      setTotcoll(77_000_000);
-      setTwrvu(1_100_000);
-      setBaseWrvu(297_000);
-      setBaseColl(8_316_000);
-    } else {
-      setNet(130_000_000);
-      setTotcoll(156_400_000);
-      setTwrvu(2_200_000);
-      setBaseWrvu(594_000);
-      setBaseColl(16_632_000);
-    }
-    setCut(0);
-    setScale(s);
-  };
-  const markCustom = () => {
-    if (scale !== "custom") setScale("custom");
-  };
+
+  /* ─── right-column practice dashboard state ──────────────────────────── */
+  // Drivers boot at zero; the right side stays zeroed until both are entered.
+  const [compPool, setCompPool] = useState(0);
+  const [erSharePct, setErSharePct] = useState(0);
+  const [partnerCount, setPartnerCount] = useState(100);
+  const [view, setView] = useState<"total" | "perPartner">("perPartner");
+  const [redeployUtilD, setRedeployUtilD] = useState(0);
+
+  // Bridge direction — drives which side derives from the other.
+  // "none" = both sides independent (user has unlinked or no R2 yet)
+  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("none");
+  // Per-left-field source flag — controls the "← derived" chip.
+  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("user");
+  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("user");
+  // Right-side derived label flag
+  const [rightSource, setRightSource] = useState<"user" | "derived-from-left">("user");
+
+  // Bridge — eager with ~200ms debounce; one-way each tick per `bridge` mode.
+  const bridgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
+    if (bridge === "none") return;
+    bridgeTimer.current = setTimeout(() => {
+      if (bridge === "right-to-left" && compPool > 0 && erSharePct > 0) {
+        const o = computePracticeImpact({
+          compPool,
+          erShare: erSharePct / 100,
+          partnerCount,
+          stipendOn: true,
+          cutFrac: 0,
+          redeployUtil: 0,
+          fmvComp: comp,
+          compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
+          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
+          overheadPerWrvu: ovh,
+          erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+        });
+        setBaseColl(Math.round(o.erColl));
+        setBaseWrvu(Math.round(o.erWrvu));
+        setLeftCollSource("derived-from-right");
+        setLeftWrvuSource("derived-from-right");
+        setCut(0);
+      } else if (bridge === "left-to-right" && baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
+        const b = backfillFromLeft({
+          erColl: baseColl,
+          erWrvu: baseWrvu,
+          erShare: erSharePct / 100,
+          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
+          // residual-ish; default benchmark while users have only the two
+          nonErYieldBench: 85,
+        });
+        setCompPool(Math.round(b.compPool));
+        setRightSource("derived-from-left");
+      }
+    }, 200);
+    return () => {
+      if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
+    };
+  }, [bridge, compPool, erSharePct, baseColl, baseWrvu, partnerCount, comp, ovh]);
+
+
 
   // term/source UI state
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
