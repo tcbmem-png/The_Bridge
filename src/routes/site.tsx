@@ -1,7 +1,6 @@
-// HIDDEN page. Not in nav, not in any sitemap, noindex/nofollow.
-// Reachable by direct URL only — no auth, no password.
-// Everything ILLUSTRATIVE. The engine is pure & deterministic; the page reads
-// money config (CF + multipliers) and renders live recompute.
+// HIDDEN page. Not in nav (also linked in header as "Site"), not in any
+// sitemap, noindex/nofollow. Reachable by direct URL only — no auth.
+// Everything ILLUSTRATIVE. Engine is pure & deterministic.
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -12,10 +11,19 @@ import {
   C_TOTAL_DEFAULT,
 } from "../lib/sites/sites";
 import { computeSites, renormalizeShares } from "../lib/sites/compute";
+import {
+  computeFallWhatIf,
+  whatIfAsSitesOutputs,
+  WHATIF_DEFAULTS,
+  type WhatIfInputs,
+} from "../lib/sites/whatif";
 import type { Site, SiteMix } from "../lib/sites/types";
 import { Schematic } from "../components/sites/Schematic";
 import { AssumptionsPanel } from "../components/sites/AssumptionsPanel";
 import { Readouts } from "../components/sites/Readouts";
+import { WhatIfPanel } from "../components/sites/WhatIfPanel";
+import { WhatIfReadouts } from "../components/sites/WhatIfReadouts";
+import { JourneyScrubber } from "../components/sites/JourneyScrubber";
 import { fmtMoney, fmtWRVU } from "../lib/money/format";
 
 export const Route = createFileRoute("/site")({
@@ -29,13 +37,25 @@ export const Route = createFileRoute("/site")({
   component: SitePage,
 });
 
+type Mode = "reveal" | "whatif";
+
 function SitePage() {
   const { inputs } = useMoney();
   const [sites, setSites] = useState<Site[]>(DEFAULT_SITES);
+  const [mode, setMode] = useState<Mode>("reveal");
+  const [whatIfInp, setWhatIfInp] = useState<WhatIfInputs>(WHATIF_DEFAULTS);
 
-  const out = useMemo(
+  const baseline = useMemo(
     () => computeSites(sites, inputs, W_TOTAL_DEFAULT, C_TOTAL_DEFAULT),
     [sites, inputs],
+  );
+  const whatIf = useMemo(
+    () => computeFallWhatIf(sites, baseline, whatIfInp),
+    [sites, baseline, whatIfInp],
+  );
+  const whatIfOut = useMemo(
+    () => whatIfAsSitesOutputs(baseline, whatIf),
+    [baseline, whatIf],
   );
 
   const onShareChange = (id: string, newShare: number) =>
@@ -43,6 +63,23 @@ function SitePage() {
   const onMixChange = (id: string, mix: SiteMix) =>
     setSites((prev) => prev.map((s) => (s.id === id ? { ...s, payer_mix: mix } : s)));
   const onReset = () => setSites(DEFAULT_SITES);
+
+  const shownOut = mode === "whatif" ? whatIfOut : baseline;
+
+  // Pick the largest catch-site source of redeployment for the arc.
+  const arcSource = sites
+    .filter((s) => s.is_catch_site)
+    .map((s) => ({ id: s.id, w: whatIf.per_site.find((p) => p.id === s.id)?.removed_w_i ?? 0 }))
+    .sort((a, b) => b.w - a.w)[0];
+  const redeployArc =
+    mode === "whatif" && whatIf.redeployed_w_total > 0 && arcSource && arcSource.w > 0
+      ? {
+          fromId: arcSource.id,
+          toId: whatIfInp.redeploy_target,
+          w: whatIf.redeployed_w_total,
+          wMax: Math.max(...baseline.per_site.map((p) => p.wrvu_i), 1),
+        }
+      : null;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 md:py-16">
@@ -65,9 +102,9 @@ function SitePage() {
 
       {/* Anchors strip */}
       <div className="font-mono-tab mt-6 grid grid-cols-2 gap-3 rounded-md border border-ink/15 bg-paper p-3 text-[11.5px] text-ink/70 md:grid-cols-4">
-        <Anchor k="W_total" v={fmtWRVU(out.W_total)} note="illustrative anchor" />
-        <Anchor k="C_total" v={fmtMoney(out.C_total)} note="illustrative anchor" />
-        <Anchor k="y_bar" v={`$${out.y_bar.toFixed(2)}/wRVU`} note="derived" />
+        <Anchor k="W_total" v={fmtWRVU(baseline.W_total)} note="illustrative anchor" />
+        <Anchor k="C_total" v={fmtMoney(baseline.C_total)} note="illustrative anchor" />
+        <Anchor k="y_bar₀" v={`$${baseline.y_bar.toFixed(2)}/wRVU`} note="baseline reference · FIXED" />
         <Anchor
           k="conversion_factor"
           v={`$${inputs.conversion_factor.toFixed(2)}/wRVU`}
@@ -75,21 +112,78 @@ function SitePage() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      {/* Mode toggle */}
+      <div className="mt-5 inline-flex items-center gap-1 rounded-full border border-ink/20 bg-paper p-1">
+        <ModeBtn active={mode === "reveal"} onClick={() => setMode("reveal")}>
+          Current state · reveal
+        </ModeBtn>
+        <ModeBtn active={mode === "whatif"} onClick={() => setMode("whatif")}>
+          What-if · reduce the fall
+        </ModeBtn>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="space-y-6">
-          <Schematic sites={sites} out={out} />
-          <Readouts sites={sites} out={out} />
-        </div>
-        <div>
-          <AssumptionsPanel
+          <Schematic
             sites={sites}
-            onShareChange={onShareChange}
-            onMixChange={onMixChange}
-            onReset={onReset}
+            out={shownOut}
+            mode={mode}
+            redeployArc={redeployArc}
           />
+          {mode === "reveal" ? (
+            <Readouts sites={sites} out={baseline} />
+          ) : (
+            <WhatIfReadouts wi={whatIf} />
+          )}
+        </div>
+        <div className="space-y-6">
+          {mode === "reveal" ? (
+            <AssumptionsPanel
+              sites={sites}
+              onShareChange={onShareChange}
+              onMixChange={onMixChange}
+              onReset={onReset}
+            />
+          ) : (
+            <WhatIfPanel
+              sites={sites}
+              inp={whatIfInp}
+              onChange={setWhatIfInp}
+              breakEven={whatIf.break_even_redeploy}
+            />
+          )}
         </div>
       </div>
+
+      {/* Module B — the scan journey */}
+      <div className="mt-10">
+        <JourneyScrubber />
+      </div>
     </main>
+  );
+}
+
+function ModeBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`font-mono-tab rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.12em] transition-colors ${
+        active
+          ? "bg-ink text-paper"
+          : "text-ink/60 hover:text-ink"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
