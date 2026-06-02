@@ -440,6 +440,29 @@ function TwoNumbersPage() {
   const [twrvu, setTwrvu] = useState(1_100_000);
   const [ershare, setErshare] = useState(27);
   const [eryield, setEryield] = useState(28);
+  // Scale preset — sets aggregates + ER numbers; comp percentile + ER share/yield stay independent.
+  type Scale = "mid" | "large" | "custom";
+  const [scale, setScale] = useState<Scale>("mid");
+  const applyScale = (s: "mid" | "large") => {
+    if (s === "mid") {
+      setNet(63_800_000);
+      setTotcoll(77_000_000);
+      setTwrvu(1_100_000);
+      setBaseWrvu(297_000);
+      setBaseColl(8_316_000);
+    } else {
+      setNet(130_000_000);
+      setTotcoll(156_400_000);
+      setTwrvu(2_200_000);
+      setBaseWrvu(594_000);
+      setBaseColl(16_632_000);
+    }
+    setCut(0);
+    setScale(s);
+  };
+  const markCustom = () => {
+    if (scale !== "custom") setScale("custom");
+  };
 
   // term/source UI state
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
@@ -483,10 +506,12 @@ function TwoNumbersPage() {
   const onCollEdit = (v: number) => {
     setBaseColl(v);
     setCut(0);
+    markCustom();
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
     setCut(0);
+    markCustom();
   };
 
   // For the ER collections / ER wRVU inputs, when the lever is active we want
@@ -555,17 +580,45 @@ function TwoNumbersPage() {
         <InlineDef k="yield" openTerm={openTerm} />
 
         <Sub title="Data" authority="yours">
+          <div className="mb-3 rounded-md border border-ink/10 bg-ink/[0.025] p-2.5">
+            <div className="font-mono-tab mb-1.5 text-[10px] uppercase tracking-[0.1em] text-ink/50">
+              Scale <span className="text-ink/35">· illustrative scale — replace with your own</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                ["mid", "● Mid-size · ~100 rads"],
+                ["large", "○ Large · ~200 rads"],
+                ["custom", "○ Custom"],
+              ] as const).map(([key, label]) => {
+                const active = scale === key;
+                const isCustom = key === "custom";
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      if (isCustom) setScale("custom");
+                      else applyScale(key);
+                    }}
+                    className={`font-mono-tab rounded-full border px-2 py-0.5 text-[10.5px] uppercase tracking-[0.08em] ${active ? "border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_12%,transparent)] text-[var(--teal)]" : "border-ink/20 text-ink/55 hover:border-ink/40"} ${isCustom && !active ? "opacity-70" : ""}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <NumField
             label={<>Physician compensation pool <span className="text-ink/40">· MGMA: Total Physician Compensation</span></>}
             value={net}
-            onChange={setNet}
+            onChange={(v) => { setNet(v); markCustom(); }}
             step={1000000}
           />
           <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
             What the group distributes to its doctors. The known anchor.
           </p>
-          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} />
-          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} />
+          <NumField label="Total collections" value={totcoll} onChange={(v) => { setTotcoll(v); markCustom(); }} step={1000000} />
+          <NumField label="Total wRVU" value={twrvu} onChange={(v) => { setTwrvu(v); markCustom(); }} step={10000} />
           <NumField label="ER share %" value={ershare} onChange={setErshare} />
           <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
           <OutRow l="Suggested ER collections (benchmark estimate)" r={fmtM(sugC)} />
@@ -578,6 +631,7 @@ function TwoNumbersPage() {
             ↺ use these
           </button>
         </Sub>
+
 
         <Sub title="Audit" authority="yours">
           <AuditRow l="Comp pool /wRVU (yours)" yours={`$${aComp.toFixed(2)}`} pin={`$${comp.toFixed(2)}`} />
