@@ -52,6 +52,10 @@ export function PracticeDashboard({
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
+  // Signed lever (−30%..+30% of today's ER volume). Negative drives the
+  // existing cut+redeploy machinery via `cut`. Positive adds ER volume —
+  // stipend rises by deficit × added wRVU; with-stipend partner stays flat.
+  const [addFrac, setAddFrac] = useState(0);
 
   const out = useMemo(() => {
     if (!armed) return null;
@@ -61,27 +65,55 @@ export function PracticeDashboard({
       partnerCount,
       stipendOn,
       cutFrac: cut,
-      redeployUtil,
+      redeployUtil: addFrac > 0 ? 0 : redeployUtil,
       fmvComp,
       compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
       compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
       overheadPerWrvu: overheadOverride,
       erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, cut, redeployUtil, fmvComp, overheadOverride]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, cut, redeployUtil, addFrac, fmvComp, overheadOverride]);
 
-  // Always need scenarios for the flip chip (even if stipendOn is true)
-  const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
-  const withStipendDist = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
-  const optimizedDist = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
+  // Add-side overlay (engine-consistent, just applied to today + delta):
+  const deficitPerWrvu = out ? out.fairCost - out.erYield : 0;
+  const addedErWrvu = out && addFrac > 0 ? out.erWrvu * addFrac : 0;
+  const addedStipend = addedErWrvu * deficitPerWrvu;
+  const N = Math.max(1, partnerCount);
+  const addedDistDropPerPartner = (addedErWrvu * deficitPerWrvu) / N;
+
+  // Scenario chips reflect the overlay so they never disagree with the lever.
+  const noStipendDistBase = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
+  const withStipendDistBase = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
+  const optimizedDistBase = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
+  const noStipendTotalBase = out?.scenarios.A_noStipend.distributionTotal ?? 0;
+  const withStipendTotalBase = out?.scenarios.B_withStipend.distributionTotal ?? 0;
+
+  const noStipendDist = noStipendDistBase - addedDistDropPerPartner;
+  const withStipendDist = withStipendDistBase; // flat — the FMV proof
+  const optimizedDist = addFrac > 0 ? withStipendDistBase : optimizedDistBase;
+  const noStipendTotal = noStipendTotalBase - addedStipend;
+  const withStipendTotal = withStipendTotalBase;
 
   const headlineVal = out
-    ? view === "perPartner"
-      ? out.distributionPerPartner
-      : out.distributionTotal
+    ? stipendOn
+      ? view === "perPartner" ? withStipendDist : withStipendTotal
+      : view === "perPartner" ? noStipendDist : noStipendTotal
     : 0;
 
-  const cutPct = Math.round((cut / AVOIDABLE_CAP) * 100);
+  // Signed lever value in [-30..+30] (% of today's ER volume).
+  const leverPct = addFrac > 0
+    ? Math.round(addFrac * 100)
+    : -Math.round((cut / AVOIDABLE_CAP) * 30);
+  const onLeverChange = (v: number) => {
+    const clamped = Math.max(-30, Math.min(30, v));
+    if (clamped >= 0) {
+      setCut(0);
+      setAddFrac(clamped / 100);
+    } else {
+      setAddFrac(0);
+      setCut((-clamped / 30) * AVOIDABLE_CAP);
+    }
+  };
 
   return (
     <aside className="rounded-xl border border-ink/15 bg-paper p-4 md:p-5">
