@@ -725,6 +725,16 @@ function TwoNumbersPage() {
         "Avoidable" means medically unnecessary, defined by clinical
         leadership — never by who pays.
       </p>
+
+      <p className="mt-4 text-[11.5px] text-ink/45">
+        Taylor C. Berger, Attorney ·{" "}
+        <a
+          href="mailto:taylor@tcblaw.org"
+          className="text-ink/60 hover:text-ink hover:underline"
+        >
+          taylor@tcblaw.org
+        </a>
+      </p>
     </main>
   );
 }
