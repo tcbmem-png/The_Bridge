@@ -593,11 +593,16 @@ function TwoNumbersPage() {
 
       {/* Card □ — Stipend */}
       <ShapeCard ico="□" authority="counsel">
-        <Erow op=" " name={<Term t="fair" onClick={setOpenTerm}>Fair cost</Term>} value={`$${e.fair.toFixed(2)} /wRVU`} />
-        <Erow op="−" name={<Term t="yield" onClick={setOpenTerm}>ER yield</Term>} value={`$${e.yld.toFixed(2)} /wRVU`} />
-        <Erow op="=" name={<Term t="deficit" onClick={setOpenTerm}>Deficit</Term>} value={`$${e.deficit.toFixed(2)} /wRVU`} />
-        <Erow op="×" name={<Term t="wrvu" onClick={setOpenTerm}>ER wRVU</Term>} value={fmtNum(wrvuDisplay)} />
-        <Erow op="=" name={<Term t="stip" onClick={setOpenTerm}>Stipend</Term>} value={fmtM(e.stipendP)} tot />
+        <Erow op=" " name={<Term t="fair" onClick={setOpenTerm} openTerm={openTerm}>Fair cost</Term>} value={`$${e.fair.toFixed(2)} /wRVU`} />
+        <InlineDef k="fair" openTerm={openTerm} />
+        <Erow op="−" name={<Term t="yield" onClick={setOpenTerm} openTerm={openTerm}>ER yield</Term>} value={`$${e.yld.toFixed(2)} /wRVU`} />
+        <InlineDef k="yield" openTerm={openTerm} />
+        <Erow op="=" name={<Term t="deficit" onClick={setOpenTerm} openTerm={openTerm}>Deficit</Term>} value={`$${e.deficit.toFixed(2)} /wRVU`} />
+        <InlineDef k="deficit" openTerm={openTerm} />
+        <Erow op="×" name={<Term t="wrvu" onClick={setOpenTerm} openTerm={openTerm}>ER wRVU</Term>} value={fmtNum(wrvuDisplay)} />
+        <InlineDef k="wrvu" openTerm={openTerm} />
+        <Erow op="=" name={<Term t="stip" onClick={setOpenTerm} openTerm={openTerm}>Stipend</Term>} value={fmtM(e.stipendP)} tot />
+        <InlineDef k="stip" openTerm={openTerm} />
 
         <Sub title="Pins" authority="counsel">
           <NumField
