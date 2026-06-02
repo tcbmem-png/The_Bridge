@@ -479,11 +479,13 @@ function Slider({
   pctValue,
   onPct,
   rightHint,
+  disabled,
 }: {
   label: string;
   pctValue: number;
   onPct: (p: number) => void;
   rightHint?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="py-1">
@@ -494,14 +496,54 @@ function Slider({
           min={0}
           max={100}
           value={pctValue}
+          disabled={disabled}
           onChange={(ev) => onPct(parseFloat(ev.target.value))}
-          className="flex-[1.4] accent-[var(--teal)]"
+          className="flex-[1.4] accent-[var(--teal)] disabled:cursor-not-allowed"
         />
         <span className="font-mono w-[44px] text-right text-[12.5px] font-semibold tabular-nums">
           {pctValue}%
         </span>
       </div>
       {rightHint && <div className="text-right text-[10.5px] text-ink/40">{rightHint}</div>}
+    </div>
+  );
+}
+
+function SignedLever({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number; // -30..+30
+  onChange: (v: number) => void;
+}) {
+  const display = value === 0 ? "0%" : `${value > 0 ? "+" : "−"}${Math.abs(value)}%`;
+  const tone =
+    value > 0 ? "text-[var(--red)]" : value < 0 ? "text-[var(--teal)]" : "text-ink/55";
+  return (
+    <div className="py-1">
+      <div className="flex items-center gap-3 text-[12.5px]">
+        <span className="flex-1 text-ink/65">{label}</span>
+        <input
+          type="range"
+          min={-30}
+          max={30}
+          step={1}
+          value={value}
+          onChange={(ev) => onChange(parseFloat(ev.target.value))}
+          className="flex-[1.4] accent-[var(--teal)]"
+          style={{ accentColor: value > 0 ? "var(--red)" : "var(--teal)" }}
+        />
+        <span className={`font-mono w-[52px] text-right text-[12.5px] font-semibold tabular-nums ${tone}`}>
+          {display}
+        </span>
+      </div>
+      <div className="font-mono-tab mt-0.5 flex justify-between text-[9.5px] uppercase tracking-[0.08em] text-ink/35">
+        <span>−30% cut</span>
+        <span>0 (today)</span>
+        <span>+30% add</span>
+      </div>
     </div>
   );
 }
