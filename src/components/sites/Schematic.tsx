@@ -43,12 +43,18 @@ function nodeStroke(gap: number): string {
 export function Schematic({
   sites,
   out,
+  mode = "reveal",
+  redeployArc,
 }: {
   sites: Site[];
   out: SitesOutputs;
+  mode?: "reveal" | "whatif";
+  /** Optional what-if redeploy arc: from a catch source → target, sized by w. */
+  redeployArc?: { fromId: string; toId: string; w: number; wMax: number } | null;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const titleId = useId();
+  const isWhatIf = mode === "whatif";
 
   // Node-radius scale from wrvu_i. Min 26, max 64.
   const maxWrvu = Math.max(...out.per_site.map((p) => p.wrvu_i), 1);
@@ -73,11 +79,16 @@ export function Schematic({
 
   return (
     <div className="relative">
+      {isWhatIf ? (
+        <div className="font-mono-tab pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center rounded-full border border-dashed border-ink/55 bg-paper px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-ink/75">
+          what-if · totals move
+        </div>
+      ) : null}
       <svg
         viewBox="0 0 880 460"
         role="img"
         aria-labelledby={titleId}
-        className="dot-grid w-full rounded-md border border-ink/15 bg-paper"
+        className={`dot-grid w-full rounded-md border bg-paper ${isWhatIf ? "border-dashed border-ink/45" : "border-ink/15"}`}
         style={{ aspectRatio: "880 / 460" }}
       >
         <title id={titleId}>
@@ -169,7 +180,40 @@ export function Schematic({
           </foreignObject>
         </g>
 
+        {/* What-if redeploy arc: freed capacity flowing catch → target */}
+        {redeployArc && redeployArc.w > 0 && LAYOUT[redeployArc.fromId] && LAYOUT[redeployArc.toId] ? (() => {
+          const a = LAYOUT[redeployArc.fromId];
+          const b = LAYOUT[redeployArc.toId];
+          const mx = (a.cx + b.cx) / 2;
+          const my = Math.min(a.cy, b.cy) - 60;
+          const wPct = Math.min(1, redeployArc.w / Math.max(1, redeployArc.wMax));
+          const sw = 1 + wPct * 5;
+          return (
+            <g>
+              <path
+                d={`M ${a.cx} ${a.cy} Q ${mx} ${my} ${b.cx} ${b.cy}`}
+                fill="none"
+                stroke="var(--teal)"
+                strokeOpacity="0.55"
+                strokeWidth={sw}
+                strokeDasharray="6 4"
+              />
+              <text
+                x={mx}
+                y={my - 4}
+                textAnchor="middle"
+                className="font-mono-tab"
+                fontSize="10"
+                fill="var(--teal)"
+              >
+                freed capacity · {Math.round(redeployArc.w).toLocaleString()} wRVU
+              </text>
+            </g>
+          );
+        })() : null}
+
         {/* Nodes */}
+
         {nodes.map((n) => {
           const site = siteById.get(n.id)!;
           const c = byId.get(n.id)!;
