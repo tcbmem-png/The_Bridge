@@ -1,29 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Hero } from "../components/story/Hero";
-import { ActProblem } from "../components/story/ActProblem";
-import { ActDashboard } from "../components/story/ActDashboard";
-import { ActSolution } from "../components/story/ActSolution";
-import { StorySources } from "../components/story/StorySources";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Story — The Bridge" },
-      {
-        name: "description",
-        content:
-          "Reading scans nobody pays for. The data is already there. Nobody has joined it.",
-      },
-      { property: "og:title", content: "Story — The Bridge" },
-      {
-        property: "og:description",
-        content:
-          "Reading scans nobody pays for. The data is already there. Nobody has joined it.",
-      },
-    ],
-  }),
-  component: StoryPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/twonumbers" });
+  },
+  component: () => null,
 });
+
 
 function StoryPage() {
   return (
