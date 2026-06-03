@@ -617,7 +617,19 @@ function TwoNumbersPage() {
       <h1 className="font-display text-[28px] font-semibold leading-[1.1] tracking-tight text-ink md:text-[34px]">
         A Tale of Two Numbers
       </h1>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
+      <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
+        The stipend a group earns for covering the ER starts with{" "}
+        <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
+          two numbers
+        </SrcLink>{" "}
+        <SrcLink k="onlygroup" open={openSrc} setOpen={setOpenSrc}>
+          only the group has
+        </SrcLink>
+        .
+      </p>
+      <SrcBox k="twonums" open={openSrc} />
+      <SrcBox k="onlygroup" open={openSrc} />
+      <div className="mt-5 flex flex-wrap items-center gap-2">
         <span className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/45">
           Source
         </span>
@@ -647,22 +659,6 @@ function TwoNumbersPage() {
         to ER. We'll use benchmarks and math to build the model from there.
         Don't forget to slide the ER volume scale at the bottom.
       </p>
-
-
-
-      {/* Sentence 1 */}
-      <Lead>
-        The stipend a group earns for covering the ER starts with{" "}
-        <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
-          two numbers
-        </SrcLink>{" "}
-        <SrcLink k="onlygroup" open={openSrc} setOpen={setOpenSrc}>
-          only the group has
-        </SrcLink>
-        .
-      </Lead>
-      <SrcBox k="twonums" open={openSrc} />
-      <SrcBox k="onlygroup" open={openSrc} />
 
       {/* Card ○ — ER yield */}
       <ShapeCard ico="○" authority="yours">
