@@ -978,8 +978,10 @@ function TwoNumbersPage() {
       {/* Right column — practice-impact dashboard */}
       <div className="min-w-0">
         <PracticeDashboard
+          mode={source}
           compPool={compPool}
-          setCompPool={onCompPoolEdit}
+          avgPerPartnerDist={avgPerPartnerDist}
+          setAvgPerPartnerDist={onAvgDistEdit}
           erSharePct={erSharePct}
           setErSharePct={onErShareEdit}
           partnerCount={partnerCount}
@@ -992,6 +994,7 @@ function TwoNumbersPage() {
           setRedeployUtil={setRedeployUtilD}
           fmvComp={comp}
           overheadOverride={ovh}
+          erYieldInput={effectiveErYield}
         />
       </div>
     </main>
