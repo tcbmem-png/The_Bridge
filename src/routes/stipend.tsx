@@ -635,7 +635,7 @@ function TwoNumbersPage() {
           Source
         </span>
         <div className="font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em]">
-          {(["right", "left"] as const).map((s) => (
+          {(["left", "right"] as const).map((s) => (
             <button
               key={s}
               type="button"
