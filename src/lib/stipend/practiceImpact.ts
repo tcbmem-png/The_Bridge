@@ -89,6 +89,7 @@ export const PRACTICE_IMPACT_DEFAULTS = {
   overheadPerWrvu: 12,
   erYield: 28,
   reclaimValue: 90,
+  reclaimIsNet: true,
 } as const;
 
 // Asymmetric on purpose: the avoidable/clinical limit is ~30% on the cut
