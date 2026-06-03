@@ -4,7 +4,7 @@
 // authored defaults; (2) give a one-click way back to defaults.
 
 import { Link } from "@tanstack/react-router";
-import { useMoney } from "../../lib/money/store";
+import { useMoney } from "@/lib/money/store";
 
 export function PresetBanner() {
   const { presetLabel, presetSource, clearPreset } = useMoney();
