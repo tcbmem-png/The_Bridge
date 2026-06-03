@@ -186,8 +186,11 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // ── Two-segment partner P&L (collections − cost) ──────────────────────
   // Without stipend: nonER profit + (er_coll − er_cost) — declines as ER grows.
   const partnerWithoutTotal = nonErProfitTotal + (erColl - erCost);
-  // With stipend: nonER profit + (er_coll + stipend − er_cost) — ER cancels → flat.
-  const partnerWithTotalNoRedeploy = nonErProfitTotal; // ER terms cancel by construction
+  // With stipend: stipend is FMV-priced, ER cost is actual. The group still
+  // eats the above-FMV slice ($8/wRVU) on every ER wRVU — slope is shallow
+  // but negative, not flat.
+  const partnerWithTotalNoRedeploy =
+    nonErProfitTotal + (erColl + stipend - erCost); // = nonErProfit − aboveFmv × erWrvu
   const partnerWithTotal = partnerWithTotalNoRedeploy + redeployGain;
 
   const scenarios = {
