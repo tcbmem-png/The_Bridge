@@ -490,7 +490,6 @@ function TwoNumbersPage() {
         setBaseWrvu(Math.round(o.erWrvu));
         setLeftCollSource("derived-from-right");
         setLeftWrvuSource("derived-from-right");
-        setCut(0);
       } else if (bridge === "left-to-right" && baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
         const b = backfillFromLeft({
           erColl: baseColl,
@@ -515,19 +514,32 @@ function TwoNumbersPage() {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
   const [openSrc, setOpenSrc] = useState<SrcKey | null>(null);
 
+  // The ONE primitive: lever scales today's baseWrvu/baseColl. Yield holds
+  // (same payer mix), so collections move in lockstep with wRVU. Feed the
+  // existing computeTwoNumbers with scaled values and cut=0 — left □
+  // stipend then matches the right dashboard at every lever position.
+  const leveredColl = baseColl * (1 + volumeLever);
+  const leveredWrvu = baseWrvu * (1 + volumeLever);
+
   const e = useMemo(
     () =>
       computeTwoNumbers({
-        baseColl,
-        baseWrvu,
+        baseColl: leveredColl,
+        baseWrvu: leveredWrvu,
         comp,
         ovh,
         redep,
         util,
-        cut,
+        cut: 0,
       }),
-    [baseColl, baseWrvu, comp, ovh, redep, util, cut],
+    [leveredColl, leveredWrvu, comp, ovh, redep, util],
   );
+
+  // Cut-side redeploy math (left Hospital drawer). Lever<0 = cuts;
+  // freedWrvu carved off today's baseline (NOT lever-scaled twice).
+  const freedWrvu = Math.max(0, -volumeLever) * baseWrvu;
+  const hospSaveLeft = freedWrvu * e.deficit;
+  const groupGainLeft = util * freedWrvu * (redep - e.fair);
 
   // Audit derived
   const aComp = twrvu > 0 ? net / twrvu : 0;
@@ -539,13 +551,13 @@ function TwoNumbersPage() {
   const sugC = sugW * eryield;
 
   // Display values for the displayed wRVU / collections (track the lever)
-  const wrvuDisplay = e.wrvuP;
-  const collDisplay = e.collP;
+  const wrvuDisplay = leveredWrvu;
+  const collDisplay = leveredColl;
 
   const useSuggested = () => {
     setBaseWrvu(Math.round(sugW));
     setBaseColl(Math.round(sugW * eryield));
-    setCut(0);
+    setVolumeLever(0);
   };
 
   // When the user edits the two numbers, treat them as the new baseline
@@ -554,13 +566,13 @@ function TwoNumbersPage() {
   // left→right.
   const onCollEdit = (v: number) => {
     setBaseColl(v);
-    setCut(0);
+    setVolumeLever(0);
     setLeftCollSource("user");
     if (erSharePct > 0) setBridge("left-to-right");
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
-    setCut(0);
+    setVolumeLever(0);
     setLeftWrvuSource("user");
     if (erSharePct > 0) setBridge("left-to-right");
   };
@@ -591,17 +603,18 @@ function TwoNumbersPage() {
   const showWrvu = Math.round(wrvuDisplay);
 
   const volNote =
-    cut <= 0 ? (
-      <>Move it — ER wRVU and collections fall together, yield holds, the stipend follows. Same math, run backward.</>
+    volumeLever === 0 ? (
+      <>Move it — ER wRVU and collections move together, yield holds, the stipend follows. Same math, both directions.</>
     ) : (
       <>
         ER wRVU <b className="text-ink">{fmtNum(wrvuDisplay)}</b> · collections{" "}
         <b className="text-ink">{fmtM(collDisplay)}</b>{" "}
         <span className="text-ink/40">(tracks volume)</span> · yield held{" "}
         <b className="text-ink">${e.yld.toFixed(0)}</b> · stipend{" "}
-        <b className="text-ink">{fmtM(e.stipendP)}</b>
+        <b className="text-ink">{fmtM(e.stipend)}</b>
       </>
     );
+
 
   return (
     <main className="mx-auto grid max-w-6xl gap-8 px-5 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
