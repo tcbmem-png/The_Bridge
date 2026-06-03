@@ -17,6 +17,9 @@
 // The file on disk is never edited. The lineage drill re-issues the
 // :p_month query parameterized.
 
+// Install the `process` shim BEFORE pulling in PGlite. Imports are hoisted
+// but evaluated in the source order written here; this file must come first.
+import "./process-shim";
 import { PGlite } from "@electric-sql/pglite";
 import rawSql from "../sql/radiology_stipend_harness.sql?raw";
 
