@@ -136,4 +136,38 @@
       transform: none;
     }
   }
+
+  /* Landing scroll uses Hanken Grotesk for body voice (per prototype). */
+  .font-hanken {
+    font-family: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Slider styling for the bidirectional ER-volume lever. */
+  .bridge-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2px;
+    background: var(--bridge-hair);
+    outline: none;
+    cursor: pointer;
+  }
+  .bridge-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--paper);
+    border: 2px solid var(--teal);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    cursor: grab;
+  }
+  .bridge-range::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--paper);
+    border: 2px solid var(--teal);
+    cursor: grab;
+  }
 }
