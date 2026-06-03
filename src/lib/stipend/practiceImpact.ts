@@ -1,7 +1,8 @@
 // Practice-impact engine for /stipend. One pure function, signed (no floors),
-// deterministic, no network. Does NOT duplicate or alter the left
-// `computeTwoNumbers` engine in src/routes/stipend.tsx — the bridge layer
-// reads/writes both states; the view renders this function's output.
+// deterministic, no network. Single source of truth: (compPool, erShare).
+// The volume lever moves exactly ONE primitive: erWrvu = today × (1 + lever).
+// Every downstream figure (collections, stipend, partner dist) is re-derived
+// from that one number — no hand-patched outputs, no overlay.
 //
 // All defaults are illustrative; the demo reconciles at erYield = 28 (NOT 26):
 // at compPool $63.8M, erShare 0.27, N=100 → totalWrvu 1.1M, collections $77M,
@@ -15,17 +16,17 @@ export type PracticeImpactInputs = {
 
   // levers
   stipendOn: boolean;
-  cutFrac: number; // 0..1 of avoidable cap (UI clamps to 0..0.30)
-  redeployUtil: number; // 0..1
+  volumeLever: number; // signed, [-0.30, +0.30]. 0 = today.
+  redeployUtil: number; // 0..1 — applies only when volumeLever < 0
 
-  // benchmark pins (all editable in principle; defaults in DEFAULTS below)
+  // benchmark pins
   fmvComp: number; // FMV clinical comp /wRVU ($50 median)
-  compActualPerWrvu: number; // pool→wRVU realised rate ($58, NOT fmvComp)
+  compActualPerWrvu: number; // pool→wRVU realised rate ($58)
   compToCollections: number; // MGMA ratio (0.83)
   overheadPerWrvu: number; // optional override; otherwise residual
   erYield: number; // demo default $28 (audit replaces)
-  // nonErYieldBench unused in top-down (residual); kept for bottom-up callers
-  nonErYieldBench?: number;
+  reclaimValue?: number; // $/wRVU value when freed ER time is redeployed ($90)
+  nonErYieldBench?: number; // unused in top-down; kept for bottom-up callers
 };
 
 export type Scenario = {
@@ -34,37 +35,46 @@ export type Scenario = {
 };
 
 export type PracticeImpactOutputs = {
-  // structural
+  // structural — today (lever = 0) baseline
+  totalWrvuToday: number;
+  collectionsToday: number;
+  erWrvuToday: number;
+  nonErWrvu: number;
+  nonErColl: number;
+  nonErYield: number;
+  overheadPerWrvu: number;
+  fairCost: number;
+  distributionPerWrvu: number;
+  erDeficitPerWrvu: number;
+
+  // lever-driven (current state at volumeLever)
   totalWrvu: number;
   collections: number;
-  overheadPerWrvu: number;
   erWrvu: number;
   erColl: number;
   erYield: number;
-  nonErYield: number;
-  fairCost: number;
-  distributionPerWrvu: number;
 
-  // stipend
+  // stipend (lever-driven)
   stipend: number;
+  stipendToday: number;
 
-  // distribution (current scenario per inputs)
+  // distribution (current scenario per inputs, lever-driven)
   distributionTotal: number;
   distributionPerPartner: number;
 
-  // cut+redeploy
-  hospitalSaves: number;
+  // cut+redeploy (only nonzero when volumeLever < 0)
   freedWrvu: number;
   redeployGain: number;
+  hospitalSaves: number;
 
-  // scenarios at today's ER volume
+  // scenarios at CURRENT lever
   scenarios: {
     A_noStipend: Scenario;
     B_withStipend: Scenario;
     C_optimized: Scenario;
   };
 
-  // volume sweep for the SVG chart
+  // volume sweep for the SVG chart (independent of current lever)
   volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }>;
 };
 
@@ -72,109 +82,131 @@ export const PRACTICE_IMPACT_DEFAULTS = {
   fmvComp: 50,
   compActualPerWrvu: 58,
   compToCollections: 0.83,
-  overheadPerWrvu: 12, // residual; only used as fallback display
-  erYield: 28, // demo default — reconciles to $10.10M stipend
+  overheadPerWrvu: 12,
+  erYield: 28,
+  reclaimValue: 90,
 } as const;
 
-export const AVOIDABLE_CAP = 0.3;
+export const VOLUME_LEVER_CAP = 0.3;
 
 /** Top-down from (compPool, erShare). Signed; no floors. */
 export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOutputs {
   const P = i.compPool;
   const s = i.erShare;
   const N = Math.max(1, i.partnerCount);
+  const reclaimValue = i.reclaimValue ?? PRACTICE_IMPACT_DEFAULTS.reclaimValue;
 
-  const totalWrvu = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
-  const collections = i.compToCollections > 0 ? P / i.compToCollections : 0;
-  const overheadPerWrvu = totalWrvu > 0 ? (collections - P) / totalWrvu : 0;
+  // ── Today's (lever = 0) practice structure ────────────────────────────
+  const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
+  const collectionsToday = i.compToCollections > 0 ? P / i.compToCollections : 0;
+  const overheadPerWrvu =
+    totalWrvuToday > 0 ? (collectionsToday - P) / totalWrvuToday : 0;
 
-  const erWrvu = totalWrvu * s;
+  const erWrvuToday = totalWrvuToday * s;
   const erYield = i.erYield;
-  const erColl = erWrvu * erYield;
+  const erCollToday = erWrvuToday * erYield;
 
-  const nonErWrvu = totalWrvu - erWrvu;
-  const nonErColl = collections - erColl;
+  // Non-ER book — HELD CONSTANT as the lever moves.
+  const nonErWrvu = totalWrvuToday - erWrvuToday;
+  const nonErColl = collectionsToday - erCollToday;
   const nonErYield = nonErWrvu > 0 ? nonErColl / nonErWrvu : 0;
 
   const fairCost = i.fmvComp + overheadPerWrvu; // ≈ $62
   const distributionPerWrvu = i.compActualPerWrvu - i.fmvComp; // ≈ $8
+  const erDeficitPerWrvu = fairCost - erYield; // ≈ $34
 
-  // Per-wRVU ER deficit (signed). At demo: 62 − 28 = $34.
-  const erDeficitPerWrvu = fairCost - erYield;
+  // ── Lever — moves ONE primitive: erWrvu. Everything else cascades. ────
+  const lever = Math.max(-VOLUME_LEVER_CAP, Math.min(VOLUME_LEVER_CAP, i.volumeLever));
+  const erWrvu = erWrvuToday * (1 + lever);
+  const erColl = erWrvu * erYield; // erYield held — payer mix, not volume
+  const totalWrvu = nonErWrvu + erWrvu;
+  const collections = nonErColl + erColl;
 
-  // Stipend funds the deficit at TODAY's ER volume.
   const stipend = erWrvu * erDeficitPerWrvu;
+  const stipendToday = erWrvuToday * erDeficitPerWrvu;
 
-  // Baseline distribution (today, no stipend) = (compActual − fmv) × totalWrvu.
-  // This is the comp-pool slice above the FMV clinical wage — what already
-  // absorbs the ER drag in the realised state.
-  const distTotalBase = distributionPerWrvu * totalWrvu;
-
-  // Distribution as a function of marginal ER volume relative to today:
-  //   without stipend: dist(x) = base + erDeficitPerWrvu × (today − x)
-  //                            = base − erDeficitPerWrvu × (x − today)
-  //   with stipend:    dist(x) = base + erDeficitPerWrvu × today   (constant)
-  const distWithoutAt = (x: number) =>
-    distTotalBase - erDeficitPerWrvu * (x - erWrvu);
-  const distWithAt = (_x: number) => distTotalBase + erDeficitPerWrvu * erWrvu;
-
-  // Cut + redeploy (only operates on TODAY's ER wRVU).
-  const cut = Math.min(Math.max(i.cutFrac, 0), AVOIDABLE_CAP);
-  const freedWrvu = erWrvu * cut;
+  // Cut-side redeploy — only when lever < 0.
+  const freedWrvu = lever < 0 ? -lever * erWrvuToday : 0;
   const hospitalSaves = freedWrvu * erDeficitPerWrvu;
-  // signed: redeploy below fair cost is a loss, not a wash
-  const redeployGain = i.redeployUtil * freedWrvu * (nonErYield - fairCost);
+  const redeployGain =
+    freedWrvu > 0
+      ? i.redeployUtil * freedWrvu * (reclaimValue - fairCost) // signed; below fair → loss
+      : 0;
 
-  // Current scenario distribution (what the headline shows)
-  const distTotal = i.stipendOn ? distWithAt(erWrvu) : distWithoutAt(erWrvu);
-  const distributionTotal = distTotal + (i.stipendOn ? redeployGain : 0);
-  const distributionPerPartner = distributionTotal / N;
+  // ── Per-spec partner formulas (re-derive from the new volume state) ───
+  // Without stipend: partners absorb the ER deficit themselves.
+  const partnerWithoutTotal = collections - fairCost * totalWrvu;
+  // With stipend: ER is neutralized → flat in lever. Cut-side redeploy rolls in.
+  const partnerWithTotalNoRedeploy = (nonErYield - fairCost) * nonErWrvu;
+  const partnerWithTotal = partnerWithTotalNoRedeploy + redeployGain;
 
   const scenarios = {
     A_noStipend: {
-      distributionTotal: distWithoutAt(erWrvu),
-      distributionPerPartner: distWithoutAt(erWrvu) / N,
+      distributionTotal: partnerWithoutTotal,
+      distributionPerPartner: partnerWithoutTotal / N,
     },
     B_withStipend: {
-      distributionTotal: distWithAt(erWrvu),
-      distributionPerPartner: distWithAt(erWrvu) / N,
+      distributionTotal: partnerWithTotalNoRedeploy,
+      distributionPerPartner: partnerWithTotalNoRedeploy / N,
     },
     C_optimized: {
-      distributionTotal: distWithAt(erWrvu) + redeployGain,
-      distributionPerPartner: (distWithAt(erWrvu) + redeployGain) / N,
+      distributionTotal: partnerWithTotal,
+      distributionPerPartner: partnerWithTotal / N,
     },
   };
 
-  // Volume sweep 0.5× … 4× today's ER wRVU (60 samples)
+  // Current scenario headline.
+  const distributionTotal = i.stipendOn ? partnerWithTotal : partnerWithoutTotal;
+  const distributionPerPartner = distributionTotal / N;
+
+  // ── Sweep 0.5× … 4× today's ER wRVU (60 samples) ───────────────────────
+  // Same cascade applied at each x — no separate formula.
   const samples = 60;
-  const xMin = erWrvu * 0.5;
-  const xMax = erWrvu * 4;
+  const xMin = erWrvuToday * 0.5;
+  const xMax = erWrvuToday * 4;
   const volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }> = [];
   for (let k = 0; k <= samples; k++) {
     const x = xMin + ((xMax - xMin) * k) / samples;
+    const erCollX = x * erYield;
+    const totalWrvuX = nonErWrvu + x;
+    const collX = nonErColl + erCollX;
+    const withoutX = collX - fairCost * totalWrvuX;
+    const withX = partnerWithTotalNoRedeploy; // flat — FMV proof
     volumeSweep.push({
       erWrvu: x,
-      distWith: distWithAt(x) / N,
-      distWithout: distWithoutAt(x) / N,
+      distWith: withX / N,
+      distWithout: withoutX / N,
     });
   }
 
   return {
+    totalWrvuToday,
+    collectionsToday,
+    erWrvuToday,
+    nonErWrvu,
+    nonErColl,
+    nonErYield,
+    overheadPerWrvu,
+    fairCost,
+    distributionPerWrvu,
+    erDeficitPerWrvu,
+
     totalWrvu,
     collections,
-    overheadPerWrvu,
     erWrvu,
     erColl,
     erYield,
-    nonErYield,
-    fairCost,
-    distributionPerWrvu,
+
     stipend,
+    stipendToday,
+
     distributionTotal,
     distributionPerPartner,
-    hospitalSaves,
+
     freedWrvu,
     redeployGain,
+    hospitalSaves,
+
     scenarios,
     volumeSweep,
   };
@@ -183,14 +215,14 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
 /**
  * Bottom-up: given audited ER coll + ER wRVU + ER share, back-fill the
  * practice (totalWrvu, collections, compPool). Labeled "derived from left
- * audit" in the UI.
+ * audit" in the UI. NOT used in the current right-as-source-of-truth demo.
  */
 export function backfillFromLeft(args: {
   erColl: number;
   erWrvu: number;
   erShare: number;
   compToCollections: number;
-  nonErYieldBench: number; // typically residual yield ≈ $85
+  nonErYieldBench: number;
 }): { totalWrvu: number; collections: number; compPool: number } {
   const { erColl, erWrvu, erShare, compToCollections, nonErYieldBench } = args;
   if (erShare <= 0 || erShare >= 1) return { totalWrvu: 0, collections: 0, compPool: 0 };
@@ -200,3 +232,6 @@ export function backfillFromLeft(args: {
   const compPool = collections * compToCollections;
   return { totalWrvu, collections, compPool };
 }
+
+// Back-compat re-export (old name).
+export const AVOIDABLE_CAP = VOLUME_LEVER_CAP;

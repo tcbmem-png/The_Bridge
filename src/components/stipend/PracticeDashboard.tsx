@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  AVOIDABLE_CAP,
+  VOLUME_LEVER_CAP,
   PRACTICE_IMPACT_DEFAULTS,
   computePracticeImpact,
 } from "@/lib/stipend/practiceImpact";
@@ -18,6 +18,8 @@ const fmtMoneyK = (x: number) =>
   (x < 0 ? "−$" : "$") + Math.round(Math.abs(x) / 1000).toLocaleString("en-US") + "k";
 const fmtNum = (x: number) => Math.round(x).toLocaleString("en-US");
 const fmtMoney = (x: number) => (x < 0 ? "−$" : "$") + Math.abs(x).toLocaleString("en-US");
+const fmtSignedM = (x: number) =>
+  (x >= 0 ? "+$" : "−$") + Math.abs(x / 1e6).toFixed(2) + "M";
 
 export function PracticeDashboard({
   compPool,
@@ -52,10 +54,11 @@ export function PracticeDashboard({
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
-  // Signed lever (−30%..+30% of today's ER volume). Negative drives the
-  // existing cut+redeploy machinery via `cut`. Positive adds ER volume —
-  // stipend rises by deficit × added wRVU; with-stipend partner stays flat.
+  // Signed lever (-30%..+30% of today's ER volume). The ONE primitive.
+  // Parent retains `cut` for state sync with the left ○□△; we keep them
+  // mirrored (cut = -lever when lever < 0, else 0).
   const [addFrac, setAddFrac] = useState(0);
+  const volumeLever = addFrac > 0 ? addFrac : -cut;
 
   const out = useMemo(() => {
     if (!armed) return null;
@@ -64,46 +67,35 @@ export function PracticeDashboard({
       erShare: erSharePct / 100,
       partnerCount,
       stipendOn,
-      cutFrac: cut,
-      redeployUtil: addFrac > 0 ? 0 : redeployUtil,
+      volumeLever,
+      redeployUtil,
       fmvComp,
       compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
       compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
       overheadPerWrvu: overheadOverride,
       erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+      reclaimValue: PRACTICE_IMPACT_DEFAULTS.reclaimValue,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, cut, redeployUtil, addFrac, fmvComp, overheadOverride]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride]);
 
-  // Add-side overlay (engine-consistent, just applied to today + delta):
-  const deficitPerWrvu = out ? out.fairCost - out.erYield : 0;
-  const addedErWrvu = out && addFrac > 0 ? out.erWrvu * addFrac : 0;
-  const addedStipend = addedErWrvu * deficitPerWrvu;
-  const N = Math.max(1, partnerCount);
-  const addedDistDropPerPartner = (addedErWrvu * deficitPerWrvu) / N;
+  // Headline reads directly from engine — no overlay.
+  const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
+  const withStipendDistFlat = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
+  const optimizedDist = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
+  const noStipendTotal = out?.scenarios.A_noStipend.distributionTotal ?? 0;
+  const withStipendTotal = out?.scenarios.C_optimized.distributionTotal ?? 0;
 
-  // Scenario chips reflect the overlay so they never disagree with the lever.
-  const noStipendDistBase = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
-  const withStipendDistBase = out?.scenarios.B_withStipend.distributionPerPartner ?? 0;
-  const optimizedDistBase = out?.scenarios.C_optimized.distributionPerPartner ?? 0;
-  const noStipendTotalBase = out?.scenarios.A_noStipend.distributionTotal ?? 0;
-  const withStipendTotalBase = out?.scenarios.B_withStipend.distributionTotal ?? 0;
-
-  const noStipendDist = noStipendDistBase - addedDistDropPerPartner;
-  const withStipendDist = withStipendDistBase; // flat — the FMV proof
-  const optimizedDist = addFrac > 0 ? withStipendDistBase : optimizedDistBase;
-  const noStipendTotal = noStipendTotalBase - addedStipend;
-  const withStipendTotal = withStipendTotalBase;
-
+  // With-stipend headline rolls redeploy in (matches scenario C). Flat at lever≥0.
   const headlineVal = out
     ? stipendOn
-      ? view === "perPartner" ? withStipendDist : withStipendTotal
+      ? view === "perPartner" ? optimizedDist : withStipendTotal
       : view === "perPartner" ? noStipendDist : noStipendTotal
     : 0;
 
   // Signed lever value in [-30..+30] (% of today's ER volume).
   const leverPct = addFrac > 0
     ? Math.round(addFrac * 100)
-    : -Math.round((cut / AVOIDABLE_CAP) * 30);
+    : -Math.round(cut * 100);
   const onLeverChange = (v: number) => {
     const clamped = Math.max(-30, Math.min(30, v));
     if (clamped >= 0) {
@@ -111,9 +103,11 @@ export function PracticeDashboard({
       setAddFrac(clamped / 100);
     } else {
       setAddFrac(0);
-      setCut((-clamped / 30) * AVOIDABLE_CAP);
+      setCut(Math.min(VOLUME_LEVER_CAP, -clamped / 100));
     }
   };
+
+  const stipendDelta = out ? out.stipend - out.stipendToday : 0;
 
   return (
     <aside className="rounded-xl border border-ink/15 bg-paper p-4 md:p-5">
@@ -126,7 +120,7 @@ export function PracticeDashboard({
         </span>
       </header>
 
-      {/* DRIVERS — the hero of the empty state, persistent once armed */}
+      {/* DRIVERS */}
       <div
         className={`rounded-lg border ${armed ? "border-ink/12 bg-ink/[0.02]" : "border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_6%,transparent)]"} p-3`}
       >
@@ -251,7 +245,7 @@ export function PracticeDashboard({
                 With stipend
               </div>
               <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
-                {view === "perPartner" ? fmtMoneyK(withStipendDist) : fmtMoneyM(withStipendTotal)}
+                {view === "perPartner" ? fmtMoneyK(optimizedDist) : fmtMoneyM(withStipendTotal)}
               </div>
             </div>
           </div>
@@ -264,10 +258,15 @@ export function PracticeDashboard({
         </p>
       </div>
 
-      {/* DERIVED PRACTICE FIGURES */}
+      {/* DERIVED PRACTICE FIGURES — all lever-driven */}
       <div className="mt-4 rounded-lg border border-ink/12 bg-paper p-3">
-        <div className="font-mono-tab mb-1.5 text-[10px] uppercase tracking-[0.1em] text-ink/50">
-          Derived · benchmark estimate
+        <div className="font-mono-tab mb-1.5 flex items-baseline justify-between text-[10px] uppercase tracking-[0.1em] text-ink/50">
+          <span>Derived · benchmark estimate</span>
+          {armed && volumeLever !== 0 && (
+            <span className="text-ink/40 normal-case tracking-normal">
+              today ER wRVU {fmtNum(out!.erWrvuToday)}
+            </span>
+          )}
         </div>
         <Row l="Total wRVU" v={armed ? fmtNum(out!.totalWrvu) : "—"} />
         <Row l="Total collections" v={armed ? fmtMoneyM(out!.collections) : "—"} />
@@ -290,6 +289,23 @@ export function PracticeDashboard({
           }
           v={armed ? `$${out!.nonErYield.toFixed(0)}` : "—"}
         />
+        <Row
+          l="Stipend"
+          v={
+            armed ? (
+              <>
+                {fmtMoneyM(out!.stipend)}
+                {volumeLever !== 0 && (
+                  <span className="ml-2 text-[11px] font-normal text-ink/50">
+                    {fmtSignedM(stipendDelta)} vs today
+                  </span>
+                )}
+              </>
+            ) : (
+              "—"
+            )
+          }
+        />
       </div>
 
       {/* SWEEP CHART */}
@@ -299,11 +315,15 @@ export function PracticeDashboard({
             Distribution vs ER volume
           </span>
           <span className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/40">
-            drag the marker · right = add · left = cut
+            marker tracks the lever
           </span>
         </div>
         {armed && out ? (
-          <VolumeSweepChart sweep={out.volumeSweep} todayErWrvu={out.erWrvu} />
+          <VolumeSweepChart
+            sweep={out.volumeSweep}
+            todayErWrvu={out.erWrvuToday}
+            markerErWrvu={out.erWrvu}
+          />
         ) : (
           <div className="flex h-[200px] items-center justify-center rounded-lg border border-dashed border-ink/15 bg-ink/[0.015] text-[12px] text-ink/40">
             Enter the two numbers to plot.
@@ -332,44 +352,55 @@ export function PracticeDashboard({
         />
         <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
           Slide right to add ER volume · left to cut it. Capped ±30% either way.
+          Moves ER wRVU; every figure above re-derives from that one number.
         </p>
-        <div className={`mt-2 ${addFrac > 0 ? "opacity-50" : ""}`}>
+        <div className={`mt-2 ${volumeLever >= 0 ? "opacity-50" : ""}`}>
           <Slider
             label="Redeploy utilization"
             pctValue={Math.round(redeployUtil * 100)}
             onPct={(p) => setRedeployUtil(p / 100)}
-            rightHint={addFrac > 0 ? "applies to cuts only" : "0% = no gain, no loss"}
-            disabled={addFrac > 0}
+            rightHint={
+              volumeLever >= 0
+                ? "applies to cuts only"
+                : "freed time → $90/wRVU reclaim value · 0% = no gain, no loss"
+            }
+            disabled={volumeLever >= 0}
           />
         </div>
         <div className="mt-2 grid grid-cols-2 gap-2 text-[11.5px]">
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              Distribution /partner {addFrac > 0 ? "(with stipend)" : "(optimized)"}
+              Distribution /partner (with stipend)
             </div>
             <div className="font-mono text-[14px] font-semibold tabular-nums text-[var(--teal)]">
               {armed ? fmtMoneyK(optimizedDist) : "—"}
             </div>
+            {armed && volumeLever < 0 && out!.redeployGain !== 0 && (
+              <div className="font-mono mt-0.5 text-[10.5px] tabular-nums text-ink/55">
+                redeploy {out!.redeployGain >= 0 ? "+" : "−"}
+                {fmtMoneyK(Math.abs(out!.redeployGain / Math.max(1, partnerCount)))}
+              </div>
+            )}
           </div>
           <div className="rounded-md border border-ink/10 bg-ink/[0.02] px-2 py-1.5">
             <div className="font-mono-tab text-[10px] uppercase tracking-[0.08em] text-ink/45">
-              {addFrac > 0 ? "Hospital stipend ↑" : "Hospital saves"}
+              {volumeLever > 0 ? "Hospital stipend ↑" : "Hospital saves"}
             </div>
             <div
               className={`font-mono text-[14px] font-semibold tabular-nums ${
-                addFrac > 0 ? "text-[var(--red)]" : "text-[var(--gold)]"
+                volumeLever > 0 ? "text-[var(--red)]" : "text-[var(--gold)]"
               }`}
             >
               {armed
-                ? addFrac > 0
-                  ? `+${fmtMoneyM(addedStipend)}`
+                ? volumeLever > 0
+                  ? `+${fmtMoneyM(stipendDelta)}`
                   : `+${fmtMoneyM(out!.hospitalSaves)}`
                 : "—"}
             </div>
           </div>
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          {addFrac > 0
+          {volumeLever > 0
             ? "Add volume and the partner line stays flat — that's the FMV proof. The hospital's stipend rises by the same deficit that funded today's coverage; the owners' return doesn't move."
             : "Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."}
         </p>
@@ -401,12 +432,13 @@ export function PracticeDashboard({
 
       <p className="mt-3 border-t border-ink/10 pt-3 text-[11px] leading-relaxed text-ink/45">
         Pins (visible): comp pool → wRVU $58 · comp-to-collections 0.83 · FMV
-        clinical comp $50 · ER yield $28 (benchmark, your audit replaces). Math
-        is signed; renders from the engine.
+        clinical comp $50 · ER yield $28 (benchmark, your audit replaces) ·
+        reclaim value $90/wRVU. Math is signed; renders from the engine.
       </p>
     </aside>
   );
 }
+
 
 /* ─── small primitives ───────────────────────────────────────────────────── */
 

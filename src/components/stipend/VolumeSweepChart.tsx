@@ -14,10 +14,12 @@ const fmtKPerPartner = (x: number) => {
 export function VolumeSweepChart({
   sweep,
   todayErWrvu,
+  markerErWrvu,
   onMarkerChange,
 }: {
   sweep: Sample[];
   todayErWrvu: number;
+  markerErWrvu?: number;
   onMarkerChange?: (erWrvu: number) => void;
 }) {
   // Geometry — viewBox in CSS-like units; SVG scales with the container.
@@ -46,20 +48,21 @@ export function VolumeSweepChart({
       .map((s, i) => `${i === 0 ? "M" : "L"}${sx(s.erWrvu).toFixed(1)},${sy(s[key]).toFixed(1)}`)
       .join(" ");
 
-  // Marker — boots at today's 1× tick.
-  const [markerX, setMarkerX] = useState(todayErWrvu);
+  // Marker — controlled by parent if markerErWrvu provided, else internal.
+  const [internalMarker, setInternalMarker] = useState(todayErWrvu);
   const lastTodayRef = useRef(todayErWrvu);
   useEffect(() => {
-    // When today's ER wRVU shifts (e.g. user adjusts inputs), re-rest at today.
     if (Math.abs(lastTodayRef.current - todayErWrvu) > 1) {
-      setMarkerX(todayErWrvu);
+      setInternalMarker(todayErWrvu);
       lastTodayRef.current = todayErWrvu;
     }
   }, [todayErWrvu]);
 
-  useEffect(() => {
-    onMarkerChange?.(markerX);
-  }, [markerX, onMarkerChange]);
+  const markerX = markerErWrvu ?? internalMarker;
+  const setMarkerX = (v: number) => {
+    if (markerErWrvu === undefined) setInternalMarker(v);
+    onMarkerChange?.(v);
+  };
 
   // Sample the lines at markerX (linear interp).
   const interp = useMemo(() => {
