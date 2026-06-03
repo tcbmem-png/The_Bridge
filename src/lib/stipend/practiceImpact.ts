@@ -26,6 +26,10 @@ export type PracticeImpactInputs = {
   overheadPerWrvu: number; // optional override; otherwise residual
   erYield: number; // demo default $28 (audit replaces)
   reclaimValue?: number; // $/wRVU value when freed ER time is redeployed ($90)
+  // When true, reclaimValue is already a NET contribution per freed wRVU
+  // (freed labor treated as largely sunk). When false, reclaimValue is gross
+  // collections and we subtract fairCost C to get the net.
+  reclaimIsNet?: boolean;
   nonErYieldBench?: number; // unused in top-down; kept for bottom-up callers
 };
 
@@ -85,6 +89,7 @@ export const PRACTICE_IMPACT_DEFAULTS = {
   overheadPerWrvu: 12,
   erYield: 28,
   reclaimValue: 90,
+  reclaimIsNet: true,
 } as const;
 
 // Asymmetric on purpose: the avoidable/clinical limit is ~30% on the cut
@@ -101,6 +106,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const s = i.erShare;
   const N = Math.max(1, i.partnerCount);
   const reclaimValue = i.reclaimValue ?? PRACTICE_IMPACT_DEFAULTS.reclaimValue;
+  const reclaimIsNet = i.reclaimIsNet ?? PRACTICE_IMPACT_DEFAULTS.reclaimIsNet;
 
   // ── Today's (lever = 0) practice structure ────────────────────────────
   const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
@@ -160,10 +166,12 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // Cut-side redeploy — only when lever < 0.
   const freedWrvu = lever < 0 ? -lever * erWrvuToday : 0;
   const hospitalSaves = freedWrvu * erDeficitPerWrvu;
+  // Per-freed-wRVU net contribution. If reclaimIsNet, treat reclaimValue as
+  // the already-net contribution (freed labor sunk). Otherwise it's gross
+  // collections and we subtract fairCost C.
+  const reclaimNetPerWrvu = reclaimIsNet ? reclaimValue : reclaimValue - fairCost;
   const redeployGain =
-    freedWrvu > 0
-      ? i.redeployUtil * freedWrvu * (reclaimValue - fairCost) // signed; below fair → loss
-      : 0;
+    freedWrvu > 0 ? i.redeployUtil * freedWrvu * reclaimNetPerWrvu : 0;
 
   // ── Two-segment partner P&L (collections − cost) ──────────────────────
   // Without stipend: nonER profit + (er_coll − er_cost) — declines as ER grows.
