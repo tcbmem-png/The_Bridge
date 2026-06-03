@@ -127,7 +127,7 @@ export function PracticeDashboard({
         )}
         <div className="space-y-2">
           <DriverField
-            label="Avg partner profit distribution"
+            label="Partner distribution"
             hint="annual take-home per partner"
             value={avgPerPartnerDist}
             onChange={setAvgPerPartnerDist}
