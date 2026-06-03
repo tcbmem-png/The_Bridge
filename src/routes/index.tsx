@@ -77,7 +77,7 @@ function LandingScroll() {
         {/* 1 · Hero */}
         <Section>
           <Kicker>For the radiology group working as hard as it ever has</Kicker>
-          <H1 className="reveal d1">The work isn't the problem. The yield on it is.</H1>
+          <H1 className="reveal d1">The work isn't the problem.<br />The yield on it is.</H1>
           <Lede className="reveal d2">
             When the same reads bring in less, effort isn't the fix. The Bridge joins your billing,
             your reports, and your worklist into one picture you can question — and check, down to the record.
