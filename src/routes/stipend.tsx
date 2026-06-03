@@ -849,37 +849,17 @@ function TwoNumbersPage() {
 
       {/* Card △ — the lever */}
       <ShapeCard ico="△" authority="yours">
-        <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
-          <span className="flex-1 text-ink/65">ER volume · −30% / +300%</span>
-          <input
-            type="range"
-            min={-30}
-            max={300}
-            step={1}
-            value={Math.round(volumeLever * 100)}
-            onChange={(ev) =>
-              setVolumeLever(Math.max(-0.3, Math.min(3.0, parseFloat(ev.target.value) / 100)))
-            }
-            className="flex-[1.4] accent-[var(--teal)]"
-          />
-          <span
-            className={`font-mono w-[64px] text-right text-[13px] font-semibold tabular-nums ${
-              volumeLever > 0 ? "text-[var(--red)]" : volumeLever < 0 ? "text-[var(--teal)]" : "text-ink/55"
-            }`}
-          >
-            {volumeLever === 0 ? "0%" : `${volumeLever > 0 ? "+" : "−"}${Math.abs(Math.round(volumeLever * 100))}%`}
-          </span>
-        </div>
-        <div className="-mt-1 text-right text-[11.5px] text-ink/45">
-          {volumeLever > 0
-            ? `≈ +${(volumeLever * 100).toFixed(0)}% added ER volume — more volume, more loss without a stipend`
-            : volumeLever < 0
-              ? `≈ −${(-volumeLever * 100).toFixed(1)}% of ER volume cut (stipend shrinks)`
-              : "today · drag right to add volume (out to +300%), left to cut (capped −30%)"}
-        </div>
+        <p className="text-[12.5px] leading-relaxed text-ink/65">
+          The ER-volume lever lives on the right-hand panel — one slider
+          drives the whole demonstration. Slide it and ER wRVU, collections,
+          stipend, and the partner profit lines all re-compute live from
+          two-segment P&amp;L (collections − cost). The with-stipend line
+          stays flat because the math says it does, not because anything is
+          pinned.
+        </p>
         <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
           <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
-            Notes & assumptions
+            Notes &amp; assumptions
           </summary>
           <div className="space-y-2 px-3 pb-3 pt-1">
             <p className="text-[12.5px] leading-relaxed text-ink/55">{volNote}</p>
@@ -889,23 +869,22 @@ function TwoNumbersPage() {
               </div>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">1. Collections track volume → yield holds.</b>{" "}
-                When the avoidable slice is cut, ER collections fall in proportion to ER wRVU, so yield holds at $
-                {e.yld.toFixed(0)}. The slice carries roughly the same ER payer mix as the rest of the coverage, so the dollars come out in proportion — conservative; in reality collections flux on their own.
+                ER collections move in proportion to ER wRVU, so yield holds at $
+                {e.yld.toFixed(0)} — same payer mix, more or fewer studies. Conservative; in reality collections flux on their own.
               </p>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">2. Avoidable cap ~30%.</b>{" "}
                 Only the medically-unnecessary slice can be cut — a clinical call. The necessary coverage, and its stipend, always remain. EMTALA: clinical, never about who pays.
               </p>
+              <p className="text-[12px] leading-relaxed text-ink/60">
+                <b className="text-ink">3. Add side uncapped.</b>{" "}
+                Volume can grow up to 4× today. ER's gross margin is below 1 (collects $28, costs $70), so without a stipend the partner line plunges deep negative. With the stipend the fraction is exactly 1 — break-even — at any volume.
+              </p>
             </div>
-            <p className="text-[12.5px] leading-relaxed text-ink/45">
-              <b className="text-ink">Model note:</b>{" "}
-              <Term t="coll" onClick={setOpenTerm} openTerm={openTerm}>ER collections</Term> is one of
-              the two numbers you provide; when volume moves we assume it tracks,
-              so yield holds and the math runs in reverse.
-            </p>
-            <InlineDef k="coll" openTerm={openTerm} />
           </div>
         </details>
+
+
 
         <Sub title="Hospital" authority="yours" id="hospital-drawer">
           <NumField label="Reclaimed time value /wRVU" value={redep} onChange={setRedep} />
