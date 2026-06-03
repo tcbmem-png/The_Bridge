@@ -103,8 +103,8 @@ export function VolumeSweepChart({
     dragging.current = false;
   };
 
-  // X-axis ticks at 0.5, 1, 2, 3, 4× today.
-  const ticks = [0.5, 1, 2, 3, 4]
+  // X-axis ticks at 0, 1, 2, 3, 4× today.
+  const ticks = [0, 1, 2, 3, 4]
     .map((m) => ({ m, x: todayErWrvu * m }))
     .filter((t) => t.x >= xMin && t.x <= xMax);
 

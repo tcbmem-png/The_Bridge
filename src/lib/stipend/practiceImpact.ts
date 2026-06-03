@@ -87,7 +87,13 @@ export const PRACTICE_IMPACT_DEFAULTS = {
   reclaimValue: 90,
 } as const;
 
-export const VOLUME_LEVER_CAP = 0.3;
+// Asymmetric on purpose: the avoidable/clinical limit is ~30% on the cut
+// side; the add side is uncapped in reality, and we plot out to +300% to
+// make the negative-gross-margin economics visible.
+export const VOLUME_LEVER_CUT_CAP = 0.3;
+export const VOLUME_LEVER_ADD_CAP = 3.0;
+// Back-compat alias (== cut cap, the smaller of the two).
+export const VOLUME_LEVER_CAP = VOLUME_LEVER_CUT_CAP;
 
 /** Top-down from (compPool, erShare). Signed; no floors. */
 export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOutputs {
@@ -133,7 +139,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const erDeficitPerWrvu = fairCost - erYield; // ≈ $34
 
   // ── Lever — moves ONE primitive: erWrvu. Everything else cascades. ────
-  const lever = Math.max(-VOLUME_LEVER_CAP, Math.min(VOLUME_LEVER_CAP, i.volumeLever));
+  const lever = Math.max(-VOLUME_LEVER_CUT_CAP, Math.min(VOLUME_LEVER_ADD_CAP, i.volumeLever));
   const erWrvu = erWrvuToday * (1 + lever);
   const erColl = erWrvu * erYield; // erYield held — payer mix, not volume
   const totalWrvu = nonErWrvu + erWrvu;
@@ -176,10 +182,10 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const distributionTotal = i.stipendOn ? partnerWithTotal : partnerWithoutTotal;
   const distributionPerPartner = distributionTotal / N;
 
-  // ── Sweep 0.5× … 4× today's ER wRVU (60 samples) ───────────────────────
+  // ── Sweep 0× … 4× today's ER wRVU (80 samples) ────────────────────────
   // Same cascade applied at each x — no separate formula.
-  const samples = 60;
-  const xMin = erWrvuToday * 0.5;
+  const samples = 80;
+  const xMin = 0;
   const xMax = erWrvuToday * 4;
   const volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }> = [];
   for (let k = 0; k <= samples; k++) {
