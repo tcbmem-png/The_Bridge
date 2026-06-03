@@ -622,7 +622,10 @@ function TwoNumbersPage() {
         <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
           two auditable numbers
         </SrcLink>{" "}
-        the group has, even if it might take a little digging to find them.
+        the group has,
+      </p>
+      <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
+        even if it might take a little digging to find them.
       </p>
       <SrcBox k="twonums" open={openSrc} />
       <SrcBox k="onlygroup" open={openSrc} />
