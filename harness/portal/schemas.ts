@@ -54,7 +54,7 @@ export const SPECS: Record<ExportType, ExportSpec> = {
       { name: "rendering_npi", kind: "text",    required: false, aliases: ["npi", "rendering_provider_npi"] },
       { name: "cpt_code",      kind: "text",    required: true,  aliases: ["cpt", "procedure_code", "hcpcs"] },
       { name: "modifiers",     kind: "text",    required: false, aliases: ["modifier", "mods", "modifier1"] },
-      { name: "units",         kind: "numeric", required: false },
+      { name: "units",         kind: "numeric", required: false, fallback: 1 },
       { name: "charge_amount", kind: "numeric", required: true,  aliases: ["charge", "billed_amount"] },
       { name: "payer_id",      kind: "text",    required: false, aliases: ["payer", "insurance_id"] },
     ],
