@@ -448,65 +448,70 @@ function TwoNumbersPage() {
   const [ershare, setErshare] = useState(27);
   const [eryield, setEryield] = useState(28);
 
-  /* ─── right-column practice dashboard state ──────────────────────────── */
-  // Pre-seeded with the demo values — §0 governing rule: the page loads
-  // populated; the right side IS the source of truth.
-  const [compPool, setCompPool] = useState(63_800_000);
+  /* ─── source-toggle + right-column practice dashboard state ──────────── */
+  // §0.1 governing rule: ONE source of truth at any moment. "right" mode
+  // takes (avg per-partner distribution, partner count, ER share). "left"
+  // mode takes (audited ER coll, audited ER wRVU, ER share, partner count).
+  // The opposite side renders as derived and is read-only.
+  const [source, setSource] = useState<"right" | "left">("right");
+
+  const [avgPerPartnerDist, setAvgPerPartnerDist] = useState(88_000);
   const [erSharePct, setErSharePct] = useState(27);
   const [partnerCount, setPartnerCount] = useState(100);
   const [view, setView] = useState<"total" | "perPartner">("perPartner");
   const [redeployUtilD, setRedeployUtilD] = useState(0);
 
-  // Bridge direction — drives which side derives from the other.
-  // Default: right→left (demo seeds the right; left renders as derived).
-  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("right-to-left");
-  // Per-left-field source flag — controls the "← derived" chip.
-  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("derived-from-right");
-  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("derived-from-right");
-  // Right-side derived label flag
-  const [rightSource, setRightSource] = useState<"user" | "derived-from-left">("user");
-
-  // Bridge — eager with ~200ms debounce; one-way each tick per `bridge` mode.
-  const bridgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
-    if (bridge === "none") return;
-    bridgeTimer.current = setTimeout(() => {
-      if (bridge === "right-to-left" && compPool > 0 && erSharePct > 0) {
-        const o = computePracticeImpact({
-          compPool,
-          erShare: erSharePct / 100,
-          partnerCount,
-          stipendOn: true,
-          volumeLever: 0,
-          redeployUtil: 0,
-          fmvComp: comp,
-          compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
-          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
-          overheadPerWrvu: ovh,
-          erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
-        });
-        setBaseColl(Math.round(o.erColl));
-        setBaseWrvu(Math.round(o.erWrvu));
-        setLeftCollSource("derived-from-right");
-        setLeftWrvuSource("derived-from-right");
-      } else if (bridge === "left-to-right" && baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
+  // Right-mode derivation: avg per-partner distribution → comp pool.
+  // totalWrvu = (avgDist × N) / $8 spread; pool = totalWrvu × $58.
+  const compPool = useMemo(() => {
+    if (source !== "right") {
+      // In left mode, derive pool from the audited ER baseline + share.
+      if (baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
         const b = backfillFromLeft({
           erColl: baseColl,
           erWrvu: baseWrvu,
           erShare: erSharePct / 100,
           compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
-          // residual-ish; default benchmark while users have only the two
           nonErYieldBench: 85,
         });
-        setCompPool(Math.round(b.compPool));
-        setRightSource("derived-from-left");
+        return Math.round(b.compPool);
       }
-    }, 200);
-    return () => {
-      if (bridgeTimer.current) clearTimeout(bridgeTimer.current);
-    };
-  }, [bridge, compPool, erSharePct, baseColl, baseWrvu, partnerCount, comp, ovh]);
+      return 0;
+    }
+    const spread = PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu - 50; // $58 − FMV $50 = $8
+    const totalWrvu = (avgPerPartnerDist * partnerCount) / spread;
+    return Math.round(totalWrvu * PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu);
+  }, [source, avgPerPartnerDist, partnerCount, baseColl, baseWrvu, erSharePct]);
+
+  // In left mode the audited ER yield IS the yield; in right mode use the
+  // $28 benchmark pin.
+  const effectiveErYield =
+    source === "left" && baseWrvu > 0
+      ? baseColl / baseWrvu
+      : PRACTICE_IMPACT_DEFAULTS.erYield;
+
+  // When source = "right", push the derived ER coll/wRVU into the left state
+  // so the left □ instrument tracks. Volume lever scales these for display
+  // separately; only the today-baseline is bridged here.
+  useEffect(() => {
+    if (source !== "right") return;
+    if (compPool <= 0 || erSharePct <= 0) return;
+    const o = computePracticeImpact({
+      compPool,
+      erShare: erSharePct / 100,
+      partnerCount,
+      stipendOn: true,
+      volumeLever: 0,
+      redeployUtil: 0,
+      fmvComp: comp,
+      compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
+      compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
+      overheadPerWrvu: ovh,
+      erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+    });
+    setBaseColl(Math.round(o.erColl));
+    setBaseWrvu(Math.round(o.erWrvu));
+  }, [source, compPool, erSharePct, partnerCount, comp, ovh]);
 
 
 
