@@ -3,12 +3,20 @@
 // Session-only. No IndexedDB. No persistence across reload. By design.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Panel } from "./SegmentMonthly";
 import { stageFile } from "../../../harness/portal/stage";
 import { loadStagedFile } from "../../../harness/portal/load";
 import { exportCurrentDataset } from "../../../harness/portal/export";
 import { ALL_SPECS, SPECS } from "../../../harness/portal/schemas";
 import { getDb, resetDb } from "../../../harness/runtime/db";
+import {
+  clearPreset,
+  derivePresetFromDb,
+  publishPreset,
+  readPreset,
+  type DerivedPreset,
+} from "../../../harness/runtime/derivePreset";
 import type { LoadProgress, StagedFile } from "../../../harness/portal/types";
 
 interface PortalProps {
@@ -30,11 +38,27 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
   const [staged, setStaged] = useState<StagedFile[]>([]);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [dragOver, setDragOver] = useState(false);
+  const [preset, setPreset] = useState<DerivedPreset | null>(() =>
+    typeof window !== "undefined" ? readPreset() : null,
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Make sure the DB is booted so the initial panels can query it.
   useEffect(() => {
     getDb().catch(() => {});
+  }, []);
+
+  // Derive Sandbox/Story preset from whatever's now in the DB, publish it,
+  // and update local state for the confirmation card. Best-effort — preset
+  // derivation failure should never block the upload itself.
+  const refreshPreset = useCallback(async (label: string) => {
+    try {
+      const p = await derivePresetFromDb(label);
+      publishPreset(p);
+      setPreset(p);
+    } catch (e) {
+      console.warn("[harness] preset derive failed:", e);
+    }
   }, []);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
@@ -87,10 +111,11 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       }
       setStatus({ kind: "loaded", rowsLoaded: cumulative, files: staged.length });
       onDatasetChange();
+      await refreshPreset(datasetName || "Uploaded dataset");
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
-  }, [staged, onDatasetChange]);
+  }, [staged, datasetName, onDatasetChange, refreshPreset]);
 
   const handleReset = useCallback(async () => {
     setStatus({ kind: "loading", progress: null, totalRows: 0, loadedRows: 0 });
@@ -100,6 +125,10 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       setDatasetName("MOCK RAD GROUP — baseline");
       setStatus({ kind: "idle" });
       onDatasetChange();
+      // Seed is the in-memory fabricated set — clear any preset derived from
+      // a previous upload so Sandbox/Story snap back to authored defaults.
+      clearPreset();
+      setPreset(null);
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
@@ -171,10 +200,11 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       }
       setStatus({ kind: "loaded", rowsLoaded: cumulative, files: stagedAll.length });
       onDatasetChange();
+      await refreshPreset("MOCK_RAD_GROUP demo");
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
-  }, [onDatasetChange, setDatasetName]);
+  }, [onDatasetChange, setDatasetName, refreshPreset]);
 
   const handleDownloadDemoZip = useCallback(() => {
     const a = document.createElement("a");
@@ -371,6 +401,57 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
         <p className="mt-4 font-mono text-[12px] text-teal">
           Loaded {status.rowsLoaded.toLocaleString()} rows across {status.files} file(s). Panels below re-queried.
         </p>
+      )}
+
+      {preset && (
+        <div className="mt-4 rounded-md border border-gold/40 bg-gold/[0.06] p-3">
+          <p className="font-display text-sm text-ink">
+            Pushed to Sandbox + Story.
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-ink/70">
+            From <span className="text-ink">{preset.source.label}</span>:{" "}
+            coverage_volume ={" "}
+            <span className="text-ink">
+              {preset.coverage_volume.toLocaleString()}
+            </span>{" "}
+            · avg wRVU/read ={" "}
+            <span className="text-ink">{preset.avg_wRVU_per_read.toFixed(2)}</span>{" "}
+            · mix M/Mc/C/SP ={" "}
+            <span className="text-ink">
+              {preset.payer_mix.medicare}/{preset.payer_mix.medicaid}/
+              {preset.payer_mix.commercial}/{preset.payer_mix.self_pay}
+            </span>
+          </p>
+          <p className="mt-1 font-mono text-[10px] text-ink/45">
+            CFs, payer multiples, fall pattern, technical cost, denial write-off,
+            and lost-study rate stay at authored defaults — the dataset
+            doesn't speak to those.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              to="/sandbox"
+              className="rounded-md border border-teal/40 bg-teal/10 px-2.5 py-1 font-mono text-[11px] text-teal hover:bg-teal/15"
+            >
+              Open Sandbox →
+            </Link>
+            <Link
+              to="/story"
+              className="rounded-md border border-ink/25 bg-paper px-2.5 py-1 font-mono text-[11px] text-ink hover:bg-ink/5"
+            >
+              Open Story →
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                clearPreset();
+                setPreset(null);
+              }}
+              className="rounded-md border border-ink/25 bg-paper px-2.5 py-1 font-mono text-[11px] text-ink hover:bg-ink/5"
+            >
+              Clear preset
+            </button>
+          </div>
+        </div>
       )}
 
       {status.kind === "error" && (
