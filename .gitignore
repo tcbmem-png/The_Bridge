@@ -1,0 +1,34 @@
+# Dependencies / build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Logs / OS / editor
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets / env
+.env
+.env.*
+*.pem
+*.key
+
+# ---------------------------------------------------------------------------
+# COMPLIANCE GUARD — this repo must never contain real patient data (PHI).
+# Real extracts live only in the compliant, BAA-covered environment, never here.
+# These patterns block the common ways a real extract could slip into a commit.
+# ---------------------------------------------------------------------------
+/data/
+/extracts/
+/real/
+/phi/
+*.csv
+*.tsv
+*.835
+*.837
+*.x12
+*.hl7
+*.dcm
+# (The synthetic fixtures live in fixtures/*.ts as code, not data files — so this is safe.)

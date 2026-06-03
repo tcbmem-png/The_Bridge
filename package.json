@@ -1,0 +1,20 @@
+{
+  "name": "bridge-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Bridge — real engine (deterministic data pipeline). Phases 0-2: synthetic fixtures, invariant core, and the transmission (classify/size/route + night-ER block). No AI in any path. Separate repo from the public demo; the money math is the shared single-source package in src/money.",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "test": "node test/harness.ts && node test/transmission.harness.ts && node test/series.harness.ts && node test/curve.harness.ts && node test/workflow.harness.ts && node test/site.harness.ts && node test/fall.harness.ts && node test/twonumbers.harness.ts",
+    "test:engine": "node test/harness.ts",
+    "test:transmission": "node test/transmission.harness.ts",
+    "test:series": "node test/series.harness.ts",
+    "test:curve": "node test/curve.harness.ts",
+    "test:workflow": "node test/workflow.harness.ts",
+    "test:site": "node test/site.harness.ts",
+    "test:fall": "node test/fall.harness.ts",
+    "test:twonumbers": "node test/twonumbers.harness.ts",
+    "snapshot": "node src/snapshot.ts"
+  }
+}
