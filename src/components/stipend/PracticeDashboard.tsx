@@ -39,6 +39,8 @@ export function PracticeDashboard({
   fmvComp,
   overheadOverride,
   erYieldInput,
+  collectionsOverride,
+  onReset,
 }: {
   mode: "right" | "left";
   compPool: number; // derived in both modes
@@ -57,6 +59,8 @@ export function PracticeDashboard({
   fmvComp: number;
   overheadOverride: number;
   erYieldInput: number; // benchmark in right mode; audit in left mode
+  collectionsOverride?: number; // §3 Path-B anchor (right mode only)
+  onReset?: () => void;
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
