@@ -17,15 +17,5 @@ export default defineConfig({
     optimizeDeps: {
       exclude: ["@electric-sql/pglite"],
     },
-    // PGlite (and a few other npm modules) reference bare `process` / `process.env`
-    // at runtime. The production browser bundle has no Node globals, so without
-    // these defines the harness panels throw "process is not defined".
-    define: {
-      "process.env.NODE_ENV": JSON.stringify("production"),
-      "process.env": "({})",
-      "process.platform": JSON.stringify("browser"),
-      "process.version": JSON.stringify(""),
-      process: "({ env: {}, platform: 'browser', version: '', versions: { node: '' } })",
-    },
   },
 });
