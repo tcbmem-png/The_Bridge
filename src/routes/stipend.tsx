@@ -429,7 +429,8 @@ function OutRow({
 /* ─── page ───────────────────────────────────────────────────────────────── */
 
 function TwoNumbersPage() {
-  // the two numbers (baseline — lever moves derived display values, not these)
+  // The two numbers — today's audited ER baseline. Lever scales these for
+  // display; baseline state itself stays at "today".
   const [baseColl, setBaseColl] = useState(8_316_000);
   const [baseWrvu, setBaseWrvu] = useState(297_000);
   // pins
@@ -438,8 +439,8 @@ function TwoNumbersPage() {
   // hospital
   const [redep, setRedep] = useState(90);
   const [util, setUtil] = useState(1); // 0..1
-  // lever
-  const [cut, setCut] = useState(0); // 0..AVOIDABLE_CAP
+  // ONE primitive — signed lever [-0.30..+0.30]. Shared by both sides.
+  const [volumeLever, setVolumeLever] = useState(0);
   // Data drawer
   const [net, setNet] = useState(63_800_000);
   const [totcoll, setTotcoll] = useState(77_000_000);
@@ -448,19 +449,20 @@ function TwoNumbersPage() {
   const [eryield, setEryield] = useState(28);
 
   /* ─── right-column practice dashboard state ──────────────────────────── */
-  // Drivers boot at zero; the right side stays zeroed until both are entered.
-  const [compPool, setCompPool] = useState(0);
-  const [erSharePct, setErSharePct] = useState(0);
+  // Pre-seeded with the demo values — §0 governing rule: the page loads
+  // populated; the right side IS the source of truth.
+  const [compPool, setCompPool] = useState(63_800_000);
+  const [erSharePct, setErSharePct] = useState(27);
   const [partnerCount, setPartnerCount] = useState(100);
   const [view, setView] = useState<"total" | "perPartner">("perPartner");
   const [redeployUtilD, setRedeployUtilD] = useState(0);
 
   // Bridge direction — drives which side derives from the other.
-  // "none" = both sides independent (user has unlinked or no R2 yet)
-  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("none");
+  // Default: right→left (demo seeds the right; left renders as derived).
+  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("right-to-left");
   // Per-left-field source flag — controls the "← derived" chip.
-  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("user");
-  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("user");
+  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("derived-from-right");
+  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("derived-from-right");
   // Right-side derived label flag
   const [rightSource, setRightSource] = useState<"user" | "derived-from-left">("user");
 
@@ -488,7 +490,6 @@ function TwoNumbersPage() {
         setBaseWrvu(Math.round(o.erWrvu));
         setLeftCollSource("derived-from-right");
         setLeftWrvuSource("derived-from-right");
-        setCut(0);
       } else if (bridge === "left-to-right" && baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
         const b = backfillFromLeft({
           erColl: baseColl,
@@ -513,19 +514,32 @@ function TwoNumbersPage() {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
   const [openSrc, setOpenSrc] = useState<SrcKey | null>(null);
 
+  // The ONE primitive: lever scales today's baseWrvu/baseColl. Yield holds
+  // (same payer mix), so collections move in lockstep with wRVU. Feed the
+  // existing computeTwoNumbers with scaled values and cut=0 — left □
+  // stipend then matches the right dashboard at every lever position.
+  const leveredColl = baseColl * (1 + volumeLever);
+  const leveredWrvu = baseWrvu * (1 + volumeLever);
+
   const e = useMemo(
     () =>
       computeTwoNumbers({
-        baseColl,
-        baseWrvu,
+        baseColl: leveredColl,
+        baseWrvu: leveredWrvu,
         comp,
         ovh,
         redep,
         util,
-        cut,
+        cut: 0,
       }),
-    [baseColl, baseWrvu, comp, ovh, redep, util, cut],
+    [leveredColl, leveredWrvu, comp, ovh, redep, util],
   );
+
+  // Cut-side redeploy math (left Hospital drawer). Lever<0 = cuts;
+  // freedWrvu carved off today's baseline (NOT lever-scaled twice).
+  const freedWrvu = Math.max(0, -volumeLever) * baseWrvu;
+  const hospSaveLeft = freedWrvu * e.deficit;
+  const groupGainLeft = util * freedWrvu * (redep - e.fair);
 
   // Audit derived
   const aComp = twrvu > 0 ? net / twrvu : 0;
@@ -537,13 +551,13 @@ function TwoNumbersPage() {
   const sugC = sugW * eryield;
 
   // Display values for the displayed wRVU / collections (track the lever)
-  const wrvuDisplay = e.wrvuP;
-  const collDisplay = e.collP;
+  const wrvuDisplay = leveredWrvu;
+  const collDisplay = leveredColl;
 
   const useSuggested = () => {
     setBaseWrvu(Math.round(sugW));
     setBaseColl(Math.round(sugW * eryield));
-    setCut(0);
+    setVolumeLever(0);
   };
 
   // When the user edits the two numbers, treat them as the new baseline
@@ -552,13 +566,13 @@ function TwoNumbersPage() {
   // left→right.
   const onCollEdit = (v: number) => {
     setBaseColl(v);
-    setCut(0);
+    setVolumeLever(0);
     setLeftCollSource("user");
     if (erSharePct > 0) setBridge("left-to-right");
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
-    setCut(0);
+    setVolumeLever(0);
     setLeftWrvuSource("user");
     if (erSharePct > 0) setBridge("left-to-right");
   };
@@ -589,17 +603,18 @@ function TwoNumbersPage() {
   const showWrvu = Math.round(wrvuDisplay);
 
   const volNote =
-    cut <= 0 ? (
-      <>Move it — ER wRVU and collections fall together, yield holds, the stipend follows. Same math, run backward.</>
+    volumeLever === 0 ? (
+      <>Move it — ER wRVU and collections move together, yield holds, the stipend follows. Same math, both directions.</>
     ) : (
       <>
         ER wRVU <b className="text-ink">{fmtNum(wrvuDisplay)}</b> · collections{" "}
         <b className="text-ink">{fmtM(collDisplay)}</b>{" "}
         <span className="text-ink/40">(tracks volume)</span> · yield held{" "}
         <b className="text-ink">${e.yld.toFixed(0)}</b> · stipend{" "}
-        <b className="text-ink">{fmtM(e.stipendP)}</b>
+        <b className="text-ink">{fmtM(e.stipend)}</b>
       </>
     );
+
 
   return (
     <main className="mx-auto grid max-w-6xl gap-8 px-5 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
@@ -813,23 +828,32 @@ function TwoNumbersPage() {
       {/* Card △ — the lever */}
       <ShapeCard ico="△" authority="yours">
         <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
-          <span className="flex-1 text-ink/65">% of avoidable cut</span>
+          <span className="flex-1 text-ink/65">ER volume · ±30%</span>
           <input
             type="range"
-            min={0}
-            max={100}
-            value={Math.round((cut / AVOIDABLE_CAP) * 100)}
+            min={-30}
+            max={30}
+            step={1}
+            value={Math.round(volumeLever * 100)}
             onChange={(ev) =>
-              setCut((parseFloat(ev.target.value) / 100) * AVOIDABLE_CAP)
+              setVolumeLever(Math.max(-0.3, Math.min(0.3, parseFloat(ev.target.value) / 100)))
             }
             className="flex-[1.4] accent-[var(--teal)]"
           />
-          <span className="font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums">
-            {Math.round((cut / AVOIDABLE_CAP) * 100)}%
+          <span
+            className={`font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums ${
+              volumeLever > 0 ? "text-[var(--red)]" : volumeLever < 0 ? "text-[var(--teal)]" : "text-ink/55"
+            }`}
+          >
+            {volumeLever === 0 ? "0%" : `${volumeLever > 0 ? "+" : "−"}${Math.abs(Math.round(volumeLever * 100))}%`}
           </span>
         </div>
         <div className="-mt-1 text-right text-[11.5px] text-ink/45">
-          ≈ −{(cut * 100).toFixed(1)}% of total ER volume
+          {volumeLever > 0
+            ? `≈ +${(volumeLever * 100).toFixed(1)}% added ER volume (stipend rises)`
+            : volumeLever < 0
+              ? `≈ −${(-volumeLever * 100).toFixed(1)}% of ER volume cut (stipend shrinks)`
+              : "today · drag right to add volume, left to cut"}
         </div>
         <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
           <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
@@ -877,10 +901,10 @@ function TwoNumbersPage() {
               {Math.round(util * 100)}%
             </span>
           </div>
-          <OutRow l="Hospital saves" r={`+${fmtM(e.hospSave)}`} />
+          <OutRow l="Hospital saves" r={`+${fmtM(hospSaveLeft)}`} />
           <OutRow
             l={<>Your gain <span className="text-ink/40">· break-even ${e.breakevenRedeploy.toFixed(0)}/wRVU</span></>}
-            r={`${e.groupGain >= 0 ? "+" : ""}${fmtM(e.groupGain)}`}
+            r={`${groupGainLeft >= 0 ? "+" : ""}${fmtM(groupGainLeft)}`}
           />
           <p className="mt-1 text-[11.5px] leading-relaxed text-ink/45">
             Redeploy below break-even reads as a loss, not a wash.
@@ -943,8 +967,8 @@ function TwoNumbersPage() {
           setPartnerCount={setPartnerCount}
           view={view}
           setView={setView}
-          cut={cut}
-          setCut={setCut}
+          volumeLever={volumeLever}
+          setVolumeLever={setVolumeLever}
           redeployUtil={redeployUtilD}
           setRedeployUtil={setRedeployUtilD}
           fmvComp={comp}
