@@ -4,6 +4,7 @@ import { ActProblem } from "../components/story/ActProblem";
 import { ActDashboard } from "../components/story/ActDashboard";
 import { ActSolution } from "../components/story/ActSolution";
 import { StorySources } from "../components/story/StorySources";
+import { PresetBanner } from "../components/PresetBanner";
 
 export const Route = createFileRoute("/story")({
   head: () => ({
