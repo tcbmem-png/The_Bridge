@@ -182,10 +182,10 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const distributionTotal = i.stipendOn ? partnerWithTotal : partnerWithoutTotal;
   const distributionPerPartner = distributionTotal / N;
 
-  // ── Sweep 0.5× … 4× today's ER wRVU (60 samples) ───────────────────────
+  // ── Sweep 0× … 4× today's ER wRVU (80 samples) ────────────────────────
   // Same cascade applied at each x — no separate formula.
-  const samples = 60;
-  const xMin = erWrvuToday * 0.5;
+  const samples = 80;
+  const xMin = 0;
   const xMax = erWrvuToday * 4;
   const volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }> = [];
   for (let k = 0; k <= samples; k++) {
