@@ -618,15 +618,11 @@ function TwoNumbersPage() {
         A Tale of Two Numbers
       </h1>
       <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
-        The stipend a group earns for covering the ER starts with
-        <br />
+        The stipend a group earns for covering the ER starts with{" "}
         <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
           two auditable numbers
         </SrcLink>{" "}
-        <SrcLink k="onlygroup" open={openSrc} setOpen={setOpenSrc}>
-          only the group has
-        </SrcLink>
-        .
+        the group has, even if it might take a little digging to find them.
       </p>
       <SrcBox k="twonums" open={openSrc} />
       <SrcBox k="onlygroup" open={openSrc} />
