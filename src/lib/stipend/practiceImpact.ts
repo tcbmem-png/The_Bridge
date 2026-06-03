@@ -26,6 +26,10 @@ export type PracticeImpactInputs = {
   overheadPerWrvu: number; // optional override; otherwise residual
   erYield: number; // demo default $28 (audit replaces)
   reclaimValue?: number; // $/wRVU value when freed ER time is redeployed ($90)
+  // When true, reclaimValue is already a NET contribution per freed wRVU
+  // (freed labor treated as largely sunk). When false, reclaimValue is gross
+  // collections and we subtract fairCost C to get the net.
+  reclaimIsNet?: boolean;
   nonErYieldBench?: number; // unused in top-down; kept for bottom-up callers
 };
 
