@@ -231,22 +231,30 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
 
 /**
  * Bottom-up: given audited ER coll + ER wRVU + ER share, back-fill the
- * practice (totalWrvu, collections, compPool). Labeled "derived from left
- * audit" in the UI. NOT used in the current right-as-source-of-truth demo.
+ * practice (totalWrvu, collections, compPool) so that feeding compPool
+ * back into computePracticeImpact reproduces the audited erWrvu EXACTLY
+ * (no round-trip drift). The engine derives totalWrvu = compPool/comp$58
+ * and erWrvu = totalWrvu × erShare, so we invert that path directly
+ * instead of routing through collections × comp-to-collections.
  */
 export function backfillFromLeft(args: {
   erColl: number;
   erWrvu: number;
   erShare: number;
-  compToCollections: number;
-  nonErYieldBench: number;
+  compActualPerWrvu?: number;
+  overheadPerWrvu?: number;
+  // legacy — accepted but no longer used in the closed-loop path
+  compToCollections?: number;
+  nonErYieldBench?: number;
 }): { totalWrvu: number; collections: number; compPool: number } {
-  const { erColl, erWrvu, erShare, compToCollections, nonErYieldBench } = args;
+  const { erWrvu, erShare } = args;
+  const compActual = args.compActualPerWrvu ?? PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu;
+  const overhead = args.overheadPerWrvu ?? PRACTICE_IMPACT_DEFAULTS.overheadPerWrvu;
   if (erShare <= 0 || erShare >= 1) return { totalWrvu: 0, collections: 0, compPool: 0 };
   const totalWrvu = erWrvu / erShare;
-  const nonErColl = (totalWrvu - erWrvu) * nonErYieldBench;
-  const collections = erColl + nonErColl;
-  const compPool = collections * compToCollections;
+  const compPool = totalWrvu * compActual;
+  // Collections via the model's own identity ($58 + $12 = $70/wRVU).
+  const collections = totalWrvu * (compActual + overhead);
   return { totalWrvu, collections, compPool };
 }
 
