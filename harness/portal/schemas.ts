@@ -72,7 +72,7 @@ export const SPECS: Record<ExportType, ExportSpec> = {
       { name: "charge_amount",   kind: "numeric",   required: false, aliases: ["charge", "billed_amount"] },
       { name: "allowed_amount",  kind: "numeric",   required: false, aliases: ["allowed"] },
       { name: "paid_amount",     kind: "numeric",   required: true,  aliases: ["paid"] },
-      { name: "patient_resp",    kind: "numeric",   required: false, aliases: ["patient_responsibility"] },
+      { name: "patient_resp",    kind: "numeric",   required: false, aliases: ["patient_responsibility"], fallback: 0 },
       { name: "adj_group_code",  kind: "text",      required: false, aliases: ["group_code"] },
       { name: "carc_codes",      kind: "text",      required: false, aliases: ["carc", "adjustment_codes"] },
       { name: "rarc_codes",      kind: "text",      required: false, aliases: ["rarc", "remark_codes"] },
