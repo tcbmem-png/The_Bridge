@@ -111,10 +111,11 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       }
       setStatus({ kind: "loaded", rowsLoaded: cumulative, files: staged.length });
       onDatasetChange();
+      await refreshPreset(datasetName || "Uploaded dataset");
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
-  }, [staged, onDatasetChange]);
+  }, [staged, datasetName, onDatasetChange, refreshPreset]);
 
   const handleReset = useCallback(async () => {
     setStatus({ kind: "loading", progress: null, totalRows: 0, loadedRows: 0 });
@@ -124,6 +125,10 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       setDatasetName("MOCK RAD GROUP — baseline");
       setStatus({ kind: "idle" });
       onDatasetChange();
+      // Seed is the in-memory fabricated set — clear any preset derived from
+      // a previous upload so Sandbox/Story snap back to authored defaults.
+      clearPreset();
+      setPreset(null);
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
