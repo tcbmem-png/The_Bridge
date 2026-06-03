@@ -326,25 +326,20 @@ export function PracticeDashboard({
           </div>
         )}
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          Margin is a fraction — collections ÷ cost. ER's is below 1: it
-          spends ~${out ? out.fairCost.toFixed(0) : "70"} to collect ~$
-          {out ? out.erYield.toFixed(0) : "28"}, a fraction of about{" "}
-          {out ? (out.erYield / out.fairCost).toFixed(2) : "0.40"}. The
-          stipend lifts the numerator to the denominator, so the fraction is
-          exactly 1 — break-even — at any volume.
+          Margin (profit %) = (revenue − cost) ÷ revenue. The ER's is deeply
+          negative — it collects $28 against a $70 cost, so (28 − 70) / 28 =
+          −150%: it loses $1.50 for every revenue-dollar. The stipend lifts ER
+          revenue up to its cost ($28 + $42 = $70), so the margin is (70 − 70) /
+          70 = 0% — break-even — at any volume.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          Pile on ER volume and the partner line doesn't move, because zero
-          margin drops nothing to profit. The without-stipend line plunges
-          straight through zero — the group covering the hospital's
-          obligation out of its own partners' pockets. The two lines meet at
-          0× (no ER, no gap); the vertical gap at any other volume <i>is</i>{" "}
-          the stipend ÷ N.
+          And 0% margin drops nothing to the bottom line: pile on ER volume and
+          partner profit doesn't move. That's arithmetic, not a rule.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          That flatness is arithmetic, not a legal rule — but it's exactly
-          what keeps the payment FMV-consistent and not a kickback: pure
-          cost-coverage, no return on volume.
+          Margin is a rate — it's −150% / 0% whether you do 1× or 4× the work;
+          only the dollar loss scales. The FMV/not-a-kickback point follows from
+          the 0%.
         </p>
 
       </div>
