@@ -17,6 +17,20 @@
 // The file on disk is never edited. The lineage drill re-issues the
 // :p_month query parameterized.
 
+// PGlite is compiled from Node sources and references bare `process` /
+// `process.env` at runtime. Browser production bundles have no Node globals,
+// so without this shim the very first query throws "process is not defined"
+// and every harness panel renders that error in place of data.
+if (typeof window !== "undefined" && typeof (globalThis as { process?: unknown }).process === "undefined") {
+  (globalThis as { process: unknown }).process = {
+    env: {},
+    platform: "browser",
+    version: "",
+    versions: { node: "" },
+    nextTick: (cb: () => void) => Promise.resolve().then(cb),
+  };
+}
+
 import { PGlite } from "@electric-sql/pglite";
 import rawSql from "../sql/radiology_stipend_harness.sql?raw";
 
