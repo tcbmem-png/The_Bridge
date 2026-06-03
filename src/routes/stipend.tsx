@@ -912,7 +912,7 @@ function TwoNumbersPage() {
               </p>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">3. Add side uncapped.</b>{" "}
-                Volume can grow up to 4× today. ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
+                Volume can grow up to 3× today (+200%). ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
               </p>
             </div>
           </div>
