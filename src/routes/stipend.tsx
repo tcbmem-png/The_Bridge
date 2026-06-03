@@ -476,7 +476,7 @@ function TwoNumbersPage() {
           erShare: erSharePct / 100,
           partnerCount,
           stipendOn: true,
-          cutFrac: 0,
+          volumeLever: 0,
           redeployUtil: 0,
           fmvComp: comp,
           compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
