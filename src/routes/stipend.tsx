@@ -291,11 +291,13 @@ function NumField({
   value,
   onChange,
   step = 1,
+  readOnly = false,
 }: {
   label: React.ReactNode;
   value: number;
   onChange: (v: number) => void;
   step?: number;
+  readOnly?: boolean;
 }) {
   return (
     <label className="flex items-center gap-3 py-1.5 text-[13.5px]">
@@ -304,6 +306,7 @@ function NumField({
         type="number"
         value={value}
         step={step}
+        readOnly={readOnly}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         autoComplete="off"
         data-private="true"
@@ -313,11 +316,12 @@ function NumField({
         data-hj-suppress=""
         data-rrweb-ignore="true"
         data-analytics="ignore"
-        className="font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
+        className={`font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
       />
     </label>
   );
 }
+
 
 function Erow({
   op,
