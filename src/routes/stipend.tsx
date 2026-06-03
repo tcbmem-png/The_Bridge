@@ -615,11 +615,37 @@ function TwoNumbersPage() {
       <h1 className="font-display text-[28px] font-semibold leading-[1.1] tracking-tight text-ink md:text-[34px]">
         A Tale of Two Numbers
       </h1>
-      {rightSource === "derived-from-left" && (
-        <div className="font-mono-tab mt-2 inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
-          right side · derived from left audit
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/45">
+          Source
+        </span>
+        <div className="font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em]">
+          {(["right", "left"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSource(s)}
+              className={`px-2.5 py-0.5 ${source === s ? "bg-ink text-paper" : "text-ink/55 hover:text-ink"}`}
+            >
+              {s === "right" ? "right (partner distribution)" : "left (audited ER)"}
+            </button>
+          ))}
         </div>
-      )}
+        {source === "left" && (
+          <span className="font-mono-tab inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
+            right side · derived from left audit
+          </span>
+        )}
+      </div>
+      <p className="mt-3 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
+        If you know your actual annual ER wRVU and collections, toggle left
+        and enter them. If you don't, toggle right and enter your average
+        annual partner profit distribution, number of partners, and best
+        estimate percentage of your group's total annual wRVU attributable
+        to ER. We'll use benchmarks and math to build the model from there.
+        Don't forget to slide the ER volume scale at the bottom.
+      </p>
+
 
 
       {/* Sentence 1 */}
