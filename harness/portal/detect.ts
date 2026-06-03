@@ -8,19 +8,22 @@ function normalize(s: string): string {
   return s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
 
-/** Score a spec against a set of normalized header names. Higher = better. */
+/** Score a spec against a set of normalized header names. Higher = better.
+ *  Hits divided by total possible (required counted double). Specs missing
+ *  any required column are hard-rejected so a richer-optional spec cannot
+ *  out-rank the actual match (e.g. RIS scoring above 837 on a billing CSV). */
 function scoreHeaderMatch(spec: ExportSpec, normHeaders: Set<string>): number {
   let hits = 0;
-  let required = 0;
+  let possible = 0;
   for (const col of spec.columns) {
     const candidates = [col.name, ...(col.aliases ?? [])].map(normalize);
     const present = candidates.some((c) => normHeaders.has(c));
-    if (present) hits += col.required ? 2 : 1;
-    if (col.required) required += 2;
+    const weight = col.required ? 2 : 1;
+    possible += weight;
+    if (present) hits += weight;
+    else if (col.required) return 0;
   }
-  // Penalize specs that miss any required column entirely (we still return a
-  // score; ranking is least-bad).
-  return hits / Math.max(required, 1);
+  return hits / Math.max(possible, 1);
 }
 
 export function detectExportType(
