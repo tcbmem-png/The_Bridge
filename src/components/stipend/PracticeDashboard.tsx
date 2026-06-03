@@ -349,20 +349,22 @@ export function PracticeDashboard({
           </div>
         )}
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          Margin (profit %) = (revenue − cost) ÷ revenue. The ER's is deeply
-          negative — it collects $28 against a $70 cost, so (28 − 70) / 28 =
-          −150%: it loses $1.50 for every revenue-dollar. The stipend lifts ER
-          revenue up to its cost ($28 + $42 = $70), so the margin is (70 − 70) /
-          70 = 0% — break-even — at any volume.
+          The stipend is priced at FMV cost — $50 FMV comp + $12 overhead = $62
+          — so it closes the FMV gap (62 − 28 = $34/wRVU). But the group
+          actually pays $58/wRVU in comp, not $50. That $8/wRVU above-FMV slice
+          is a real cost the partners eat on every ER wRVU; you can't shift
+          above-market pay onto the hospital.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          And 0% margin drops nothing to the bottom line: pile on ER volume and
-          partner profit doesn't move. That's arithmetic, not a rule.
+          So "with stipend" isn't flat — it tilts down at −$8/wRVU/partner. The
+          stipend kills the −$42 cliff but leaves an −$8 residual. Pile on ER
+          volume and partner profit still drifts down — gently, not off the
+          edge. That's arithmetic, not a rule.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          Margin is a rate — it's −150% / 0% whether you do 1× or 4× the work;
-          only the dollar loss scales. The FMV/not-a-kickback point follows from
-          the 0%.
+          The FMV/not-a-kickback point: the hospital pays only what the work is
+          worth at fair-market rates. Anything above that stays the group's
+          problem.
         </p>
 
       </div>
