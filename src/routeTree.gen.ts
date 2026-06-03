@@ -15,6 +15,7 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as StipendRouteImport } from './routes/stipend'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as HarnessRouteImport } from './routes/harness'
 import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CioRouteImport } from './routes/cio'
@@ -50,6 +51,11 @@ const SandboxRoute = SandboxRouteImport.update({
   path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HarnessRoute = HarnessRouteImport.update({
+  id: '/harness',
+  path: '/harness',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForItRoute = ForItRouteImport.update({
   id: '/for-it',
   path: '/for-it',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
   '/for-it': typeof ForItRoute
+  '/harness': typeof HarnessRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
   '/for-it': typeof ForItRoute
+  '/harness': typeof HarnessRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
   '/for-it': typeof ForItRoute
+  '/harness': typeof HarnessRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/cio'
     | '/faq'
     | '/for-it'
+    | '/harness'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/cio'
     | '/faq'
     | '/for-it'
+    | '/harness'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/cio'
     | '/faq'
     | '/for-it'
+    | '/harness'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   CioRoute: typeof CioRoute
   FaqRoute: typeof FaqRoute
   ForItRoute: typeof ForItRoute
+  HarnessRoute: typeof HarnessRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
   StipendRoute: typeof StipendRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/harness': {
+      id: '/harness'
+      path: '/harness'
+      fullPath: '/harness'
+      preLoaderRoute: typeof HarnessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/for-it': {
       id: '/for-it'
       path: '/for-it'
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   CioRoute: CioRoute,
   FaqRoute: FaqRoute,
   ForItRoute: ForItRoute,
+  HarnessRoute: HarnessRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
   StipendRoute: StipendRoute,
@@ -250,3 +271,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
