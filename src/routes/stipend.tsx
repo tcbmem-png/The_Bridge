@@ -618,7 +618,10 @@ function TwoNumbersPage() {
         A Tale of Two Numbers
       </h1>
       <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
-        The stipend a group earns for covering the ER starts with{" "}
+        The stipend a group earns for covering the ER
+      </p>
+      <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
+        starts with{" "}
         <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
           two auditable numbers
         </SrcLink>{" "}
@@ -652,7 +655,7 @@ function TwoNumbersPage() {
         )}
       </div>
       <p className="mt-3 mb-4 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
-        If you know your actual annual ER wRVU and collections, toggle left
+        If you know your group's actual annual ER wRVU and collections, toggle left
         and enter them. If you don't, toggle right and enter your average
         annual partner profit distribution, number of partners, and best
         estimate percentage of your group's total annual wRVU attributable
