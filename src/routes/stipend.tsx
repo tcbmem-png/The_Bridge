@@ -892,7 +892,7 @@ function TwoNumbersPage() {
               </p>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">3. Add side uncapped.</b>{" "}
-                Volume can grow up to 4× today. ER's gross margin is below 1 (collects $28, costs $70), so without a stipend the partner line plunges deep negative. With the stipend the fraction is exactly 1 — break-even — at any volume.
+                Volume can grow up to 4× today. ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
               </p>
             </div>
           </div>
