@@ -6,6 +6,8 @@ import { CashTieout } from "../components/harness/CashTieout";
 import { VolumeTieout } from "../components/harness/VolumeTieout";
 import { HandoffContract } from "../components/harness/HandoffContract";
 import { LineageDrill } from "../components/harness/LineageDrill";
+import { UploadPortal } from "../components/harness/UploadPortal";
+import { IntegrityPanel } from "../components/harness/IntegrityPanel";
 
 export const Route = createFileRoute("/harness")({
   head: () => ({
@@ -25,6 +27,9 @@ export const Route = createFileRoute("/harness")({
 
 function HarnessPage() {
   const [mounted, setMounted] = useState(false);
+  const [version, setVersion] = useState(0);
+  const [datasetName, setDatasetName] = useState("MOCK RAD GROUP — baseline");
+
   useEffect(() => setMounted(true), []);
 
   return (
@@ -38,9 +43,10 @@ function HarnessPage() {
         </h1>
         <p className="mt-3 max-w-3xl text-sm text-ink/75">
           The canonical schema runs verbatim in this tab against a fabricated
-          seed. Real Postgres compiled to WebAssembly. No server, no upload, no
-          PHI. The four acceptance checks from the file's footer execute below.
-          Source of truth:{" "}
+          seed. Real Postgres compiled to WebAssembly. No server. No PHI. Drop
+          your own CSV exports to watch the recon surfaces light up — session
+          only, never written to disk. Real 835/837/RIS belongs in a fork on
+          hardware you control. Source of truth:{" "}
           <span className="font-mono text-[11px]">
             harness/sql/radiology_stipend_harness.sql
           </span>
@@ -56,11 +62,17 @@ function HarnessPage() {
         </p>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-6">
-          <SegmentMonthly />
-          <CashTieout />
-          <VolumeTieout />
-          <HandoffContract />
-          <LineageDrill />
+          <UploadPortal
+            onDatasetChange={() => setVersion((v) => v + 1)}
+            datasetName={datasetName}
+            setDatasetName={setDatasetName}
+          />
+          <IntegrityPanel key={`integrity-${version}`} version={version} />
+          <SegmentMonthly key={`seg-${version}`} />
+          <CashTieout key={`cash-${version}`} />
+          <VolumeTieout key={`vol-${version}`} />
+          <HandoffContract key={`handoff-${version}`} />
+          <LineageDrill key={`lineage-${version}`} />
         </div>
       )}
 
@@ -69,12 +81,16 @@ function HarnessPage() {
           Sequencing
         </p>
         <p className="mt-2 max-w-3xl text-sm text-ink/75">
-          Step 1 (this build): schema + seed + acceptance checks, in-browser.
-          Step 2: reconcile against the canonical SQL on every revision; the file
-          on disk is the source of truth. Step 3 (separate decision): BAA,
-          encryption at rest, access logging, hosted Postgres, real 835/837/RIS
-          ingestion. The calculator handoff is deliberately narrow — see{" "}
-          <span className="font-mono text-[11px]">docs/calculator-handoff.md</span>.
+          Step 1 (this build): schema + seed + acceptance checks + drop-a-file
+          portal, in-browser. Step 2: reconcile against the canonical SQL on
+          every revision; the file on disk is the source of truth. Step 3
+          (separate decision, on the fork): BAA, encryption at rest, access
+          logging, real 835/837/RIS ingestion. The calculator handoff is
+          deliberately narrow — see{" "}
+          <span className="font-mono text-[11px]">docs/calculator-handoff.md</span>
+          . The upload contract — what each CSV needs to contain — lives in{" "}
+          <span className="font-mono text-[11px]">docs/upload-portal-contract.md</span>
+          .
         </p>
       </footer>
     </main>
