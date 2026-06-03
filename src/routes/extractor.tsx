@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { erTotals, erAllLines } from "../../harness/runtime/queries";
-import { getDb } from "../../harness/runtime/db";
+import { getDb, resetDb } from "../../harness/runtime/db";
+import { stageFile } from "../../harness/portal/stage";
+import { loadStagedFile } from "../../harness/portal/load";
+import type { StagedFile } from "../../harness/portal/types";
 
 export const Route = createFileRoute("/extractor")({
   head: () => ({
@@ -10,7 +13,7 @@ export const Route = createFileRoute("/extractor")({
       {
         name: "description",
         content:
-          "Two numbers your valuator or auditor needs — ER wRVU and ER collections — drillable down to the source 837/835/RIS line.",
+          "Two numbers your valuator or auditor needs — ER wRVU and ER collections — drillable down to the exact source file and row.",
       },
       { name: "robots", content: "noindex,nofollow" },
     ],
@@ -20,6 +23,17 @@ export const Route = createFileRoute("/extractor")({
 });
 
 const REPO_URL = "https://github.com/tcbmem-png/The_Bridge";
+
+const DEMO_FILES = [
+  "MOCK_RAD_GROUP_837_billing_export.csv",
+  "MOCK_RAD_GROUP_835_remittance_export.csv",
+  "MOCK_RAD_GROUP_RIS_exam_export.csv",
+  "MOCK_RAD_GROUP_bank_statement.csv",
+  "MOCK_PUBLIC_MPFS_reference.csv",
+  "MOCK_RAD_GROUP_ref_payer.csv",
+  "MOCK_RAD_GROUP_ref_facility.csv",
+  "MOCK_RAD_GROUP_ref_provider.csv",
+];
 
 type Line = {
   claim_id: string;
@@ -67,38 +81,101 @@ function toIso(v: unknown) {
   return String(v ?? "—");
 }
 
-type Drill = null | "wrvu" | "collections";
+type LoadState =
+  | { kind: "idle" }
+  | { kind: "loading"; msg: string }
+  | { kind: "loaded" }
+  | { kind: "error"; message: string };
+
+type Variant = "wrvu" | "collections";
+type DrillLevel = 0 | 1 | 2 | 3;
 
 function ExtractorPage() {
-  const [mounted, setMounted] = useState(false);
+  const [load, setLoad] = useState<LoadState>({ kind: "idle" });
   const [totals, setTotals] = useState<{ wrvu: number; collections: number; lines: number } | null>(null);
   const [lines, setLines] = useState<Line[] | null>(null);
-  const [drill, setDrill] = useState<Drill>(null);
+  const [variant, setVariant] = useState<Variant | null>(null);
+  const [level, setLevel] = useState<DrillLevel>(0);
   const [selected, setSelected] = useState<Line | null>(null);
-  const [err, setErr] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setMounted(true);
-    getDb()
-      .then(() => Promise.all([erTotals(), erAllLines()]))
-      .then(([t, ls]) => {
-        const row = t[0];
-        setTotals({
-          wrvu: Number(row?.wrvu ?? 0),
-          collections: Number(row?.collections ?? 0),
-          lines: Number(row?.line_count ?? 0),
-        });
-        setLines(ls as unknown as Line[]);
-      })
-      .catch((e) => setErr(String(e?.message ?? e)));
+  const refresh = useCallback(async () => {
+    const [t, ls] = await Promise.all([erTotals(), erAllLines()]);
+    const row = t[0];
+    setTotals({
+      wrvu: Number(row?.wrvu ?? 0),
+      collections: Number(row?.collections ?? 0),
+      lines: Number(row?.line_count ?? 0),
+    });
+    setLines(ls as unknown as Line[]);
   }, []);
 
-  const drillTitle =
-    drill === "wrvu"
-      ? "ER wRVU · contributing billed lines"
-      : drill === "collections"
-        ? "ER collections · contributing remittance lines"
-        : null;
+  const ingest = useCallback(
+    async (files: File[]) => {
+      const csvs = files.filter((f) => f.name.toLowerCase().endsWith(".csv"));
+      if (!csvs.length) {
+        setLoad({ kind: "error", message: "Drop one or more .csv files." });
+        return;
+      }
+      setLoad({ kind: "loading", msg: "Reading files…" });
+      try {
+        const stagedAll: StagedFile[] = [];
+        for (const f of csvs) stagedAll.push(await stageFile(f));
+        const blocked = stagedAll.filter((s) => s.missingColumns.length > 0);
+        if (blocked.length) {
+          setLoad({
+            kind: "error",
+            message: `Missing required columns in: ${blocked.map((b) => b.fileName).join(", ")}`,
+          });
+          return;
+        }
+        const db = await resetDb("empty");
+        for (const s of stagedAll) {
+          setLoad({ kind: "loading", msg: `Loading ${s.fileName}…` });
+          await loadStagedFile(db, s, () => {});
+        }
+        await refresh();
+        setLoad({ kind: "loaded" });
+      } catch (e) {
+        setLoad({ kind: "error", message: String((e as Error)?.message ?? e) });
+      }
+    },
+    [refresh],
+  );
+
+  const loadDemo = useCallback(async () => {
+    setLoad({ kind: "loading", msg: "Fetching demo dataset…" });
+    try {
+      const files: File[] = [];
+      for (const name of DEMO_FILES) {
+        const res = await fetch(`/sample-data/${name}`);
+        if (!res.ok) throw new Error(`Failed to fetch ${name}: ${res.status}`);
+        const blob = await res.blob();
+        files.push(new File([blob], name, { type: "text/csv" }));
+      }
+      await ingest(files);
+    } catch (e) {
+      setLoad({ kind: "error", message: String((e as Error)?.message ?? e) });
+    }
+  }, [ingest]);
+
+  useEffect(() => {
+    getDb().catch(() => {});
+  }, []);
+
+  const openDrill = (v: Variant) => {
+    setVariant(v);
+    setSelected(null);
+    setLevel(1);
+  };
+  const resetDrill = () => {
+    setVariant(null);
+    setSelected(null);
+    setLevel(0);
+  };
+
+  const loaded = load.kind === "loaded" && totals && lines;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
@@ -127,69 +204,126 @@ function ExtractorPage() {
           <button
             type="button"
             className="inline-flex items-center rounded-full border border-ink/25 bg-paper px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink/75 transition-colors hover:border-ink/50 hover:text-ink"
-            onClick={() => {
-              /* file not wired yet */
-            }}
+            onClick={() => {}}
           >
             Download for your machine →
           </button>
         </div>
       </header>
 
-      {!mounted ? (
-        <p className="mt-10 font-mono text-[12px] text-ink/55">Booting…</p>
-      ) : err ? (
-        <p className="mt-10 font-mono text-[12px] text-red-clinical">{err}</p>
-      ) : (
+      {/* LOAD FRONT DOOR */}
+      <section className="mt-12">
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            ingest(Array.from(e.dataTransfer.files));
+          }}
+          className={`rounded-md border border-dashed p-7 text-center transition-colors ${
+            dragOver ? "border-teal bg-teal/5" : "border-ink/25 bg-ink/[0.02]"
+          }`}
+        >
+          <p className="font-display text-lg text-ink">
+            Drop your exports here — 837 · 835 · RIS · bank
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-ink/55">
+            Session-only · client-side · nothing written to disk
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="rounded-md border border-ink/25 bg-paper px-3 py-1.5 font-mono text-[12px] text-ink hover:bg-ink/5"
+            >
+              Or browse…
+            </button>
+            <button
+              type="button"
+              onClick={loadDemo}
+              disabled={load.kind === "loading"}
+              className="rounded-md border border-teal/50 bg-teal/15 px-3 py-1.5 font-mono text-[12px] text-teal hover:bg-teal/25 disabled:opacity-40"
+            >
+              Load demo dataset
+            </button>
+          </div>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".csv"
+            multiple
+            className="hidden"
+            onChange={(e) => e.target.files && ingest(Array.from(e.target.files))}
+          />
+        </div>
+
+        {load.kind === "loading" && (
+          <p className="mt-4 font-mono text-[12px] text-ink/65">{load.msg}</p>
+        )}
+        {load.kind === "error" && (
+          <p className="mt-4 font-mono text-[12px] text-red-clinical">{load.message}</p>
+        )}
+        {load.kind === "loaded" && (
+          <p className="mt-4 font-mono text-[12px] text-teal">
+            Loaded locally · computed on this machine.
+          </p>
+        )}
+      </section>
+
+      {/* NUMBERS — only after load */}
+      {loaded && (
         <>
-          <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <section className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
             <BigNumber
               label="ER wRVU"
-              value={totals ? fmt(totals.wrvu, 2) : "—"}
-              sub={totals ? `${totals.lines.toLocaleString()} billed lines` : ""}
-              active={drill === "wrvu"}
-              onClick={() => {
-                setSelected(null);
-                setDrill(drill === "wrvu" ? null : "wrvu");
-              }}
+              value={fmt(totals!.wrvu, 2)}
+              sub={`${totals!.lines.toLocaleString()} billed lines`}
+              active={variant === "wrvu"}
+              onClick={() => (variant === "wrvu" ? resetDrill() : openDrill("wrvu"))}
             />
             <BigNumber
               label="ER collections"
-              value={totals ? `$${fmt(totals.collections, 2)}` : "—"}
-              sub={totals ? `${totals.lines.toLocaleString()} billed lines` : ""}
-              active={drill === "collections"}
-              onClick={() => {
-                setSelected(null);
-                setDrill(drill === "collections" ? null : "collections");
-              }}
+              value={`$${fmt(totals!.collections, 2)}`}
+              sub={`${totals!.lines.toLocaleString()} billed lines`}
+              active={variant === "collections"}
+              onClick={() =>
+                variant === "collections" ? resetDrill() : openDrill("collections")
+              }
             />
           </section>
 
-          {drill && lines && (
+          {variant && (
             <section className="mt-10">
-              <Breadcrumb
-                items={
-                  selected
-                    ? [
-                        { label: drill === "wrvu" ? "ER wRVU" : "ER collections", onClick: () => setSelected(null) },
-                        { label: `${selected.claim_id} · line ${selected.line_number}` },
-                      ]
-                    : [{ label: drill === "wrvu" ? "ER wRVU" : "ER collections" }]
-                }
-                onRoot={() => {
-                  setDrill(null);
-                  setSelected(null);
+              <Crumbs
+                variant={variant}
+                level={level}
+                selected={selected}
+                onJump={(lv) => {
+                  if (lv === 0) resetDrill();
+                  else setLevel(lv);
                 }}
               />
-              {!selected ? (
-                <ContributingLines
-                  title={drillTitle ?? ""}
-                  rows={lines}
-                  variant={drill}
-                  onPick={(l) => setSelected(l)}
+              {variant === "collections" && (
+                <CollectionsDrill
+                  level={level}
+                  setLevel={setLevel}
+                  rows={lines!}
+                  selected={selected}
+                  setSelected={setSelected}
                 />
-              ) : (
-                <LineDetail line={selected} variant={drill} onBack={() => setSelected(null)} />
+              )}
+              {variant === "wrvu" && (
+                <WrvuDrill
+                  level={level}
+                  setLevel={setLevel}
+                  rows={lines!}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
               )}
             </section>
           )}
@@ -236,218 +370,415 @@ function BigNumber({
   );
 }
 
-function Breadcrumb({
-  items,
-  onRoot,
+function Crumbs({
+  variant,
+  level,
+  selected,
+  onJump,
 }: {
-  items: { label: string; onClick?: () => void }[];
-  onRoot: () => void;
+  variant: Variant;
+  level: DrillLevel;
+  selected: Line | null;
+  onJump: (lv: DrillLevel) => void;
 }) {
+  const root = variant === "wrvu" ? "ER wRVU" : "ER collections";
+  const l1 = variant === "wrvu" ? "837 billed lines" : "835 remittance lines";
+  const l2 =
+    variant === "wrvu" ? "CPT + MPFS match" : "837 claim line it pays";
+  const sel = selected
+    ? `${selected.claim_id} · line ${selected.line_number}`
+    : "";
+
+  const node = (label: string, lv: DrillLevel, current: boolean) =>
+    current ? (
+      <span className="text-ink">{label}</span>
+    ) : (
+      <button onClick={() => onJump(lv)} className="hover:text-ink">
+        {label}
+      </button>
+    );
+
   return (
     <nav
       aria-label="Drill path"
       className="mb-4 flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink/55"
     >
-      <button onClick={onRoot} className="hover:text-ink">
+      <button onClick={() => onJump(0)} className="hover:text-ink">
         ← Back to numbers
       </button>
-      {items.map((it, i) => (
-        <span key={i} className="flex items-center gap-2">
+      <span className="text-ink/25">/</span>
+      {node(root, 1, level === 1 && !selected)}
+      {level >= 1 && (
+        <>
           <span className="text-ink/25">/</span>
-          {it.onClick ? (
-            <button onClick={it.onClick} className="hover:text-ink">
-              {it.label}
-            </button>
-          ) : (
-            <span className="text-ink">{it.label}</span>
-          )}
-        </span>
-      ))}
+          {node(l1, 1, level === 1 && !selected)}
+        </>
+      )}
+      {level >= 2 && selected && (
+        <>
+          <span className="text-ink/25">/</span>
+          {node(`${sel} · ${l2}`, 2, level === 2)}
+        </>
+      )}
+      {level >= 3 && (
+        <>
+          <span className="text-ink/25">/</span>
+          <span className="text-ink">SOURCE</span>
+        </>
+      )}
     </nav>
   );
 }
 
-function ContributingLines({
-  title,
+/* ---------- Collections drill: 835 → 837 → source file rows ---------- */
+
+function CollectionsDrill({
+  level,
+  setLevel,
   rows,
-  variant,
-  onPick,
+  selected,
+  setSelected,
 }: {
-  title: string;
+  level: DrillLevel;
+  setLevel: (lv: DrillLevel) => void;
   rows: Line[];
-  variant: "wrvu" | "collections";
-  onPick: (l: Line) => void;
+  selected: Line | null;
+  setSelected: (l: Line | null) => void;
 }) {
   const filtered = useMemo(
-    () =>
-      variant === "collections"
-        ? rows.filter((r) => Number(r.paid_amount) !== 0)
-        : rows.filter((r) => Number(r.work_rvu) > 0),
-    [rows, variant],
+    () => rows.filter((r) => Number(r.paid_amount) !== 0),
+    [rows],
   );
+
+  if (level === 1) {
+    return (
+      <Card
+        title="835 remittance lines that sum to ER collections"
+        sub={`${filtered.length.toLocaleString()} lines · click a row to see the 837 claim line it pays.`}
+      >
+        <Table
+          head={["Claim", "Line", "DOS", "CPT", "Payer", "EFT/Check", "Paid"]}
+          rows={filtered.map((r) => ({
+            key: `${r.claim_id}-${r.line_number}`,
+            cells: [
+              r.claim_id,
+              r.line_number,
+              toIso(r.dos),
+              r.cpt_code,
+              r.payer_id ?? "—",
+              r.check_eft_trace ?? "—",
+              { value: fmt(r.paid_amount), right: true },
+            ],
+            onClick: () => {
+              setSelected(r);
+              setLevel(2);
+            },
+          }))}
+        />
+      </Card>
+    );
+  }
+
+  if (level === 2 && selected) {
+    return (
+      <Card
+        title={`837 claim line paid by this 835 row · ${selected.claim_id} · line ${selected.line_number}`}
+        sub="Click to see the literal source file and row this came from."
+      >
+        <RecordTable
+          rows={[
+            ["claim_id", selected.claim_id],
+            ["line_number", selected.line_number],
+            ["dos", toIso(selected.dos)],
+            ["cpt_code", selected.cpt_code],
+            ["units", selected.units],
+            ["payer_id", selected.payer_id ?? "—"],
+            ["financial_class", selected.financial_class ?? "—"],
+            ["charge_amount", fmt(selected.charge_amount)],
+            ["paid_amount (from 835)", fmt(selected.paid_amount)],
+          ]}
+        />
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setLevel(3)}
+            className="rounded-md border border-ink/25 bg-paper px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink hover:bg-ink/5"
+          >
+            Show source files & rows →
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (level === 3 && selected) {
+    return (
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <SourceFileCard
+          fileLabel="835 remittance · source file"
+          fileName={selected.src_835_file}
+          hash={selected.src_835_hash}
+          rowRef={`claim_id=${selected.claim_id} · line_number=${selected.line_number}`}
+          rows={[
+            ["claim_id", selected.claim_id],
+            ["line_number", selected.line_number],
+            ["paid_amount", fmt(selected.paid_amount)],
+            ["check_eft_trace", selected.check_eft_trace ?? "—"],
+            ["payer_id", selected.payer_id ?? "—"],
+            ["financial_class", selected.financial_class ?? "—"],
+          ]}
+        />
+        <SourceFileCard
+          fileLabel="837 billing · source file"
+          fileName={selected.src_837_file}
+          hash={selected.src_837_hash}
+          rowRef={`claim_id=${selected.claim_id} · line_number=${selected.line_number}`}
+          rows={[
+            ["claim_id", selected.claim_id],
+            ["line_number", selected.line_number],
+            ["dos", toIso(selected.dos)],
+            ["cpt_code", selected.cpt_code],
+            ["units", selected.units],
+            ["charge_amount", fmt(selected.charge_amount)],
+            ["payer_id", selected.payer_id ?? "—"],
+          ]}
+        />
+      </div>
+    );
+  }
+  return null;
+}
+
+/* ---------- wRVU drill: 837 → CPT+MPFS → source file rows ---------- */
+
+function WrvuDrill({
+  level,
+  setLevel,
+  rows,
+  selected,
+  setSelected,
+}: {
+  level: DrillLevel;
+  setLevel: (lv: DrillLevel) => void;
+  rows: Line[];
+  selected: Line | null;
+  setSelected: (l: Line | null) => void;
+}) {
+  const filtered = useMemo(
+    () => rows.filter((r) => Number(r.work_rvu) > 0),
+    [rows],
+  );
+
+  if (level === 1) {
+    return (
+      <Card
+        title="837 billed lines that sum to ER wRVU"
+        sub={`${filtered.length.toLocaleString()} lines · click a row to see its CPT and matched MPFS rate.`}
+      >
+        <Table
+          head={["Claim", "Line", "DOS", "CPT", "Units", "Per-unit wRVU", "Line wRVU"]}
+          rows={filtered.map((r) => ({
+            key: `${r.claim_id}-${r.line_number}`,
+            cells: [
+              r.claim_id,
+              r.line_number,
+              toIso(r.dos),
+              r.cpt_code,
+              { value: String(r.units), right: true },
+              { value: fmt(r.mpfs_work_rvu, 4), right: true },
+              { value: fmt(r.work_rvu, 4), right: true },
+            ],
+            onClick: () => {
+              setSelected(r);
+              setLevel(2);
+            },
+          }))}
+        />
+      </Card>
+    );
+  }
+
+  if (level === 2 && selected) {
+    return (
+      <Card
+        title={`CPT ${selected.cpt_code} · matched against MPFS ${selected.mpfs_year ?? "—"}`}
+        sub="Click to see both source files and rows."
+      >
+        <RecordTable
+          rows={[
+            ["837 claim_id", selected.claim_id],
+            ["837 line_number", selected.line_number],
+            ["dos", toIso(selected.dos)],
+            ["cpt_code", selected.cpt_code],
+            ["units (from 837)", selected.units],
+            ["per-unit work_rvu (from MPFS)", fmt(selected.mpfs_work_rvu, 4)],
+            ["conversion_factor (from MPFS)", fmt(selected.mpfs_cf, 4)],
+            ["line work_rvu = units × per-unit", fmt(selected.work_rvu, 4)],
+          ]}
+        />
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setLevel(3)}
+            className="rounded-md border border-ink/25 bg-paper px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink hover:bg-ink/5"
+          >
+            Show source files & rows →
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (level === 3 && selected) {
+    return (
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <SourceFileCard
+          fileLabel="837 billing · source file"
+          fileName={selected.src_837_file}
+          hash={selected.src_837_hash}
+          rowRef={`claim_id=${selected.claim_id} · line_number=${selected.line_number}`}
+          rows={[
+            ["claim_id", selected.claim_id],
+            ["line_number", selected.line_number],
+            ["dos", toIso(selected.dos)],
+            ["cpt_code", selected.cpt_code],
+            ["units", selected.units],
+            ["charge_amount", fmt(selected.charge_amount)],
+          ]}
+        />
+        <SourceFileCard
+          fileLabel={`MPFS reference · service year ${selected.mpfs_year ?? "—"}`}
+          fileName={"MOCK_PUBLIC_MPFS_reference.csv"}
+          hash={null}
+          rowRef={`cpt_code=${selected.cpt_code} · service_year=${selected.mpfs_year ?? "—"}`}
+          rows={[
+            ["cpt_code", selected.cpt_code],
+            ["service_year", selected.mpfs_year ?? "—"],
+            ["work_rvu (per unit)", fmt(selected.mpfs_work_rvu, 4)],
+            ["conversion_factor", fmt(selected.mpfs_cf, 4)],
+          ]}
+        />
+      </div>
+    );
+  }
+  return null;
+}
+
+/* ---------- Shared presentational ---------- */
+
+function Card({
+  title,
+  sub,
+  children,
+}: {
+  title: string;
+  sub?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-md border border-ink/15 bg-paper p-5">
       <h2 className="font-display text-base text-ink">{title}</h2>
-      <p className="mt-1 font-mono text-[11px] text-ink/55">
-        {filtered.length.toLocaleString()} lines · click a row to see the source it came from.
-      </p>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full font-mono text-[12px] tabular-nums">
-          <thead className="text-ink/60">
-            <tr className="border-b border-ink/10">
-              <th className="py-1.5 text-left font-medium">Claim</th>
-              <th className="py-1.5 text-left font-medium">Line</th>
-              <th className="py-1.5 text-left font-medium">DOS</th>
-              <th className="py-1.5 text-left font-medium">CPT</th>
-              <th className="py-1.5 text-left font-medium">Payer</th>
-              <th className="py-1.5 text-right font-medium">wRVU</th>
-              <th className="py-1.5 text-right font-medium">Charge</th>
-              <th className="py-1.5 text-right font-medium">Paid</th>
-              <th className="py-1.5 text-right font-medium"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((r, i) => (
-              <tr
-                key={i}
-                onClick={() => onPick(r)}
-                className="cursor-pointer border-b border-ink/5 hover:bg-ink/[0.03]"
-              >
-                <td className="py-1.5">{r.claim_id}</td>
-                <td className="py-1.5">{r.line_number}</td>
-                <td className="py-1.5">{toIso(r.dos)}</td>
-                <td className="py-1.5">{r.cpt_code}</td>
-                <td className="py-1.5">{r.payer_id ?? "—"}</td>
-                <td className="py-1.5 text-right">{fmt(r.work_rvu, 4)}</td>
-                <td className="py-1.5 text-right">{fmt(r.charge_amount)}</td>
-                <td className="py-1.5 text-right">{fmt(r.paid_amount)}</td>
-                <td className="py-1.5 text-right text-ink/40">→</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {sub && <p className="mt-1 font-mono text-[11px] text-ink/55">{sub}</p>}
+      <div className="mt-4">{children}</div>
     </div>
   );
 }
 
-function LineDetail({
-  line,
-  variant,
-  onBack,
-}: {
-  line: Line;
-  variant: "wrvu" | "collections";
-  onBack: () => void;
-}) {
-  return (
-    <div className="rounded-md border border-ink/15 bg-paper p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-base text-ink">
-          {line.claim_id} · line {line.line_number} · {toIso(line.dos)} · CPT {line.cpt_code}
-        </h2>
-        <button
-          onClick={onBack}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink"
-        >
-          ← All contributing lines
-        </button>
-      </div>
+type Cell = string | number | { value: string; right?: boolean };
 
-      <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-        {variant === "collections" ? (
-          <>
-            <SourceCard
-              kind="837 — billed claim line"
-              file={line.src_837_file}
-              hash={line.src_837_hash}
-              rows={[
-                ["claim_id", line.claim_id],
-                ["line_number", line.line_number],
-                ["dos", toIso(line.dos)],
-                ["cpt_code", line.cpt_code],
-                ["units", line.units],
-                ["payer_id", line.payer_id ?? "—"],
-                ["charge_amount", fmt(line.charge_amount)],
-              ]}
-            />
-            <SourceCard
-              kind="835 — remittance"
-              file={line.src_835_file}
-              hash={line.src_835_hash}
-              rows={[
-                ["paid_amount", fmt(line.paid_amount)],
-                ["check_eft_trace", line.check_eft_trace ?? "—"],
-                ["financial_class", line.financial_class ?? "—"],
-              ]}
-            />
-          </>
-        ) : (
-          <>
-            <SourceCard
-              kind="RIS exam"
-              file={line.src_ris_file}
-              hash={line.src_ris_hash}
-              rows={[
-                ["accession", line.accession ?? "—"],
-                ["exam_cpt", line.exam_cpt ?? "—"],
-                ["modality", line.modality ?? "—"],
-                ["ordering_location", line.ordering_location ?? "—"],
-                ["finalized_at", toIso(line.finalized_at)],
-                ["rendering_npi", line.ris_npi ?? "—"],
-              ]}
-            />
-            <SourceCard
-              kind="MPFS rate"
-              file={`ref.mpfs_wrvu · ${line.mpfs_year ?? "—"}`}
-              hash={null}
-              rows={[
-                ["cpt_code", line.cpt_code],
-                ["per-unit work_rvu", fmt(line.mpfs_work_rvu, 4)],
-                ["units", line.units],
-                ["line work_rvu", fmt(line.work_rvu, 4)],
-                ["conversion_factor", fmt(line.mpfs_cf, 4)],
-              ]}
-            />
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SourceCard({
-  kind,
-  file,
-  hash,
+function Table({
+  head,
   rows,
 }: {
-  kind: string;
-  file: string | null;
+  head: string[];
+  rows: Array<{ key: string; cells: Cell[]; onClick: () => void }>;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full font-mono text-[12px] tabular-nums">
+        <thead className="text-ink/60">
+          <tr className="border-b border-ink/10">
+            {head.map((h, i) => (
+              <th key={i} className="py-1.5 text-left font-medium">
+                {h}
+              </th>
+            ))}
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr
+              key={r.key}
+              onClick={r.onClick}
+              className="cursor-pointer border-b border-ink/5 hover:bg-ink/[0.03]"
+            >
+              {r.cells.map((c, i) => {
+                const right = typeof c === "object" && c.right;
+                const v = typeof c === "object" ? c.value : c;
+                return (
+                  <td
+                    key={i}
+                    className={`py-1.5 ${right ? "text-right" : ""}`}
+                  >
+                    {v}
+                  </td>
+                );
+              })}
+              <td className="py-1.5 text-right text-ink/40">→</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RecordTable({ rows }: { rows: Array<[string, unknown]> }) {
+  return (
+    <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 font-mono text-[12px] tabular-nums">
+      {rows.map(([k, v]) => (
+        <div key={k} className="contents">
+          <dt className="text-ink/55">{k}</dt>
+          <dd className="text-ink">{String(v ?? "—")}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function SourceFileCard({
+  fileLabel,
+  fileName,
+  hash,
+  rowRef,
+  rows,
+}: {
+  fileLabel: string;
+  fileName: string | null;
   hash: string | null;
+  rowRef: string;
   rows: Array<[string, unknown]>;
 }) {
   return (
-    <div className="rounded-md border border-ink/15 bg-paper p-4">
+    <div className="rounded-md border border-ink/15 bg-paper p-5">
       <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/55">
-        {kind}
+        SOURCE · {fileLabel}
       </div>
-      <div className="mt-2 font-mono text-[12px] text-ink/80">
-        {file ?? "—"}
+      <div className="mt-2 font-mono text-[13px] text-ink">
+        {fileName ?? "—"}
       </div>
       {hash && (
         <div className="font-mono text-[10.5px] text-ink/45" title={hash}>
           sha256 · {hash.slice(0, 16)}…
         </div>
       )}
-      <dl className="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 font-mono text-[12px] tabular-nums">
-        {rows.map(([k, v]) => (
-          <div key={k} className="contents">
-            <dt className="text-ink/55">{k}</dt>
-            <dd className="text-ink">{String(v ?? "—")}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="mt-1 font-mono text-[11px] text-ink/65">
+        row · {rowRef}
+      </div>
+      <div className="mt-4 border-t border-ink/10 pt-3">
+        <RecordTable rows={rows} />
+      </div>
     </div>
   );
 }
