@@ -31,6 +31,10 @@ export type PracticeImpactInputs = {
   // collections and we subtract fairCost C to get the net.
   reclaimIsNet?: boolean;
   nonErYieldBench?: number; // unused in top-down; kept for bottom-up callers
+  // §3 Path-B anchoring: override total practice collections so the no-stipend
+  // partner distribution at v=0 equals the user-entered D exactly. When set,
+  // it replaces the derived `collectionsToday` and cascades through nonErColl.
+  collectionsOverride?: number;
 };
 
 export type Scenario = {
