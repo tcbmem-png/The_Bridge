@@ -1,51 +1,66 @@
-Big-picture: the math fix (one primitive `erWrvu`, overhead $12 pin, FMV proof flat) is already in. This pass implements the spec's remaining structural asks — input model, source toggle, and headline composition.
+## ER Stipend Audit Harness — synthetic demo, separate from the calculator
 
-## Scope
+Scope unchanged from the prior plan. One runtime change in response to your comment: **PGlite, not DuckDB-WASM**. The selling point is "the number traces to source on real Postgres," so the in-browser engine is real Postgres (ElectricSQL's PGlite — Postgres compiled to WASM). The uploaded `.sql` runs **verbatim**, `GENERATED ALWAYS AS IDENTITY` / `TIMESTAMPTZ` / `date_trunc` / `INTERVAL` / `FULL JOIN` / `repeat()` all included. No translation shim, no parallel hand-maintained copy.
 
-### 1. Replace bidirectional `bridge` with one `source` flag
-- Remove `bridge`, `leftCollSource`, `leftWrvuSource`, `rightSource`, debounce effect.
-- Add `source: "right" | "left"` (default `"right"`).
-- Toggle UI: small pill above the page header — "Source: right ▢ left". Flipping clears the opposite side's editable state and re-derives it from the active source.
-- Exactly one side editable at a time; the other renders read-only with a "← derived" chip.
+### Boundaries
 
-### 2. Right mode = (avg per-partner distribution, partner count, ER share)
-Replace the comp-pool input with `avgPerPartnerDist` (default $88,000). Internal derivation:
+- **No Lovable Cloud, no Supabase, no hosted Postgres.** PGlite runs in the browser tab. Project stays client-only.
+- **No edit to `/stipend` or any calculator code.** The harness emits the handoff contract; the calculator does not consume it yet.
+- **Synthetic only.** PHI header from the SQL file is reproduced verbatim in the UI. No upload affordance, no "connect your data."
+- **Uploaded SQL is the source of truth, byte-for-byte.** Shipped at `harness/sql/radiology_stipend_harness.sql`, imported as `?raw`, executed unmodified.
+
+### What gets built
+
+**1. The SQL, mounted verbatim**
+- `harness/sql/radiology_stipend_harness.sql` — your file, byte-for-byte.
+- `harness/runtime/db.ts` — boots `@electric-sql/pglite`, executes the file once per session as a single multi-statement script, then exposes a parameterized query API for the lineage drill (`:p_month` → `$1`, issued as a prepared statement; bulk script never sees the bind line because it lives in a documentation-only `SELECT` block that we skip by line marker, not by rewriting the file).
+
+**2. Route `/harness` (hidden — not in header nav, reachable by URL)**
+Editorial-clinical voice, existing tokens. Five panels matching the file's acceptance footer:
+
+- **A. Segment monthly** — `SELECT segment, wrvu, collections, yield_per_wrvu FROM core.segment_monthly`. Pass/fail pill: ER = $28.00, non-ER = $86.00.
+- **B. Cash tie-out** — `SELECT * FROM recon.cash_tieout`. Pass/fail pill: 0 rows.
+- **C. Volume tie-out** — `SELECT * FROM recon.volume_tieout`. Pass/fail pill: `unbilled_gap = 0` for every month.
+- **Handoff contract** — `SELECT er_yield, non_er_yield, er_wrvu, non_er_wrvu, is_mature FROM core.er_yield_period`. Labeled as the only columns that will ever cross to the calculator.
+- **Lineage drill** — month picker → runs the `:p_month` query at lines 277–289 as a prepared statement → renders claim/line rows with `src_837_file`/`src_835_file`/sha256. Footer asserts `SUM(paid_amount)` of rendered rows equals `core.segment_monthly.collections` for ('ER', month).
+
+**3. PHI / scope banner**
+Fixed panel at the top: the file's PHI warning header reproduced verbatim, plus "Synthetic · not for clinical use" and a one-liner that real ingestion replaces the addendum below `DEMO ADDENDUM` and is gated on BAA + encryption + access logging + the Cloud decision — to be made deliberately, not as a side effect.
+
+**4. Calculator handoff — documented, not wired**
+Short note on the page and `docs/calculator-handoff.md`: the calculator's left/audited path will read `er_yield`, `non_er_yield`, `er_wrvu`, `non_er_wrvu` from a single `is_mature = TRUE` row. **No wiring this build.**
+
+### Files
+
 ```
-totalWrvu = (avgPerPartnerDist × partnerCount) / 8       // $8 = $58 comp − $50 FMV
-compPool  = totalWrvu × 58
+harness/sql/radiology_stipend_harness.sql        (verbatim upload)
+harness/runtime/db.ts                            (PGlite boot + exec)
+harness/runtime/queries.ts                       (the 5 named queries)
+src/routes/harness.tsx                           (hidden route)
+src/components/harness/PhiBanner.tsx
+src/components/harness/SegmentMonthly.tsx
+src/components/harness/CashTieout.tsx
+src/components/harness/VolumeTieout.tsx
+src/components/harness/HandoffContract.tsx
+src/components/harness/LineageDrill.tsx
+docs/calculator-handoff.md
 ```
-Then the existing `computePracticeImpact` engine runs unchanged. Round-trip check: $88k × 100 / 8 = 1.1M wRVU → pool $63.8M.
 
-### 3. Left mode = (audited ER coll, audited ER wRVU, ER share, partner count)
-- Left inputs become the source; right comp-pool/distribution renders as derived.
-- `yield` in left mode = `baseColl / baseWrvu` (the real audit), not the $28 benchmark. Wire this into both the left □ engine and the right dashboard's `erYield` input.
+Dependency: `@electric-sql/pglite` (single package, real Postgres in the browser, no server, no BAA surface).
 
-### 4. Roll redeploy gain into the per-partner "with stipend" headline
-- In `PracticeDashboard`, when `volumeLever < 0`, the displayed "With stipend / partner" KPI = `(partnerWithTotalNoRedeploy + redeployGain) / N`. Keep "Your gain +$X" as a small breakdown line beneath.
-- Same change on the left Hospital drawer: roll `groupGainLeft` into the displayed with-stipend partner figure; keep the breakdown line.
+### What this plan deliberately does not do
 
-### 5. Small UI touches
-- Next to the lever-scaled ER wRVU on the right dashboard, show a quiet "today: 297,000" reference when lever ≠ 0.
-- Replace the right-column intro copy with the verbatim block from §0.1:
-  > If you know your actual annual ER wRVU and collections, toggle left and enter them. If you don't, toggle right and enter your average annual partner profit distribution, number of partners, and best estimate percentage of your group's total annual wRVU attributable to ER. We'll use benchmarks and math to build the model from there. Don't forget to slide the ER volume scale at the bottom.
+- Does not enable Cloud, create a hosted Postgres, or add persistence beyond the in-tab PGlite instance (rebuilt on every page load from the seed).
+- Does not modify the uploaded SQL, the calculator, or any existing route.
+- Does not provide an upload UI or any path for real 835/837/RIS/bank files.
+- Does not wire the calculator's audited path.
+- Does not link `/harness` from the header nav.
 
-## Files
+### Acceptance — what I will verify live on the page
 
-- `src/routes/stipend.tsx` — source toggle state, right→pool derivation, left→yield wiring, remove bridge effect, intro copy, today-reference span, redeploy roll-in on left.
-- `src/components/stipend/PracticeDashboard.tsx` — accept `avgPerPartnerDist` / `setAvgPerPartnerDist`, render distribution input in right mode (and derived chip in left mode), roll redeploy into with-stipend KPI, today-reference span.
-- `src/lib/stipend/practiceImpact.ts` — already correct; add an optional `erYieldOverride` only if the audit-driven yield needs a different field, otherwise pass through `erYield` from the page state.
+1. `core.segment_monthly` → ER $28.00 / non-ER $86.00.
+2. `recon.cash_tieout` → 0 rows.
+3. `recon.volume_tieout` → `unbilled_gap = 0` every month.
+4. `core.er_yield_period` → ER $28.00, non-ER $86.00, `is_mature = TRUE`.
 
-## Out of scope (defer)
-
-- Audited-ER single-constant swap on left while in right mode — spec marks this as deferrable polish.
-- Any change to the ○□△ visual layout beyond the existing prose collapse.
-- The /story, /sandbox, /under-the-hood routes.
-
-## Acceptance gate
-
-Demo inputs (right mode: $88k × 100, share 27%):
-- lever 0 → stipend $10.10M · partner-with $189k · partner-without $88k
-- +30% → ER wRVU 386,100 · stipend $13.13M · partner-with flat $189k
-- −30% with redeploy 100% → partner-with ≈ $214k (roll-in), Hospital saves +$3.03M
-- Left □ stipend == right dashboard stipend at every lever position.
-- Flipping source clears the opposite side and re-derives; only one side editable at a time.
+If PGlite rejects any line of the file at load, I stop and report the exact line — I do not silently edit the SQL.

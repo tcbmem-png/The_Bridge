@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // PGlite ships WASM + data files that vite-deps must not pre-bundle.
+    optimizeDeps: {
+      exclude: ["@electric-sql/pglite"],
+    },
+  },
 });
