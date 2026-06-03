@@ -526,7 +526,7 @@ function TwoNumbersPage() {
     });
     setBaseColl(Math.round(o.erColl));
     setBaseWrvu(Math.round(o.erWrvu));
-  }, [source, compPool, erSharePct, partnerCount, comp, ovh]);
+  }, [source, compPool, erSharePct, partnerCount, comp, ovh, collectionsOverride]);
 
 
 
