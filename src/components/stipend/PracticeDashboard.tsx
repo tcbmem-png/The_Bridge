@@ -109,16 +109,31 @@ export function PracticeDashboard({
 
   const stipendDelta = out ? out.stipend - out.stipendToday : 0;
 
+  const perturbed = volumeLever !== 0 || redeployUtil > 0;
+  const inputsLocked = perturbed;
+
   return (
     <aside className="rounded-xl border border-ink/15 bg-paper p-4 md:p-5">
       <header className="mb-3 flex items-baseline justify-between gap-2">
         <h2 className="font-display text-[19px] font-semibold leading-tight text-ink">
           Practice impact
         </h2>
-        <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
-          two numbers · your whole picture
-        </span>
+        {perturbed && onReset ? (
+          <button
+            type="button"
+            onClick={onReset}
+            className="font-mono-tab rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.1em] text-[var(--gold)] hover:bg-[color-mix(in_oklab,var(--gold)_20%,transparent)]"
+            title="Return to today (v=0, u=0) and unlock inputs"
+          >
+            ↺ Reset to today
+          </button>
+        ) : (
+          <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
+            two numbers · your whole picture
+          </span>
+        )}
       </header>
+
 
       {/* DRIVERS */}
       <div
