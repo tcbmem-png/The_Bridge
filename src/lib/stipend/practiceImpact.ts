@@ -98,16 +98,25 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
 
   // ── Today's (lever = 0) practice structure ────────────────────────────
   const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
-  const collectionsToday = i.compToCollections > 0 ? P / i.compToCollections : 0;
-  // Canonical: honor the overhead PIN ($12) — not the demo-pin residual
-  // ($11.88), which falls out of (collections − pool)/wRVU when pool/0.83
-  // is slightly over-determined vs comp $58 × wRVU. Pin keeps the published
-  // $10.10M headline and matches the left □ instrument at every lever pos.
+  // Honor the overhead PIN ($12). The legacy residual path falls back only
+  // when no pin is supplied.
   const overheadPerWrvu =
     i.overheadPerWrvu > 0
       ? i.overheadPerWrvu
-      : totalWrvuToday > 0
-        ? (collectionsToday - P) / totalWrvuToday
+      : totalWrvuToday > 0 && i.compToCollections > 0
+        ? (P / i.compToCollections - P) / totalWrvuToday
+        : 0;
+  // Collections derived from the model's own identity:
+  // blended /wRVU = comp $58 + overhead $12 = $70. The old comp-to-collections
+  // ratio (0.83) was ~$0.12/wRVU off this identity, leaking ~$1k/partner on
+  // the round-trip ($88k input read back as $87k). Using the identity closes
+  // the loop to the penny: $88k → $88k, blended exactly $70, overhead exactly
+  // $12, stipend $10.10M, partner $189k / $88k.
+  const collectionsToday =
+    totalWrvuToday > 0
+      ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
+      : i.compToCollections > 0
+        ? P / i.compToCollections
         : 0;
 
   const erWrvuToday = totalWrvuToday * s;
