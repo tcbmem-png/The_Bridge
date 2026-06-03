@@ -39,6 +39,8 @@ export function PracticeDashboard({
   fmvComp,
   overheadOverride,
   erYieldInput,
+  collectionsOverride,
+  onReset,
 }: {
   mode: "right" | "left";
   compPool: number; // derived in both modes
@@ -57,6 +59,8 @@ export function PracticeDashboard({
   fmvComp: number;
   overheadOverride: number;
   erYieldInput: number; // benchmark in right mode; audit in left mode
+  collectionsOverride?: number; // §3 Path-B anchor (right mode only)
+  onReset?: () => void;
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
@@ -77,8 +81,10 @@ export function PracticeDashboard({
       overheadPerWrvu: overheadOverride,
       erYield: erYieldInput,
       reclaimValue: PRACTICE_IMPACT_DEFAULTS.reclaimValue,
+      reclaimIsNet: PRACTICE_IMPACT_DEFAULTS.reclaimIsNet,
+      collectionsOverride: mode === "right" ? collectionsOverride : undefined,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride, erYieldInput]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride, erYieldInput, mode, collectionsOverride]);
 
   // Headline reads directly from engine — no overlay.
   const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
@@ -103,16 +109,31 @@ export function PracticeDashboard({
 
   const stipendDelta = out ? out.stipend - out.stipendToday : 0;
 
+  const perturbed = volumeLever !== 0 || redeployUtil > 0;
+  const inputsLocked = perturbed;
+
   return (
     <aside className="rounded-xl border border-ink/15 bg-paper p-4 md:p-5">
       <header className="mb-3 flex items-baseline justify-between gap-2">
         <h2 className="font-display text-[19px] font-semibold leading-tight text-ink">
           Practice impact
         </h2>
-        <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
-          two numbers · your whole picture
-        </span>
+        {perturbed && onReset ? (
+          <button
+            type="button"
+            onClick={onReset}
+            className="font-mono-tab rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.1em] text-[var(--gold)] hover:bg-[color-mix(in_oklab,var(--gold)_20%,transparent)]"
+            title="Return to today (v=0, u=0) and unlock inputs"
+          >
+            ↺ Reset to today
+          </button>
+        ) : (
+          <span className="font-mono-tab text-[10px] uppercase tracking-[0.12em] text-ink/45">
+            two numbers · your whole picture
+          </span>
+        )}
       </header>
+
 
       {/* DRIVERS */}
       <div
@@ -136,7 +157,7 @@ export function PracticeDashboard({
             step={1_000}
             armedSiblingValue={erSharePct}
             armed={armed}
-            readOnly={rightLocked}
+            readOnly={rightLocked || inputsLocked}
             derivedHint={rightLocked ? `derived · pool ${fmtMoneyM(compPool)}` : undefined}
           />
           <DriverField
@@ -149,6 +170,7 @@ export function PracticeDashboard({
             step={1}
             armedSiblingValue={avgPerPartnerDist}
             armed={armed}
+            readOnly={inputsLocked}
           />
         </div>
         <div className="mt-2 flex items-center justify-between gap-3 border-t border-ink/10 pt-2">
@@ -159,10 +181,11 @@ export function PracticeDashboard({
               value={partnerCount}
               step={1}
               min={1}
+              readOnly={inputsLocked}
               onChange={(e) => setPartnerCount(parseInt(e.target.value, 10) || 1)}
               autoComplete="off"
               data-private="true"
-              className="font-mono w-[64px] rounded-md border border-ink/15 bg-paper px-1.5 py-0.5 text-right text-[12px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
+              className={`font-mono w-[64px] rounded-md border border-ink/15 bg-paper px-1.5 py-0.5 text-right text-[12px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none ${inputsLocked ? "cursor-not-allowed opacity-70" : ""}`}
             />
           </label>
           <div className="font-mono-tab flex gap-1 text-[10.5px] uppercase tracking-[0.08em]">
@@ -366,7 +389,7 @@ export function PracticeDashboard({
             rightHint={
               volumeLever >= 0
                 ? "applies to cuts only"
-                : "freed time → $90/wRVU reclaim value · 0% = no gain, no loss"
+                : "freed time → $90/wRVU added contribution (net of labor — labor is sunk). 0% = freed time idle."
             }
             disabled={volumeLever >= 0}
           />

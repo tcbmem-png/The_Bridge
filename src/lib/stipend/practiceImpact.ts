@@ -31,6 +31,10 @@ export type PracticeImpactInputs = {
   // collections and we subtract fairCost C to get the net.
   reclaimIsNet?: boolean;
   nonErYieldBench?: number; // unused in top-down; kept for bottom-up callers
+  // §3 Path-B anchoring: override total practice collections so the no-stipend
+  // partner distribution at v=0 equals the user-entered D exactly. When set,
+  // it replaces the derived `collectionsToday` and cascades through nonErColl.
+  collectionsOverride?: number;
 };
 
 export type Scenario = {
@@ -125,11 +129,13 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // the loop to the penny: $88k → $88k, blended exactly $70, overhead exactly
   // $12, stipend $10.10M, partner $189k / $88k.
   const collectionsToday =
-    totalWrvuToday > 0
-      ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
-      : i.compToCollections > 0
-        ? P / i.compToCollections
-        : 0;
+    i.collectionsOverride && i.collectionsOverride > 0
+      ? i.collectionsOverride
+      : totalWrvuToday > 0
+        ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
+        : i.compToCollections > 0
+          ? P / i.compToCollections
+          : 0;
 
   const erWrvuToday = totalWrvuToday * s;
   const erYield = i.erYield;
