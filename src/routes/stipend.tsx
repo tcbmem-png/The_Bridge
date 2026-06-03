@@ -659,13 +659,15 @@ function TwoNumbersPage() {
         <span className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/45">
           Source
         </span>
-        <div className="font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em]">
+        <div className={`font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em] ${perturbed ? "opacity-60" : ""}`}>
           {(["left", "right"] as const).map((s) => (
             <button
               key={s}
               type="button"
-              onClick={() => setSource(s)}
-              className={`px-2.5 py-0.5 ${source === s ? "bg-ink text-paper" : "text-ink/55 hover:text-ink"}`}
+              onClick={() => !perturbed && setSource(s)}
+              disabled={perturbed}
+              title={perturbed ? "Reset the volume lever to switch source" : undefined}
+              className={`px-2.5 py-0.5 ${source === s ? "bg-ink text-paper" : "text-ink/55 hover:text-ink"} ${perturbed ? "cursor-not-allowed" : ""}`}
             >
               {s === "right" ? "right (partner distribution)" : "left (audited ER)"}
             </button>
@@ -674,6 +676,11 @@ function TwoNumbersPage() {
         {source === "left" && (
           <span className="font-mono-tab inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
             right side · derived from left audit
+          </span>
+        )}
+        {perturbed && (
+          <span className="font-mono-tab inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
+            locked · reset volume to edit
           </span>
         )}
       </div>
