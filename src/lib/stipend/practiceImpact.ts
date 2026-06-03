@@ -166,10 +166,12 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // Cut-side redeploy — only when lever < 0.
   const freedWrvu = lever < 0 ? -lever * erWrvuToday : 0;
   const hospitalSaves = freedWrvu * erDeficitPerWrvu;
+  // Per-freed-wRVU net contribution. If reclaimIsNet, treat reclaimValue as
+  // the already-net contribution (freed labor sunk). Otherwise it's gross
+  // collections and we subtract fairCost C.
+  const reclaimNetPerWrvu = reclaimIsNet ? reclaimValue : reclaimValue - fairCost;
   const redeployGain =
-    freedWrvu > 0
-      ? i.redeployUtil * freedWrvu * (reclaimValue - fairCost) // signed; below fair → loss
-      : 0;
+    freedWrvu > 0 ? i.redeployUtil * freedWrvu * reclaimNetPerWrvu : 0;
 
   // ── Two-segment partner P&L (collections − cost) ──────────────────────
   // Without stipend: nonER profit + (er_coll − er_cost) — declines as ER grows.
