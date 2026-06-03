@@ -103,7 +103,7 @@ export function PracticeDashboard({
   // Signed lever value in [-30..+30] (% of today's ER volume).
   const leverPct = Math.round(volumeLever * 100);
   const onLeverChange = (v: number) => {
-    const clamped = Math.max(-30, Math.min(300, v));
+    const clamped = Math.max(-30, Math.min(200, v));
     setVolumeLever(clamped / 100);
   };
 
