@@ -522,6 +522,7 @@ function TwoNumbersPage() {
       compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
       overheadPerWrvu: ovh,
       erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+      collectionsOverride,
     });
     setBaseColl(Math.round(o.erColl));
     setBaseWrvu(Math.round(o.erWrvu));
