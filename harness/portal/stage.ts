@@ -159,6 +159,19 @@ export async function stageFile(file: File, forcedType?: ExportType): Promise<St
           if (col.required) rowOk = false;
           out[col.name] = null;
         } else {
+          // Required columns that coerce to null (empty source value) drop
+          // the row — real ingestion can't insert a NOT NULL column as null.
+          if (col.required && res.value === null) {
+            if (parseErrors.length < 50) {
+              parseErrors.push({
+                row: i + 2,
+                column: col.name,
+                value: rawVal,
+                reason: "required column is empty",
+              });
+            }
+            rowOk = false;
+          }
           out[col.name] = res.value;
         }
       }
