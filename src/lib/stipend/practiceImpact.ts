@@ -106,6 +106,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const s = i.erShare;
   const N = Math.max(1, i.partnerCount);
   const reclaimValue = i.reclaimValue ?? PRACTICE_IMPACT_DEFAULTS.reclaimValue;
+  const reclaimIsNet = i.reclaimIsNet ?? PRACTICE_IMPACT_DEFAULTS.reclaimIsNet;
 
   // ── Today's (lever = 0) practice structure ────────────────────────────
   const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
