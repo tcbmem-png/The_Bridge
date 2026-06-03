@@ -17,6 +17,10 @@ export interface ColumnSpec {
   kind: "text" | "int" | "numeric" | "date" | "timestamp" | "bool";
   /** Required columns block on miss; optional columns are nulled when absent. */
   required: boolean;
+  /** Fallback when an optional column is missing or empty AND the target
+   *  table has NOT NULL DEFAULT for it. Avoids passing explicit null which
+   *  defeats the column DEFAULT in PGlite. */
+  fallback?: number | string | boolean;
 }
 
 export interface ExportSpec {
@@ -50,7 +54,7 @@ export const SPECS: Record<ExportType, ExportSpec> = {
       { name: "rendering_npi", kind: "text",    required: false, aliases: ["npi", "rendering_provider_npi"] },
       { name: "cpt_code",      kind: "text",    required: true,  aliases: ["cpt", "procedure_code", "hcpcs"] },
       { name: "modifiers",     kind: "text",    required: false, aliases: ["modifier", "mods", "modifier1"] },
-      { name: "units",         kind: "numeric", required: false },
+      { name: "units",         kind: "numeric", required: false, fallback: 1 },
       { name: "charge_amount", kind: "numeric", required: true,  aliases: ["charge", "billed_amount"] },
       { name: "payer_id",      kind: "text",    required: false, aliases: ["payer", "insurance_id"] },
     ],
@@ -68,7 +72,7 @@ export const SPECS: Record<ExportType, ExportSpec> = {
       { name: "charge_amount",   kind: "numeric",   required: false, aliases: ["charge", "billed_amount"] },
       { name: "allowed_amount",  kind: "numeric",   required: false, aliases: ["allowed"] },
       { name: "paid_amount",     kind: "numeric",   required: true,  aliases: ["paid"] },
-      { name: "patient_resp",    kind: "numeric",   required: false, aliases: ["patient_responsibility"] },
+      { name: "patient_resp",    kind: "numeric",   required: false, aliases: ["patient_responsibility"], fallback: 0 },
       { name: "adj_group_code",  kind: "text",      required: false, aliases: ["group_code"] },
       { name: "carc_codes",      kind: "text",      required: false, aliases: ["carc", "adjustment_codes"] },
       { name: "rarc_codes",      kind: "text",      required: false, aliases: ["rarc", "remark_codes"] },

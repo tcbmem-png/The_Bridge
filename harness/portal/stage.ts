@@ -159,7 +159,27 @@ export async function stageFile(file: File, forcedType?: ExportType): Promise<St
           if (col.required) rowOk = false;
           out[col.name] = null;
         } else {
-          out[col.name] = res.value;
+          // Required columns that coerce to null (empty source value) drop
+          // the row — real ingestion can't insert a NOT NULL column as null.
+          if (col.required && res.value === null) {
+            if (parseErrors.length < 50) {
+              parseErrors.push({
+                row: i + 2,
+                column: col.name,
+                value: rawVal,
+                reason: "required column is empty",
+              });
+            }
+            rowOk = false;
+          }
+          // Apply fallback for optional columns that the target table
+          // declares NOT NULL DEFAULT. Passing explicit null defeats the
+          // DEFAULT — use the spec-provided fallback instead.
+          if (res.value === null && col.fallback !== undefined) {
+            out[col.name] = col.fallback;
+          } else {
+            out[col.name] = res.value;
+          }
         }
       }
       if (rowOk) outRows.push(out);

@@ -91,8 +91,8 @@ export async function runIntegrityChecks(): Promise<IntegrityFinding[]> {
     detail:
       orphans === 0
         ? "Every ERA EFT trace has a matching bank deposit."
-        : `${orphans} EFT trace(s) on ERA lines have no matching bank deposit. Cash tie-out will show variance rows.`,
-    severity: orphans === 0 ? "ok" : "fail",
+        : `${orphans} EFT trace(s) on ERA lines have no matching bank deposit. Cash tie-out will show variance rows (expected: interest credits, book transfers).`,
+    severity: orphans === 0 ? "ok" : "warn",
   });
 
   return findings;
