@@ -219,7 +219,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // still eats). WITHOUT crosses zero and runs deep negative — no floor.
   const samples = 80;
   const xMin = 0;
-  const xMax = erWrvuToday * 4;
+  const xMax = erWrvuToday * 3;
   const volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }> = [];
   for (let k = 0; k <= samples; k++) {
     const x = xMin + ((xMax - xMin) * k) / samples;
