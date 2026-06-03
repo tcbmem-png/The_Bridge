@@ -594,7 +594,7 @@ function SignedLever({
         <input
           type="range"
           min={-30}
-          max={300}
+          max={200}
           step={1}
           value={value}
           onChange={(ev) => onChange(parseFloat(ev.target.value))}
@@ -608,7 +608,7 @@ function SignedLever({
       <div className="font-mono-tab mt-0.5 flex justify-between text-[9.5px] uppercase tracking-[0.08em] text-ink/35">
         <span>−30% cut</span>
         <span>0 (today)</span>
-        <span>+300% add</span>
+        <span>+200% add</span>
       </div>
     </div>
   );
