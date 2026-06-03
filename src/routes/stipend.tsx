@@ -901,10 +901,10 @@ function TwoNumbersPage() {
               {Math.round(util * 100)}%
             </span>
           </div>
-          <OutRow l="Hospital saves" r={`+${fmtM(e.hospSave)}`} />
+          <OutRow l="Hospital saves" r={`+${fmtM(hospSaveLeft)}`} />
           <OutRow
             l={<>Your gain <span className="text-ink/40">· break-even ${e.breakevenRedeploy.toFixed(0)}/wRVU</span></>}
-            r={`${e.groupGain >= 0 ? "+" : ""}${fmtM(e.groupGain)}`}
+            r={`${groupGainLeft >= 0 ? "+" : ""}${fmtM(groupGainLeft)}`}
           />
           <p className="mt-1 text-[11.5px] leading-relaxed text-ink/45">
             Redeploy below break-even reads as a loss, not a wash.
