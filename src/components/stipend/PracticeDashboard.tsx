@@ -326,13 +326,25 @@ export function PracticeDashboard({
           </div>
         )}
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          More ER volume never raises your partner profit by a dollar — and
-          that's exactly why this is a fair coverage payment and not a kickback.
-          The stipend funds the cost of coverage, never the owners' return.
+          ER runs at a negative gross margin — a wRVU collects ~$
+          {out ? out.erYield.toFixed(0) : "28"} but costs ~$
+          {out ? out.fairCost.toFixed(0) : "70"} to produce, a ~$
+          {out ? (out.fairCost - out.erYield).toFixed(0) : "42"} loss each. Without
+          a stipend, more ER volume just loses more money — the downhill line
+          is the group covering the hospital's obligation out of its own
+          partners' pockets.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          The downhill line is the group covering the hospital's obligation out
-          of its own partners' pockets — the risk the stipend removes.
+          The stipend covers that deficit, bringing ER to break-even — and
+          break-even work adds nothing to the bottom line, no matter how much
+          you do. That's why the with-stipend line stays flat as volume climbs:
+          it's arithmetic, not a legal rule. The gap between the two lines at
+          any volume <i>is</i> the stipend.
+        </p>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
+          Because the payment only covers cost and never creates a return, it's
+          pure cost-coverage — which is exactly what keeps it FMV-consistent
+          and not a kickback.
         </p>
       </div>
 
@@ -347,7 +359,7 @@ export function PracticeDashboard({
           onChange={onLeverChange}
         />
         <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
-          Slide right to add ER volume · left to cut it. Capped ±30% either way.
+          Slide right to add ER volume (out to +300%) · left to cut it (capped −30%, the avoidable slice).
           Moves ER wRVU; every figure above re-derives from that one number.
         </p>
         <div className={`mt-2 ${volumeLever >= 0 ? "opacity-50" : ""}`}>
@@ -397,7 +409,7 @@ export function PracticeDashboard({
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
           {volumeLever > 0
-            ? "Add volume and the partner line stays flat — that's the FMV proof. The hospital's stipend rises by the same deficit that funded today's coverage; the owners' return doesn't move."
+            ? "Add volume and the partner line stays flat because ER's gross margin is zero with the stipend — break-even work adds nothing. The hospital's stipend rises by the same deficit (~$42/wRVU) that ER was already losing; the owners' return doesn't move."
             : "Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."}
         </p>
       </div>
@@ -561,21 +573,21 @@ function SignedLever({
         <input
           type="range"
           min={-30}
-          max={30}
+          max={300}
           step={1}
           value={value}
           onChange={(ev) => onChange(parseFloat(ev.target.value))}
           className="flex-[1.4] accent-[var(--teal)]"
           style={{ accentColor: value > 0 ? "var(--red)" : "var(--teal)" }}
         />
-        <span className={`font-mono w-[52px] text-right text-[12.5px] font-semibold tabular-nums ${tone}`}>
+        <span className={`font-mono w-[56px] text-right text-[12.5px] font-semibold tabular-nums ${tone}`}>
           {display}
         </span>
       </div>
       <div className="font-mono-tab mt-0.5 flex justify-between text-[9.5px] uppercase tracking-[0.08em] text-ink/35">
         <span>−30% cut</span>
         <span>0 (today)</span>
-        <span>+30% add</span>
+        <span>+300% add</span>
       </div>
     </div>
   );

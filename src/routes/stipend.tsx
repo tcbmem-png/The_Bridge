@@ -850,20 +850,20 @@ function TwoNumbersPage() {
       {/* Card △ — the lever */}
       <ShapeCard ico="△" authority="yours">
         <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
-          <span className="flex-1 text-ink/65">ER volume · ±30%</span>
+          <span className="flex-1 text-ink/65">ER volume · −30% / +300%</span>
           <input
             type="range"
             min={-30}
-            max={30}
+            max={300}
             step={1}
             value={Math.round(volumeLever * 100)}
             onChange={(ev) =>
-              setVolumeLever(Math.max(-0.3, Math.min(0.3, parseFloat(ev.target.value) / 100)))
+              setVolumeLever(Math.max(-0.3, Math.min(3.0, parseFloat(ev.target.value) / 100)))
             }
             className="flex-[1.4] accent-[var(--teal)]"
           />
           <span
-            className={`font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums ${
+            className={`font-mono w-[64px] text-right text-[13px] font-semibold tabular-nums ${
               volumeLever > 0 ? "text-[var(--red)]" : volumeLever < 0 ? "text-[var(--teal)]" : "text-ink/55"
             }`}
           >
@@ -872,10 +872,10 @@ function TwoNumbersPage() {
         </div>
         <div className="-mt-1 text-right text-[11.5px] text-ink/45">
           {volumeLever > 0
-            ? `≈ +${(volumeLever * 100).toFixed(1)}% added ER volume (stipend rises)`
+            ? `≈ +${(volumeLever * 100).toFixed(0)}% added ER volume — more volume, more loss without a stipend`
             : volumeLever < 0
               ? `≈ −${(-volumeLever * 100).toFixed(1)}% of ER volume cut (stipend shrinks)`
-              : "today · drag right to add volume, left to cut"}
+              : "today · drag right to add volume (out to +300%), left to cut (capped −30%)"}
         </div>
         <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
           <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
