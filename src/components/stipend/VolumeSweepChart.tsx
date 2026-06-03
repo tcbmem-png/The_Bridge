@@ -107,7 +107,6 @@ export function VolumeSweepChart({
   const ticks = [0, 1, 2, 3, 4]
     .map((m) => ({ m, x: todayErWrvu * m }))
     .filter((t) => t.x >= xMin && t.x <= xMax);
-    .filter((t) => t.x >= xMin && t.x <= xMax);
 
   // Y-axis ticks: round to nearest $50k.
   const yTicks: number[] = [];
