@@ -990,7 +990,14 @@ function TwoNumbersPage() {
           fmvComp={comp}
           overheadOverride={ovh}
           erYieldInput={effectiveErYield}
+          collectionsOverride={collectionsOverride}
+          onReset={() => {
+            setVolumeLever(0);
+            setRedeployUtilD(0);
+            setUtil(0);
+          }}
         />
+
       </div>
     </main>
   );
