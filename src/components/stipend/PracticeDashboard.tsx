@@ -380,7 +380,7 @@ export function PracticeDashboard({
           onChange={onLeverChange}
         />
         <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
-          Slide right to add ER volume (out to +300%) · left to cut it (capped −30%, the avoidable slice).
+          Slide right to add ER volume (out to +200%) · left to cut it (capped −30%, the avoidable slice).
           Moves ER wRVU; every figure above re-derives from that one number.
         </p>
         <div className={`mt-2 ${volumeLever >= 0 ? "opacity-50" : ""}`}>
