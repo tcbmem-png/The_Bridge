@@ -17,6 +17,10 @@ export interface ColumnSpec {
   kind: "text" | "int" | "numeric" | "date" | "timestamp" | "bool";
   /** Required columns block on miss; optional columns are nulled when absent. */
   required: boolean;
+  /** Fallback when an optional column is missing or empty AND the target
+   *  table has NOT NULL DEFAULT for it. Avoids passing explicit null which
+   *  defeats the column DEFAULT in PGlite. */
+  fallback?: number | string | boolean;
 }
 
 export interface ExportSpec {
