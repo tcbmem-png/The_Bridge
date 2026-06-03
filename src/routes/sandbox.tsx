@@ -5,6 +5,7 @@ import { SandboxOutputs } from "../components/sandbox/Outputs";
 import { MathDrawer } from "../components/sandbox/MathDrawer";
 import { ResidualToggle } from "../components/sandbox/ResidualToggle";
 import { SandboxCurve } from "../components/sandbox/Curve";
+import { PresetBanner } from "../components/PresetBanner";
 
 export const Route = createFileRoute("/sandbox")({
   head: () => ({
