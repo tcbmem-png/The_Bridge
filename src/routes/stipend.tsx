@@ -465,6 +465,12 @@ function TwoNumbersPage() {
   const [view, setView] = useState<"total" | "perPartner">("perPartner");
   const [redeployUtilD, setRedeployUtilD] = useState(0);
 
+  // §6 lock — when the demonstration is perturbed (lever moved or redeploy
+  // engaged), all upstream inputs and the source toggle freeze. The Reset
+  // button on the dashboard clears the levers and unlocks everything.
+  const perturbed = volumeLever !== 0 || redeployUtilD > 0;
+
+
   // Right-mode derivation: avg per-partner distribution → comp pool.
   // totalWrvu = (avgDist × N) / $8 spread; pool = totalWrvu × $58.
   const compPool = useMemo(() => {
