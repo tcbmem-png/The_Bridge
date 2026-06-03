@@ -3,12 +3,20 @@
 // Session-only. No IndexedDB. No persistence across reload. By design.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Panel } from "./SegmentMonthly";
 import { stageFile } from "../../../harness/portal/stage";
 import { loadStagedFile } from "../../../harness/portal/load";
 import { exportCurrentDataset } from "../../../harness/portal/export";
 import { ALL_SPECS, SPECS } from "../../../harness/portal/schemas";
 import { getDb, resetDb } from "../../../harness/runtime/db";
+import {
+  clearPreset,
+  derivePresetFromDb,
+  publishPreset,
+  readPreset,
+  type DerivedPreset,
+} from "../../../harness/runtime/derivePreset";
 import type { LoadProgress, StagedFile } from "../../../harness/portal/types";
 
 interface PortalProps {
