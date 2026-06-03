@@ -15,7 +15,9 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as StipendRouteImport } from './routes/stipend'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as CioRouteImport } from './routes/cio'
 import { Route as IndexRouteImport } from './routes/index'
 
 const UnderTheHoodRoute = UnderTheHoodRouteImport.update({
@@ -48,9 +50,19 @@ const SandboxRoute = SandboxRouteImport.update({
   path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForItRoute = ForItRouteImport.update({
+  id: '/for-it',
+  path: '/for-it',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CioRoute = CioRouteImport.update({
+  id: '/cio',
+  path: '/cio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,7 +73,9 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-it': typeof ForItRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -71,7 +85,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-it': typeof ForItRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -82,7 +98,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-it': typeof ForItRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -94,7 +112,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cio'
     | '/faq'
+    | '/for-it'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cio'
     | '/faq'
+    | '/for-it'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/cio'
     | '/faq'
+    | '/for-it'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -125,7 +149,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CioRoute: typeof CioRoute
   FaqRoute: typeof FaqRoute
+  ForItRoute: typeof ForItRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
   StipendRoute: typeof StipendRoute
@@ -178,11 +204,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/for-it': {
+      id: '/for-it'
+      path: '/for-it'
+      fullPath: '/for-it'
+      preLoaderRoute: typeof ForItRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/faq': {
       id: '/faq'
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cio': {
+      id: '/cio'
+      path: '/cio'
+      fullPath: '/cio'
+      preLoaderRoute: typeof CioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,7 +237,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CioRoute: CioRoute,
   FaqRoute: FaqRoute,
+  ForItRoute: ForItRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
   StipendRoute: StipendRoute,

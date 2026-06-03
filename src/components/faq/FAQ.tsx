@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
-const groups = [
+type FAQItem = { q: string; a: ReactNode };
+type FAQGroup = { title: string; items: FAQItem[] };
+
+const groups: FAQGroup[] = [
+
   {
     title: "THE APPROACH",
     items: [
@@ -48,7 +52,19 @@ const groups = [
       },
       {
         q: "Which numbers actually need all three feeds, not just two?",
-        a: "The ones you can't act on until you know where and when: the after-hours coverage you carry, in dollars, by site, shift, payer, and reading radiologist; the yield gap by location — what a work relative value unit (wRVU) collects on the night and whole-system coverage versus the daytime home base, which is where the loss concentrates; and the ordering signal — low-yield studies tied to who ordered them, where, and for which payer. Each needs billing for the dollars, your reports for the work, and the worklist for the where-and-when. One honest caveat: you can approximate the when from a report timestamp with two feeds. You can't fake the where — site is the piece only the worklist carries, and site is the whole point when one group reads a children's hospital by day and the entire system at night.",
+        a: (
+          <>
+            The ones you can't act on until you know where and when: the after-hours coverage you carry, in dollars, by site, shift, payer, and reading radiologist; the yield gap by location — what a work relative value unit (wRVU) collects on the night and whole-system coverage versus the daytime home base, which is where the loss concentrates; and the ordering signal — low-yield studies tied to who ordered them, where, and for which payer. Each needs billing for the dollars, your reports for the work, and the worklist for the where-and-when. One honest caveat: you can approximate the when from a report timestamp with two feeds. You can't fake the where — site is the piece only the worklist carries, and site is the whole point when one group reads a children's hospital by day and the entire system at night.
+            {" "}The full data-and-security detail for a technical reviewer lives here:{" "}
+            <Link
+              to="/for-it"
+              className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+            >
+              For IT / your CIO →
+            </Link>
+          </>
+        ),
+
       },
       {
         q: "At year-end our doctors are frustrated and the hospital shrugs. What actually changes that?",
@@ -138,7 +154,8 @@ function AccordionItem({
   onToggle,
 }: {
   question: string;
-  answer: string;
+  answer: ReactNode;
+
   isOpen: boolean;
   onToggle: () => void;
 }) {

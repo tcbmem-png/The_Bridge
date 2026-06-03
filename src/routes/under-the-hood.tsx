@@ -113,6 +113,16 @@ function UnderTheHoodPage() {
               The one thing no single vendor can sell is the layer that joins billing and reports and worklist by site of service. No vendor owns all three domains. That is market structure, not a judgment on what you bought.
             </p>
           </div>
+          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-ink/70">
+            Want the full technical + compliance detail — what it is, what it touches, the PHI/BAA wall?{" "}
+            <Link
+              to="/for-it"
+              className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+            >
+              For IT / your CIO →
+            </Link>
+          </p>
+
         </div>
       </section>
 
