@@ -137,7 +137,7 @@ export function LineageDrill() {
                   <tr key={i} className="border-b border-ink/5">
                     <td className="py-1.5">{r.claim_id}</td>
                     <td className="py-1.5">{r.line_number}</td>
-                    <td className="py-1.5">{String(r.dos).slice(0, 10)}</td>
+                    <td className="py-1.5">{toIsoDate(r.dos)}</td>
                     <td className="py-1.5">{r.pos_code}</td>
                     <td className="py-1.5">{r.cpt_code}</td>
                     <td className="py-1.5">{r.payer_id}</td>

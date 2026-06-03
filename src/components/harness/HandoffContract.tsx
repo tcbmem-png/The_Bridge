@@ -86,7 +86,7 @@ export function HandoffContract() {
                 key={i}
                 className={`border-b border-ink/5 ${r.is_mature ? "" : "text-ink/45"}`}
               >
-                <td className="py-1.5">{String(r.service_month).slice(0, 10)}</td>
+                <td className="py-1.5">{toIsoDate(r.service_month)}</td>
                 <td className="py-1.5 text-right">{fmt(r.er_wrvu, 4)}</td>
                 <td className="py-1.5 text-right">{fmt(r.er_collections)}</td>
                 <td className="py-1.5 text-right">{fmt(r.er_yield)}</td>

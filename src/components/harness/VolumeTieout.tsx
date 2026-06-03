@@ -48,7 +48,7 @@ export function VolumeTieout() {
           <tbody>
             {rows.map((r, i) => (
               <tr key={i} className="border-b border-ink/5">
-                <td className="py-1.5">{String(r.service_month).slice(0, 10)}</td>
+                <td className="py-1.5">{toIsoDate(r.service_month)}</td>
                 <td className="py-1.5 text-right">{r.ris_exams}</td>
                 <td className="py-1.5 text-right">{r.billed_accessions}</td>
                 <td className="py-1.5 text-right">{r.unbilled_gap}</td>
