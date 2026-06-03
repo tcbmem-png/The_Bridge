@@ -620,7 +620,7 @@ function TwoNumbersPage() {
       <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
         The stipend a group earns for covering the ER starts with{" "}
         <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
-          two numbers
+          two auditable numbers
         </SrcLink>{" "}
         <SrcLink k="onlygroup" open={openSrc} setOpen={setOpenSrc}>
           only the group has
@@ -651,7 +651,7 @@ function TwoNumbersPage() {
           </span>
         )}
       </div>
-      <p className="mt-3 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
+      <p className="mt-3 mb-6 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
         If you know your actual annual ER wRVU and collections, toggle left
         and enter them. If you don't, toggle right and enter your average
         annual partner profit distribution, number of partners, and best
