@@ -429,7 +429,8 @@ function OutRow({
 /* ─── page ───────────────────────────────────────────────────────────────── */
 
 function TwoNumbersPage() {
-  // the two numbers (baseline — lever moves derived display values, not these)
+  // The two numbers — today's audited ER baseline. Lever scales these for
+  // display; baseline state itself stays at "today".
   const [baseColl, setBaseColl] = useState(8_316_000);
   const [baseWrvu, setBaseWrvu] = useState(297_000);
   // pins
@@ -438,8 +439,8 @@ function TwoNumbersPage() {
   // hospital
   const [redep, setRedep] = useState(90);
   const [util, setUtil] = useState(1); // 0..1
-  // lever
-  const [cut, setCut] = useState(0); // 0..AVOIDABLE_CAP
+  // ONE primitive — signed lever [-0.30..+0.30]. Shared by both sides.
+  const [volumeLever, setVolumeLever] = useState(0);
   // Data drawer
   const [net, setNet] = useState(63_800_000);
   const [totcoll, setTotcoll] = useState(77_000_000);
@@ -448,19 +449,20 @@ function TwoNumbersPage() {
   const [eryield, setEryield] = useState(28);
 
   /* ─── right-column practice dashboard state ──────────────────────────── */
-  // Drivers boot at zero; the right side stays zeroed until both are entered.
-  const [compPool, setCompPool] = useState(0);
-  const [erSharePct, setErSharePct] = useState(0);
+  // Pre-seeded with the demo values — §0 governing rule: the page loads
+  // populated; the right side IS the source of truth.
+  const [compPool, setCompPool] = useState(63_800_000);
+  const [erSharePct, setErSharePct] = useState(27);
   const [partnerCount, setPartnerCount] = useState(100);
   const [view, setView] = useState<"total" | "perPartner">("perPartner");
   const [redeployUtilD, setRedeployUtilD] = useState(0);
 
   // Bridge direction — drives which side derives from the other.
-  // "none" = both sides independent (user has unlinked or no R2 yet)
-  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("none");
+  // Default: right→left (demo seeds the right; left renders as derived).
+  const [bridge, setBridge] = useState<"none" | "right-to-left" | "left-to-right">("right-to-left");
   // Per-left-field source flag — controls the "← derived" chip.
-  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("user");
-  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("user");
+  const [leftCollSource, setLeftCollSource] = useState<"user" | "derived-from-right">("derived-from-right");
+  const [leftWrvuSource, setLeftWrvuSource] = useState<"user" | "derived-from-right">("derived-from-right");
   // Right-side derived label flag
   const [rightSource, setRightSource] = useState<"user" | "derived-from-left">("user");
 
