@@ -655,7 +655,7 @@ function TwoNumbersPage() {
         )}
       </div>
       <p className="mt-3 mb-4 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
-        If you know your actual annual ER wRVU and collections, toggle left
+        If you know your group's actual annual ER wRVU and collections, toggle left
         and enter them. If you don't, toggle right and enter your average
         annual partner profit distribution, number of partners, and best
         estimate percentage of your group's total annual wRVU attributable
