@@ -465,14 +465,16 @@ function TwoNumbersPage() {
   // totalWrvu = (avgDist × N) / $8 spread; pool = totalWrvu × $58.
   const compPool = useMemo(() => {
     if (source !== "right") {
-      // In left mode, derive pool from the audited ER baseline + share.
+      // Left mode: derive pool so the engine's round-trip lands EXACTLY on
+      // the audited ER wRVU. backfillFromLeft now inverts the engine's own
+      // path (compPool = (erWrvu / erShare) × $58), so left □ erWrvu ==
+      // dashboard erWrvu at every lever position — no $40k drift.
       if (baseColl > 0 && baseWrvu > 0 && erSharePct > 0) {
         const b = backfillFromLeft({
           erColl: baseColl,
           erWrvu: baseWrvu,
           erShare: erSharePct / 100,
-          compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
-          nonErYieldBench: 85,
+          overheadPerWrvu: ovh,
         });
         return Math.round(b.compPool);
       }
