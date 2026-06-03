@@ -670,8 +670,8 @@ function TwoNumbersPage() {
           onChange={onCollEdit}
           step={100000}
         />
-        {leftCollSource === "derived-from-right" && (
-          <DerivedChip onUnlink={unlinkLeftDerived} />
+        {source === "right" && (
+          <DerivedChip onUnlink={() => setSource("left")} />
         )}
         <InlineDef k="coll" openTerm={openTerm} />
         <div className="ml-1 text-[12px] text-ink/40">÷</div>
