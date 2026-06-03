@@ -11,7 +11,8 @@ type Row = {
   yield_per_wrvu: number | string | null;
 };
 
-const TARGET = { ER: 28, NON_ER: 86 } as const;
+// No static benchmark check — the badge reports observed $/wRVU from the
+// loaded data, so it stays honest on both the seed and any upload.
 
 function fmt(n: number | string | null | undefined, digits = 2) {
   if (n === null || n === undefined) return "—";
