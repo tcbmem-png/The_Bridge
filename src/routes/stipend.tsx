@@ -867,8 +867,9 @@ function TwoNumbersPage() {
           drives the whole demonstration. Slide it and ER wRVU, collections,
           stipend, and the partner profit lines all re-compute live from
           two-segment P&amp;L (collections − cost). The with-stipend line
-          stays flat because the math says it does, not because anything is
-          pinned.
+          drifts gently because the stipend is FMV-priced ($62/wRVU) while
+          the group's actual cost is $70 — the $8 above-FMV slice is a real
+          residual the partners eat.
         </p>
         <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
           <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
@@ -891,7 +892,7 @@ function TwoNumbersPage() {
               </p>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">3. Add side uncapped.</b>{" "}
-                Volume can grow up to 4× today. ER's gross margin is below 1 (collects $28, costs $70), so without a stipend the partner line plunges deep negative. With the stipend the fraction is exactly 1 — break-even — at any volume.
+                Volume can grow up to 4× today. ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
               </p>
             </div>
           </div>

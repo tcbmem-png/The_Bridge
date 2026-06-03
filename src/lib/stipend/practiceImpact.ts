@@ -146,12 +146,16 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const nonErColl = collectionsToday - erCollToday;
   const nonErYield = nonErWrvu > 0 ? nonErColl / nonErWrvu : 0;
 
-  // REAL two-segment P&L cost — comp actually paid + overhead = $58 + $12 = $70.
-  // This is the denominator in the margin = collections/cost framing. The
-  // stipend that closes the gap exactly takes ER's fraction to 1 (break-even).
-  const fairCost = i.compActualPerWrvu + overheadPerWrvu; // ≈ $70
-  const distributionPerWrvu = i.compActualPerWrvu - i.fmvComp; // ≈ $8 (FMV spread)
-  const erDeficitPerWrvu = fairCost - erYield; // ≈ $42
+  // Two cost bases. Stipend pricing uses the FMV cost (what the hospital can
+  // legally fund); partner P&L uses the actual cost (what the group really
+  // pays). The gap = (compActual − fmvComp) per wRVU is the above-FMV slice
+  // the group still eats even with a fair stipend — you can't shift
+  // above-market pay to the hospital.
+  const fairCost = i.compActualPerWrvu + overheadPerWrvu; // ≈ $70 — actual P&L cost
+  const fmvCost = i.fmvComp + overheadPerWrvu; // ≈ $62 — FMV-priced stipend cost
+  const aboveFmvPerWrvu = i.compActualPerWrvu - i.fmvComp; // ≈ $8 — group eats this
+  const distributionPerWrvu = aboveFmvPerWrvu; // ≈ $8 (FMV spread)
+  const erDeficitPerWrvu = fmvCost - erYield; // ≈ $34 — what stipend pays
 
   // Fixed non-ER segment dollars (lever moves ONLY ER).
   const nonErCost = fairCost * nonErWrvu;
@@ -161,7 +165,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const lever = Math.max(-VOLUME_LEVER_CUT_CAP, Math.min(VOLUME_LEVER_ADD_CAP, i.volumeLever));
   const erWrvu = erWrvuToday * (1 + lever);
   const erColl = erWrvu * erYield; // erYield held — payer mix, not volume
-  const erCost = erWrvu * fairCost;
+  const erCost = erWrvu * fairCost; // actual cost the group pays
   const totalWrvu = nonErWrvu + erWrvu;
   const collections = nonErColl + erColl;
 
@@ -182,8 +186,11 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // ── Two-segment partner P&L (collections − cost) ──────────────────────
   // Without stipend: nonER profit + (er_coll − er_cost) — declines as ER grows.
   const partnerWithoutTotal = nonErProfitTotal + (erColl - erCost);
-  // With stipend: nonER profit + (er_coll + stipend − er_cost) — ER cancels → flat.
-  const partnerWithTotalNoRedeploy = nonErProfitTotal; // ER terms cancel by construction
+  // With stipend: stipend is FMV-priced, ER cost is actual. The group still
+  // eats the above-FMV slice ($8/wRVU) on every ER wRVU — slope is shallow
+  // but negative, not flat.
+  const partnerWithTotalNoRedeploy =
+    nonErProfitTotal + (erColl + stipend - erCost); // = nonErProfit − aboveFmv × erWrvu
   const partnerWithTotal = partnerWithTotalNoRedeploy + redeployGain;
 
   const scenarios = {
@@ -206,9 +213,9 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const distributionPerPartner = distributionTotal / N;
 
   // ── Sweep 0× … 4× today's ER wRVU (80 samples) ────────────────────────
-  // Explicit two-segment P&L at every x. WITH is genuinely flat because the
-  // ER terms (er_coll + stipend − er_cost) cancel — flatness is the RESULT,
-  // not a constant. WITHOUT crosses zero and runs deep negative — no floor.
+  // Explicit two-segment P&L at every x. WITH is FMV-priced stipend against
+  // actual cost, so it tilts down at −aboveFmv/wRVU (the slice the group
+  // still eats). WITHOUT crosses zero and runs deep negative — no floor.
   const samples = 80;
   const xMin = 0;
   const xMax = erWrvuToday * 4;
@@ -217,9 +224,9 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
     const x = xMin + ((xMax - xMin) * k) / samples;
     const erCollX = x * erYield;
     const erCostX = x * fairCost;
-    const stipendX = (fairCost - erYield) * x;
+    const stipendX = (fmvCost - erYield) * x; // FMV-priced
     const withoutX = nonErProfitTotal + (erCollX - erCostX);
-    const withX = nonErProfitTotal + (erCollX + stipendX - erCostX); // == nonErProfitTotal
+    const withX = nonErProfitTotal + (erCollX + stipendX - erCostX); // = nonErProfit − aboveFmv × x
     volumeSweep.push({
       erWrvu: x,
       distWith: withX / N,
