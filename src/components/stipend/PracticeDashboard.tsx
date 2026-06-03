@@ -449,6 +449,8 @@ function DriverField({
   placeholder,
   armedSiblingValue,
   armed,
+  readOnly,
+  derivedHint,
 }: {
   label: string;
   hint: string;
@@ -460,17 +462,19 @@ function DriverField({
   placeholder?: string;
   armedSiblingValue: number;
   armed: boolean;
+  readOnly?: boolean;
+  derivedHint?: string;
 }) {
   const isEmpty = !value;
   const needsThis = !armed && isEmpty && armedSiblingValue > 0;
   return (
     <div
-      className={`rounded-md border ${needsThis ? "border-[var(--teal)]" : isEmpty && !armed ? "border-ink/20" : "border-ink/12 bg-paper"} px-2.5 py-1.5`}
+      className={`rounded-md border ${readOnly ? "border-ink/12 bg-ink/[0.04] opacity-80" : needsThis ? "border-[var(--teal)]" : isEmpty && !armed ? "border-ink/20" : "border-ink/12 bg-paper"} px-2.5 py-1.5`}
     >
       <div className="flex items-baseline justify-between gap-2">
         <label className="text-[12px] font-semibold text-ink">{label}</label>
         <span className="font-mono-tab text-[9.5px] uppercase tracking-[0.08em] text-ink/45">
-          {hint}
+          {derivedHint ?? hint}
         </span>
       </div>
       <div className="mt-0.5 flex items-baseline gap-1">
@@ -479,13 +483,14 @@ function DriverField({
           type="number"
           value={value || ""}
           step={step}
+          readOnly={readOnly}
           onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
           placeholder={placeholder}
           autoComplete="off"
           data-private="true"
           data-mp-mask="true"
           data-fs-mask="true"
-          className="font-mono w-full bg-transparent text-[18px] font-semibold tabular-nums text-ink placeholder:text-ink/25 focus:outline-none"
+          className={`font-mono w-full bg-transparent text-[18px] font-semibold tabular-nums text-ink placeholder:text-ink/25 focus:outline-none ${readOnly ? "cursor-not-allowed" : ""}`}
         />
         {suffix && <span className="font-mono text-[15px] text-ink/55">{suffix}</span>}
       </div>
