@@ -15,8 +15,10 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as StipendRouteImport } from './routes/stipend'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as LegalRouteImport } from './routes/legal'
 import { Route as HarnessRouteImport } from './routes/harness'
 import { Route as ForItRouteImport } from './routes/for-it'
+import { Route as ForCounselRouteImport } from './routes/for-counsel'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CioRouteImport } from './routes/cio'
 import { Route as IndexRouteImport } from './routes/index'
@@ -51,6 +53,11 @@ const SandboxRoute = SandboxRouteImport.update({
   path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalRoute = LegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HarnessRoute = HarnessRouteImport.update({
   id: '/harness',
   path: '/harness',
@@ -59,6 +66,11 @@ const HarnessRoute = HarnessRouteImport.update({
 const ForItRoute = ForItRouteImport.update({
   id: '/for-it',
   path: '/for-it',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForCounselRoute = ForCounselRouteImport.update({
+  id: '/for-counsel',
+  path: '/for-counsel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -81,8 +93,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
   '/harness': typeof HarnessRoute
+  '/legal': typeof LegalRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -94,8 +108,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
   '/harness': typeof HarnessRoute
+  '/legal': typeof LegalRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -108,8 +124,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/faq': typeof FaqRoute
+  '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
   '/harness': typeof HarnessRoute
+  '/legal': typeof LegalRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -123,8 +141,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/faq'
+    | '/for-counsel'
     | '/for-it'
     | '/harness'
+    | '/legal'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -136,8 +156,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/faq'
+    | '/for-counsel'
     | '/for-it'
     | '/harness'
+    | '/legal'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -149,8 +171,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/faq'
+    | '/for-counsel'
     | '/for-it'
     | '/harness'
+    | '/legal'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -163,8 +187,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CioRoute: typeof CioRoute
   FaqRoute: typeof FaqRoute
+  ForCounselRoute: typeof ForCounselRoute
   ForItRoute: typeof ForItRoute
   HarnessRoute: typeof HarnessRoute
+  LegalRoute: typeof LegalRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
   StipendRoute: typeof StipendRoute
@@ -217,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal': {
+      id: '/legal'
+      path: '/legal'
+      fullPath: '/legal'
+      preLoaderRoute: typeof LegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/harness': {
       id: '/harness'
       path: '/harness'
@@ -229,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/for-it'
       fullPath: '/for-it'
       preLoaderRoute: typeof ForItRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-counsel': {
+      id: '/for-counsel'
+      path: '/for-counsel'
+      fullPath: '/for-counsel'
+      preLoaderRoute: typeof ForCounselRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -259,8 +299,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CioRoute: CioRoute,
   FaqRoute: FaqRoute,
+  ForCounselRoute: ForCounselRoute,
   ForItRoute: ForItRoute,
   HarnessRoute: HarnessRoute,
+  LegalRoute: LegalRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
   StipendRoute: StipendRoute,

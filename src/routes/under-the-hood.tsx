@@ -221,12 +221,18 @@ function UnderTheHoodPage() {
       </section>
 
       <section className="border-t border-ink/15">
-        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-10 md:py-14">
           <Link
             to="/faq"
             className="inline-flex items-center gap-2 font-mono-tab text-[11px] uppercase tracking-[0.12em] text-ink/55 underline underline-offset-4 decoration-ink/20 hover:text-ink hover:decoration-ink/50 transition-colors"
           >
             Questions you're probably asking →
+          </Link>
+          <Link
+            to="/harness"
+            className="inline-flex items-center gap-2 font-mono-tab text-[11px] uppercase tracking-[0.12em] text-[var(--gold)] underline underline-offset-4 decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:decoration-[var(--gold)] transition-colors"
+          >
+            Run it yourself →
           </Link>
         </div>
       </section>
