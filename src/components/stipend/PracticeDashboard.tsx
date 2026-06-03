@@ -22,8 +22,10 @@ const fmtSignedM = (x: number) =>
   (x >= 0 ? "+$" : "−$") + Math.abs(x / 1e6).toFixed(2) + "M";
 
 export function PracticeDashboard({
+  mode,
   compPool,
-  setCompPool,
+  avgPerPartnerDist,
+  setAvgPerPartnerDist,
   erSharePct,
   setErSharePct,
   partnerCount,
@@ -36,9 +38,12 @@ export function PracticeDashboard({
   setRedeployUtil,
   fmvComp,
   overheadOverride,
+  erYieldInput,
 }: {
-  compPool: number;
-  setCompPool: (v: number) => void;
+  mode: "right" | "left";
+  compPool: number; // derived in both modes
+  avgPerPartnerDist: number;
+  setAvgPerPartnerDist: (v: number) => void;
   erSharePct: number;
   setErSharePct: (v: number) => void;
   partnerCount: number;
@@ -51,9 +56,11 @@ export function PracticeDashboard({
   setRedeployUtil: (v: number) => void;
   fmvComp: number;
   overheadOverride: number;
+  erYieldInput: number; // benchmark in right mode; audit in left mode
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
+  const rightLocked = mode === "left"; // right inputs are derived in left mode
 
   const out = useMemo(() => {
     if (!armed) return null;
@@ -68,10 +75,10 @@ export function PracticeDashboard({
       compActualPerWrvu: PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu,
       compToCollections: PRACTICE_IMPACT_DEFAULTS.compToCollections,
       overheadPerWrvu: overheadOverride,
-      erYield: PRACTICE_IMPACT_DEFAULTS.erYield,
+      erYield: erYieldInput,
       reclaimValue: PRACTICE_IMPACT_DEFAULTS.reclaimValue,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride, erYieldInput]);
 
   // Headline reads directly from engine — no overlay.
   const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
