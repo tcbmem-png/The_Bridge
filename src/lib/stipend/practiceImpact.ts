@@ -129,11 +129,13 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // the loop to the penny: $88k → $88k, blended exactly $70, overhead exactly
   // $12, stipend $10.10M, partner $189k / $88k.
   const collectionsToday =
-    totalWrvuToday > 0
-      ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
-      : i.compToCollections > 0
-        ? P / i.compToCollections
-        : 0;
+    i.collectionsOverride && i.collectionsOverride > 0
+      ? i.collectionsOverride
+      : totalWrvuToday > 0
+        ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
+        : i.compToCollections > 0
+          ? P / i.compToCollections
+          : 0;
 
   const erWrvuToday = totalWrvuToday * s;
   const erYield = i.erYield;
