@@ -142,7 +142,8 @@ function AccordionItem({
   onToggle,
 }: {
   question: string;
-  answer: string;
+  answer: ReactNode;
+
   isOpen: boolean;
   onToggle: () => void;
 }) {
