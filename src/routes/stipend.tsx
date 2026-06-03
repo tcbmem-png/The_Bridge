@@ -681,8 +681,8 @@ function TwoNumbersPage() {
           onChange={onWrvuEdit}
           step={10000}
         />
-        {leftWrvuSource === "derived-from-right" && (
-          <DerivedChip onUnlink={unlinkLeftDerived} />
+        {source === "right" && (
+          <DerivedChip onUnlink={() => setSource("left")} />
         )}
         <InlineDef k="wrvu" openTerm={openTerm} />
 
