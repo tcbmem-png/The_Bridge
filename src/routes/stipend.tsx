@@ -651,7 +651,7 @@ function TwoNumbersPage() {
           </span>
         )}
       </div>
-      <p className="mt-3 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
+      <p className="mt-3 mb-6 max-w-prose text-[12.5px] leading-relaxed text-ink/65">
         If you know your actual annual ER wRVU and collections, toggle left
         and enter them. If you don't, toggle right and enter your average
         annual partner profit distribution, number of partners, and best
