@@ -120,7 +120,18 @@ const groups: FAQGroup[] = [
     items: [
       {
         q: "What do we actually get?",
-        a: "Two things. First, the money you can recover now — studies that were read but never billed, underpayments, denial patterns you can fix. Second, a shared, defensible picture of what your coverage is actually worth. It won't bill you out of a coverage problem — that's a conversation, not a collection — but it tells you exactly which is which.",
+        a: (
+          <>
+            Two things. First, the money you can recover now — studies that were read but never billed, underpayments, denial patterns you can fix. Second, a shared, defensible picture of what your coverage is actually worth. It won't bill you out of a coverage problem — that's a conversation, not a collection — but it tells you exactly which is which.
+            {" "}The legal structure behind a coverage stipend:{" "}
+            <Link
+              to="/for-counsel"
+              className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+            >
+              For counsel →
+            </Link>
+          </>
+        ),
       },
       {
         q: "What if our data is messy?",
@@ -178,9 +189,9 @@ function AccordionItem({
       </button>
       {isOpen ? (
         <div className="pb-5">
-          <p className="max-w-3xl text-sm leading-relaxed text-ink/75">
+          <div className="max-w-3xl text-sm leading-relaxed text-ink/75">
             {answer}
-          </p>
+          </div>
         </div>
       ) : null}
     </div>

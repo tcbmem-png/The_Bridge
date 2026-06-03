@@ -2,7 +2,7 @@
 // chassis. Content is verbatim from the source; math is the verified engine
 // computeTwoNumbers (do not re-derive). Illustrative only.
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { PracticeDashboard } from "@/components/stipend/PracticeDashboard";
 import {
@@ -14,17 +14,17 @@ import {
 export const Route = createFileRoute("/stipend")({
   head: () => ({
     meta: [
-      { title: "A Tale of Two Numbers — ER Stipend" },
+      { title: "See it move — The Bridge" },
       {
         name: "description",
         content:
-          "Illustrative two-number deficit method for ER coverage stipends.",
+          "The whole picture is two numbers and what a stipend does to them. Live, drills to source.",
       },
-      { property: "og:title", content: "A Tale of Two Numbers — ER Stipend" },
+      { property: "og:title", content: "See it move — The Bridge" },
       {
         property: "og:description",
         content:
-          "Illustrative two-number deficit method for ER coverage stipends.",
+          "The whole picture is two numbers and what a stipend does to them. Live, drills to source.",
       },
     ],
   }),
@@ -968,6 +968,21 @@ function TwoNumbersPage() {
         {" "}to the hospital — the party that wants the coverage and can fund it.
       </Lead>
       <SrcBox k="riskshift" open={openSrc} />
+
+      <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-ink/10 pt-4 text-[12.5px] leading-relaxed text-ink/65">
+        <Link
+          to="/for-counsel"
+          className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+        >
+          For counsel →
+        </Link>
+        <Link
+          to="/for-it"
+          className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+        >
+          For IT / your CIO →
+        </Link>
+      </div>
 
       <p className="mt-8 border-t border-ink/15 pt-4 text-[11.5px] leading-relaxed text-ink/45">
         <span className="text-[var(--gold)]">gold</span> = CMS / public ·{" "}

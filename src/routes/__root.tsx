@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/Header";
+import { SiteFooter } from "../components/SiteFooter";
 import { MoneyProvider } from "../lib/money/store";
 import { LensProvider } from "../lib/lens/store";
 
@@ -78,16 +79,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ER Stipend — Illustrative" },
+      { title: "The Bridge — Illustrative" },
       {
         name: "description",
         content:
-          "Illustrative two-number deficit method for ER coverage stipends.",
+          "One engine, four doors. The structure of the loss — checkable down to the record.",
       },
-      { property: "og:title", content: "ER Stipend — Illustrative" },
-      { name: "twitter:title", content: "ER Stipend — Illustrative" },
-      { property: "og:description", content: "Illustrative two-number deficit method for ER coverage stipends." },
-      { name: "twitter:description", content: "Illustrative two-number deficit method for ER coverage stipends." },
+      { property: "og:title", content: "The Bridge — Illustrative" },
+      { name: "twitter:title", content: "The Bridge — Illustrative" },
+      { property: "og:description", content: "One engine, four doors. The structure of the loss — checkable down to the record." },
+      { name: "twitter:description", content: "One engine, four doors. The structure of the loss — checkable down to the record." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -131,10 +132,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <MoneyProvider>
         <LensProvider>
-          <div className="min-h-screen bg-paper text-ink">
+          <div className="flex min-h-screen flex-col bg-paper text-ink">
             <Header />
             {/* Required: nested routes render here. */}
-            <Outlet />
+            <div className="flex-1">
+              <Outlet />
+            </div>
+            <SiteFooter />
           </div>
         </LensProvider>
       </MoneyProvider>
