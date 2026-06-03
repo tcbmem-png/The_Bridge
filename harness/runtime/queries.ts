@@ -88,3 +88,46 @@ export function erCollectionsForMonth(monthIso: string) {
     [monthIso],
   );
 }
+
+// Totals across all ER lines — the two numbers the valuator wants.
+export function erTotals() {
+  return q<{ wrvu: number | string | null; collections: number | string | null; line_count: number | string }>(
+    `
+    SELECT
+      COALESCE(SUM(work_rvu), 0)    AS wrvu,
+      COALESCE(SUM(paid_amount), 0) AS collections,
+      COUNT(*)                      AS line_count
+    FROM core.fact_service_line
+    WHERE segment = 'ER';
+  `,
+  );
+}
+
+// Every ER line with full lineage to 837/835/RIS/MPFS — the drill source.
+export function erAllLines() {
+  return q(
+    `
+    SELECT
+      f.claim_id, f.line_number, f.dos, f.cpt_code, f.accession,
+      f.units, f.work_rvu, f.charge_amount, f.paid_amount,
+      f.payer_id, f.financial_class, f.check_eft_trace,
+      s837.file_name AS src_837_file, s837.sha256 AS src_837_hash,
+      s835.file_name AS src_835_file, s835.sha256 AS src_835_hash,
+      e.exam_cpt, e.modality, e.ordering_location, e.finalized_at,
+      e.pos_code AS ris_pos, e.rendering_npi AS ris_npi,
+      sris.file_name AS src_ris_file, sris.sha256 AS src_ris_hash,
+      m.work_rvu AS mpfs_work_rvu, m.conversion_factor AS mpfs_cf,
+      m.service_year AS mpfs_year
+    FROM core.fact_service_line f
+    LEFT JOIN raw.source_file s837 ON s837.file_id = f.src_file_837
+    LEFT JOIN raw.source_file s835 ON s835.file_id = f.src_file_835
+    LEFT JOIN stg.ris_exam     e    ON e.accession = f.accession
+    LEFT JOIN raw.source_file sris ON sris.file_id = e.source_file_id
+    LEFT JOIN ref.mpfs_wrvu    m    ON m.cpt_code = f.cpt_code
+                                     AND m.service_year = EXTRACT(YEAR FROM f.dos)::INT
+    WHERE f.segment = 'ER'
+    ORDER BY f.dos, f.claim_id, f.line_number;
+  `,
+  );
+}
+
