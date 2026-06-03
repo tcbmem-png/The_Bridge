@@ -30,6 +30,7 @@ export const Route = createFileRoute("/sandbox")({
 function SandboxPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+      <PresetBanner />
       <header className="max-w-3xl">
         <div className="font-mono-tab flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-ink/65">
           <FallToken size={12} tone="gold" />
