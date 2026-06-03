@@ -38,11 +38,27 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
   const [staged, setStaged] = useState<StagedFile[]>([]);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [dragOver, setDragOver] = useState(false);
+  const [preset, setPreset] = useState<DerivedPreset | null>(() =>
+    typeof window !== "undefined" ? readPreset() : null,
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Make sure the DB is booted so the initial panels can query it.
   useEffect(() => {
     getDb().catch(() => {});
+  }, []);
+
+  // Derive Sandbox/Story preset from whatever's now in the DB, publish it,
+  // and update local state for the confirmation card. Best-effort — preset
+  // derivation failure should never block the upload itself.
+  const refreshPreset = useCallback(async (label: string) => {
+    try {
+      const p = await derivePresetFromDb(label);
+      publishPreset(p);
+      setPreset(p);
+    } catch (e) {
+      console.warn("[harness] preset derive failed:", e);
+    }
   }, []);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
