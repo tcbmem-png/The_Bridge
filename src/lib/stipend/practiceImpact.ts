@@ -98,16 +98,25 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
 
   // ── Today's (lever = 0) practice structure ────────────────────────────
   const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
-  const collectionsToday = i.compToCollections > 0 ? P / i.compToCollections : 0;
-  // Canonical: honor the overhead PIN ($12) — not the demo-pin residual
-  // ($11.88), which falls out of (collections − pool)/wRVU when pool/0.83
-  // is slightly over-determined vs comp $58 × wRVU. Pin keeps the published
-  // $10.10M headline and matches the left □ instrument at every lever pos.
+  // Honor the overhead PIN ($12). The legacy residual path falls back only
+  // when no pin is supplied.
   const overheadPerWrvu =
     i.overheadPerWrvu > 0
       ? i.overheadPerWrvu
-      : totalWrvuToday > 0
-        ? (collectionsToday - P) / totalWrvuToday
+      : totalWrvuToday > 0 && i.compToCollections > 0
+        ? (P / i.compToCollections - P) / totalWrvuToday
+        : 0;
+  // Collections derived from the model's own identity:
+  // blended /wRVU = comp $58 + overhead $12 = $70. The old comp-to-collections
+  // ratio (0.83) was ~$0.12/wRVU off this identity, leaking ~$1k/partner on
+  // the round-trip ($88k input read back as $87k). Using the identity closes
+  // the loop to the penny: $88k → $88k, blended exactly $70, overhead exactly
+  // $12, stipend $10.10M, partner $189k / $88k.
+  const collectionsToday =
+    totalWrvuToday > 0
+      ? totalWrvuToday * (i.compActualPerWrvu + overheadPerWrvu)
+      : i.compToCollections > 0
+        ? P / i.compToCollections
         : 0;
 
   const erWrvuToday = totalWrvuToday * s;
@@ -222,22 +231,30 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
 
 /**
  * Bottom-up: given audited ER coll + ER wRVU + ER share, back-fill the
- * practice (totalWrvu, collections, compPool). Labeled "derived from left
- * audit" in the UI. NOT used in the current right-as-source-of-truth demo.
+ * practice (totalWrvu, collections, compPool) so that feeding compPool
+ * back into computePracticeImpact reproduces the audited erWrvu EXACTLY
+ * (no round-trip drift). The engine derives totalWrvu = compPool/comp$58
+ * and erWrvu = totalWrvu × erShare, so we invert that path directly
+ * instead of routing through collections × comp-to-collections.
  */
 export function backfillFromLeft(args: {
   erColl: number;
   erWrvu: number;
   erShare: number;
-  compToCollections: number;
-  nonErYieldBench: number;
+  compActualPerWrvu?: number;
+  overheadPerWrvu?: number;
+  // legacy — accepted but no longer used in the closed-loop path
+  compToCollections?: number;
+  nonErYieldBench?: number;
 }): { totalWrvu: number; collections: number; compPool: number } {
-  const { erColl, erWrvu, erShare, compToCollections, nonErYieldBench } = args;
+  const { erWrvu, erShare } = args;
+  const compActual = args.compActualPerWrvu ?? PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu;
+  const overhead = args.overheadPerWrvu ?? PRACTICE_IMPACT_DEFAULTS.overheadPerWrvu;
   if (erShare <= 0 || erShare >= 1) return { totalWrvu: 0, collections: 0, compPool: 0 };
   const totalWrvu = erWrvu / erShare;
-  const nonErColl = (totalWrvu - erWrvu) * nonErYieldBench;
-  const collections = erColl + nonErColl;
-  const compPool = collections * compToCollections;
+  const compPool = totalWrvu * compActual;
+  // Collections via the model's own identity ($58 + $12 = $70/wRVU).
+  const collections = totalWrvu * (compActual + overhead);
   return { totalWrvu, collections, compPool };
 }
 
