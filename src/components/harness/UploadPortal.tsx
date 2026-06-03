@@ -121,6 +121,70 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
     }
   }, [datasetName]);
 
+  // Fetch the 8 demo CSVs from /public/sample-data and run the full
+  // stage → reset → load chain in one click. Same pipeline as a manual
+  // drag-and-drop; nothing special-cased in the engine.
+  const handleLoadDemo = useCallback(async () => {
+    const demoFiles = [
+      "MOCK_RAD_GROUP_837_billing_export.csv",
+      "MOCK_RAD_GROUP_835_remittance_export.csv",
+      "MOCK_RAD_GROUP_RIS_exam_export.csv",
+      "MOCK_RAD_GROUP_bank_statement.csv",
+      "MOCK_PUBLIC_MPFS_reference.csv",
+      "MOCK_RAD_GROUP_ref_payer.csv",
+      "MOCK_RAD_GROUP_ref_facility.csv",
+      "MOCK_RAD_GROUP_ref_provider.csv",
+    ];
+    setStatus({ kind: "staging", files: demoFiles.length });
+    try {
+      const fileObjects: File[] = [];
+      for (const name of demoFiles) {
+        const res = await fetch(`/sample-data/${name}`);
+        if (!res.ok) throw new Error(`Failed to fetch ${name}: ${res.status}`);
+        const blob = await res.blob();
+        fileObjects.push(new File([blob], name, { type: "text/csv" }));
+      }
+      const stagedAll: StagedFile[] = [];
+      for (const f of fileObjects) stagedAll.push(await stageFile(f));
+      const blocked = stagedAll.filter((s) => s.missingColumns.length > 0);
+      if (blocked.length) {
+        setStaged(stagedAll);
+        setStatus({ kind: "blocked", staged: stagedAll });
+        return;
+      }
+      setStaged(stagedAll);
+      setDatasetName("MOCK RAD GROUP — demo dataset");
+      const totalRows = stagedAll.reduce((a, s) => a + s.rows.length, 0);
+      setStatus({ kind: "loading", progress: null, totalRows, loadedRows: 0 });
+      const db = await resetDb("empty");
+      let cumulative = 0;
+      for (const s of stagedAll) {
+        await loadStagedFile(db, s, (p) => {
+          setStatus({
+            kind: "loading",
+            progress: p,
+            totalRows,
+            loadedRows: cumulative + p.rowsLoaded,
+          });
+        });
+        cumulative += s.rows.length;
+      }
+      setStatus({ kind: "loaded", rowsLoaded: cumulative, files: stagedAll.length });
+      onDatasetChange();
+    } catch (e) {
+      setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
+    }
+  }, [onDatasetChange, setDatasetName]);
+
+  const handleDownloadDemoZip = useCallback(() => {
+    const a = document.createElement("a");
+    a.href = "/sample-data/MOCK_RAD_GROUP_dataset.zip";
+    a.download = "MOCK_RAD_GROUP_dataset.zip";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }, []);
+
   return (
     <Panel
       title="Upload portal"
