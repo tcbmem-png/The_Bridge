@@ -81,8 +81,10 @@ export function PracticeDashboard({
       overheadPerWrvu: overheadOverride,
       erYield: erYieldInput,
       reclaimValue: PRACTICE_IMPACT_DEFAULTS.reclaimValue,
+      reclaimIsNet: PRACTICE_IMPACT_DEFAULTS.reclaimIsNet,
+      collectionsOverride: mode === "right" ? collectionsOverride : undefined,
     });
-  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride, erYieldInput]);
+  }, [armed, compPool, erSharePct, partnerCount, stipendOn, volumeLever, redeployUtil, fmvComp, overheadOverride, erYieldInput, mode, collectionsOverride]);
 
   // Headline reads directly from engine — no overlay.
   const noStipendDist = out?.scenarios.A_noStipend.distributionPerPartner ?? 0;
