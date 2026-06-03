@@ -430,7 +430,7 @@ export function PracticeDashboard({
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
           {volumeLever > 0
-            ? "Add volume and the partner line stays flat because ER's gross margin is zero with the stipend — break-even work adds nothing. The hospital's stipend rises by the same deficit (~$42/wRVU) that ER was already losing; the owners' return doesn't move."
+            ? "Add ER volume and the partner line drifts down at −$8/wRVU/partner — the above-FMV slice the group still pays out of pocket. The hospital's stipend rises by $34/wRVU (FMV-priced); the $42 ER deficit isn't fully shifted, because above-market comp legally can't be."
             : "Covering the ER is the price of admission to the relationship — the equipment, the referrals, the work that pays. That was a fair trade while the rest carried it. The price of admission just can't be losing money."}
         </p>
       </div>
