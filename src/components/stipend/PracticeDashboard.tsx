@@ -88,18 +88,10 @@ export function PracticeDashboard({
     : 0;
 
   // Signed lever value in [-30..+30] (% of today's ER volume).
-  const leverPct = addFrac > 0
-    ? Math.round(addFrac * 100)
-    : -Math.round(cut * 100);
+  const leverPct = Math.round(volumeLever * 100);
   const onLeverChange = (v: number) => {
     const clamped = Math.max(-30, Math.min(30, v));
-    if (clamped >= 0) {
-      setCut(0);
-      setAddFrac(clamped / 100);
-    } else {
-      setAddFrac(0);
-      setCut(Math.min(VOLUME_LEVER_CAP, -clamped / 100));
-    }
+    setVolumeLever(clamped / 100);
   };
 
   const stipendDelta = out ? out.stipend - out.stipendToday : 0;
