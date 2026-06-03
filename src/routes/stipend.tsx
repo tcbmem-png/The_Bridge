@@ -702,6 +702,7 @@ function TwoNumbersPage() {
           value={showColl}
           onChange={onCollEdit}
           step={100000}
+          readOnly={perturbed}
         />
         {source === "right" && (
           <DerivedChip onUnlink={() => setSource("left")} />
@@ -713,6 +714,7 @@ function TwoNumbersPage() {
           value={showWrvu}
           onChange={onWrvuEdit}
           step={10000}
+          readOnly={perturbed}
         />
         {source === "right" && (
           <DerivedChip onUnlink={() => setSource("left")} />
@@ -733,27 +735,28 @@ function TwoNumbersPage() {
             value={net}
             onChange={setNet}
             step={1000000}
+            readOnly={perturbed}
           />
           <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
             What the group distributes to its doctors. The known anchor.
           </p>
-          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} />
-          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} />
-          <NumField label="ER share %" value={ershare} onChange={setErshare} />
-          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
-
-          <NumField label="ER share %" value={ershare} onChange={setErshare} />
-          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
+          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} readOnly={perturbed} />
+          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} readOnly={perturbed} />
+          <NumField label="ER share %" value={ershare} onChange={setErshare} readOnly={perturbed} />
+          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} readOnly={perturbed} />
           <OutRow l="Suggested ER collections (benchmark estimate)" r={fmtM(sugC)} />
           <OutRow l="Suggested ER wRVU (benchmark estimate)" r={`${fmtNum(sugW)} wRVU`} />
           <button
             type="button"
             onClick={useSuggested}
-            className="font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_15%,transparent)]"
+            disabled={perturbed}
+            title={perturbed ? "Reset the volume lever to apply suggested values" : undefined}
+            className={`font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_15%,transparent)] ${perturbed ? "cursor-not-allowed opacity-50 hover:bg-[color-mix(in_oklab,var(--teal)_10%,transparent)]" : ""}`}
           >
             ↺ use these
           </button>
         </Sub>
+
 
 
         <Sub title="Audit" authority="yours">
