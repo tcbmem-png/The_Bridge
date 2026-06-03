@@ -618,7 +618,8 @@ function TwoNumbersPage() {
         A Tale of Two Numbers
       </h1>
       <p className="font-display mt-2 text-[17.5px] font-normal leading-[1.45] text-ink">
-        The stipend a group earns for covering the ER starts with{" "}
+        The stipend a group earns for covering the ER starts with
+        <br />
         <SrcLink k="twonums" open={openSrc} setOpen={setOpenSrc}>
           two auditable numbers
         </SrcLink>{" "}
