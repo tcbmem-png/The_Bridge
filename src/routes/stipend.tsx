@@ -483,7 +483,7 @@ function TwoNumbersPage() {
     const spread = PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu - 50; // $58 − FMV $50 = $8
     const totalWrvu = (avgPerPartnerDist * partnerCount) / spread;
     return Math.round(totalWrvu * PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu);
-  }, [source, avgPerPartnerDist, partnerCount, baseColl, baseWrvu, erSharePct]);
+  }, [source, avgPerPartnerDist, partnerCount, baseColl, baseWrvu, erSharePct, ovh]);
 
   // In left mode the audited ER yield IS the yield; in right mode use the
   // $28 benchmark pin.
