@@ -99,8 +99,16 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // ── Today's (lever = 0) practice structure ────────────────────────────
   const totalWrvuToday = i.compActualPerWrvu > 0 ? P / i.compActualPerWrvu : 0;
   const collectionsToday = i.compToCollections > 0 ? P / i.compToCollections : 0;
+  // Canonical: honor the overhead PIN ($12) — not the demo-pin residual
+  // ($11.88), which falls out of (collections − pool)/wRVU when pool/0.83
+  // is slightly over-determined vs comp $58 × wRVU. Pin keeps the published
+  // $10.10M headline and matches the left □ instrument at every lever pos.
   const overheadPerWrvu =
-    totalWrvuToday > 0 ? (collectionsToday - P) / totalWrvuToday : 0;
+    i.overheadPerWrvu > 0
+      ? i.overheadPerWrvu
+      : totalWrvuToday > 0
+        ? (collectionsToday - P) / totalWrvuToday
+        : 0;
 
   const erWrvuToday = totalWrvuToday * s;
   const erYield = i.erYield;
