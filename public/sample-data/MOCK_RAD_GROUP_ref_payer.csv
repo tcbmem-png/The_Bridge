@@ -1,0 +1,7 @@
+_mock_label,payer_id,payer_name,financial_class
+MOCK_RAD_GROUP_DEMO_ONLY,BCBSTN,BlueCross BlueShield of TN,Commercial
+MOCK_RAD_GROUP_DEMO_ONLY,UHC,UnitedHealthcare,Commercial
+MOCK_RAD_GROUP_DEMO_ONLY,CIGNA,Cigna,Commercial
+MOCK_RAD_GROUP_DEMO_ONLY,MCARE,Medicare Part B,Medicare
+MOCK_RAD_GROUP_DEMO_ONLY,TENNCARE,TennCare (Medicaid),Medicaid
+MOCK_RAD_GROUP_DEMO_ONLY,SELFPAY,Self-Pay / Uninsured,SelfPay
