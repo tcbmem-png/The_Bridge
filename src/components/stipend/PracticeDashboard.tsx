@@ -30,8 +30,8 @@ export function PracticeDashboard({
   setPartnerCount,
   view,
   setView,
-  cut,
-  setCut,
+  volumeLever,
+  setVolumeLever,
   redeployUtil,
   setRedeployUtil,
   fmvComp,
@@ -45,8 +45,8 @@ export function PracticeDashboard({
   setPartnerCount: (v: number) => void;
   view: "total" | "perPartner";
   setView: (v: "total" | "perPartner") => void;
-  cut: number;
-  setCut: (v: number) => void;
+  volumeLever: number; // signed -0.30..+0.30 — the ONE primitive
+  setVolumeLever: (v: number) => void;
   redeployUtil: number;
   setRedeployUtil: (v: number) => void;
   fmvComp: number;
@@ -54,11 +54,6 @@ export function PracticeDashboard({
 }) {
   const armed = compPool > 0 && erSharePct > 0;
   const [stipendOn, setStipendOn] = useState(true);
-  // Signed lever (-30%..+30% of today's ER volume). The ONE primitive.
-  // Parent retains `cut` for state sync with the left ○□△; we keep them
-  // mirrored (cut = -lever when lever < 0, else 0).
-  const [addFrac, setAddFrac] = useState(0);
-  const volumeLever = addFrac > 0 ? addFrac : -cut;
 
   const out = useMemo(() => {
     if (!armed) return null;
