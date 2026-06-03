@@ -828,23 +828,32 @@ function TwoNumbersPage() {
       {/* Card △ — the lever */}
       <ShapeCard ico="△" authority="yours">
         <div className="flex items-center gap-3 py-1.5 text-[13.5px]">
-          <span className="flex-1 text-ink/65">% of avoidable cut</span>
+          <span className="flex-1 text-ink/65">ER volume · ±30%</span>
           <input
             type="range"
-            min={0}
-            max={100}
-            value={Math.round((cut / AVOIDABLE_CAP) * 100)}
+            min={-30}
+            max={30}
+            step={1}
+            value={Math.round(volumeLever * 100)}
             onChange={(ev) =>
-              setCut((parseFloat(ev.target.value) / 100) * AVOIDABLE_CAP)
+              setVolumeLever(Math.max(-0.3, Math.min(0.3, parseFloat(ev.target.value) / 100)))
             }
             className="flex-[1.4] accent-[var(--teal)]"
           />
-          <span className="font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums">
-            {Math.round((cut / AVOIDABLE_CAP) * 100)}%
+          <span
+            className={`font-mono w-[60px] text-right text-[13px] font-semibold tabular-nums ${
+              volumeLever > 0 ? "text-[var(--red)]" : volumeLever < 0 ? "text-[var(--teal)]" : "text-ink/55"
+            }`}
+          >
+            {volumeLever === 0 ? "0%" : `${volumeLever > 0 ? "+" : "−"}${Math.abs(Math.round(volumeLever * 100))}%`}
           </span>
         </div>
         <div className="-mt-1 text-right text-[11.5px] text-ink/45">
-          ≈ −{(cut * 100).toFixed(1)}% of total ER volume
+          {volumeLever > 0
+            ? `≈ +${(volumeLever * 100).toFixed(1)}% added ER volume (stipend rises)`
+            : volumeLever < 0
+              ? `≈ −${(-volumeLever * 100).toFixed(1)}% of ER volume cut (stipend shrinks)`
+              : "today · drag right to add volume, left to cut"}
         </div>
         <details className="mt-2 rounded-md border border-ink/10 bg-ink/[0.025]">
           <summary className="font-mono-tab cursor-pointer list-none px-3 py-2 text-[10.5px] uppercase tracking-[0.12em] text-ink/55 hover:text-ink">
