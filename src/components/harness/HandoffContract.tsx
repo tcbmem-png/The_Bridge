@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { erYieldPeriod } from "../../../harness/runtime/queries";
-import { Panel } from "./SegmentMonthly";
+import { Panel, toIsoDate } from "./SegmentMonthly";
 
 type Row = {
   service_month: string;
