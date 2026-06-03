@@ -120,22 +120,24 @@ export function PracticeDashboard({
       >
         {!armed && (
           <p className="mb-2 text-[12.5px] leading-relaxed text-ink/75">
-            Enter the two numbers you already know — your physician compensation
-            pool and your ER share of work — and your whole picture fills in
-            (this side and the stipend on the left).
+            Enter your average annual partner profit distribution and your ER
+            share of work — and your whole picture fills in (this side and the
+            stipend on the left).
           </p>
         )}
         <div className="space-y-2">
           <DriverField
-            label="Physician compensation pool"
-            hint="MGMA · Total Physician Compensation"
-            value={compPool}
-            onChange={setCompPool}
-            placeholder="e.g. 63800000"
+            label="Avg partner profit distribution"
+            hint="annual take-home per partner"
+            value={avgPerPartnerDist}
+            onChange={setAvgPerPartnerDist}
+            placeholder="e.g. 88000"
             prefix="$"
-            step={1_000_000}
+            step={1_000}
             armedSiblingValue={erSharePct}
             armed={armed}
+            readOnly={rightLocked}
+            derivedHint={rightLocked ? `derived · pool ${fmtMoneyM(compPool)}` : undefined}
           />
           <DriverField
             label="ER share of work"
@@ -145,7 +147,7 @@ export function PracticeDashboard({
             placeholder="e.g. 27"
             suffix="%"
             step={1}
-            armedSiblingValue={compPool}
+            armedSiblingValue={avgPerPartnerDist}
             armed={armed}
           />
         </div>
