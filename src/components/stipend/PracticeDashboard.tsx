@@ -391,7 +391,7 @@ export function PracticeDashboard({
             rightHint={
               volumeLever >= 0
                 ? "applies to cuts only"
-                : "freed time → $90/wRVU added contribution (net of labor — labor is sunk). 0% = freed time idle."
+                : "freed time → $90/wRVU added contribution (anchored to MSIT backlog yield; labor sunk — short-run only). BATNA, not the pitch."
             }
             disabled={volumeLever >= 0}
           />
