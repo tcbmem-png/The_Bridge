@@ -485,6 +485,18 @@ function TwoNumbersPage() {
     return Math.round(totalWrvu * PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu);
   }, [source, avgPerPartnerDist, partnerCount, baseColl, baseWrvu, erSharePct, ovh]);
 
+  // §3 Path-B anchor: in right mode, override total collections so the no-
+  // stipend partner distribution at v=0 equals D exactly:
+  //   total_collections = D × N + W × C   (W = totalWrvu, C = fair cost)
+  // In left mode the engine derives collections from the audited path.
+  const collectionsOverride = useMemo(() => {
+    if (source !== "right" || compPool <= 0) return undefined;
+    const totalWrvu = compPool / PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu;
+    const fairC = PRACTICE_IMPACT_DEFAULTS.compActualPerWrvu + ovh; // $58 + ovh
+    return Math.round(avgPerPartnerDist * partnerCount + totalWrvu * fairC);
+  }, [source, compPool, avgPerPartnerDist, partnerCount, ovh]);
+
+
   // In left mode the audited ER yield IS the yield; in right mode use the
   // $28 benchmark pin.
   const effectiveErYield =
