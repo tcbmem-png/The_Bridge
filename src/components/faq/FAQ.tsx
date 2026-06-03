@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
-const groups = [
+type FAQItem = { q: string; a: ReactNode };
+type FAQGroup = { title: string; items: FAQItem[] };
+
+const groups: FAQGroup[] = [
+
   {
     title: "THE APPROACH",
     items: [
