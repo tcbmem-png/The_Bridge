@@ -389,7 +389,7 @@ export function PracticeDashboard({
             rightHint={
               volumeLever >= 0
                 ? "applies to cuts only"
-                : "freed time → $90/wRVU reclaim value · 0% = no gain, no loss"
+                : "freed time → $90/wRVU added contribution (net of labor — labor is sunk). 0% = freed time idle."
             }
             disabled={volumeLever >= 0}
           />
