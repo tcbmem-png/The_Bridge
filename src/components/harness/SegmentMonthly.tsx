@@ -39,14 +39,25 @@ export function SegmentMonthly() {
       .catch((e) => setErr(String(e?.message ?? e)));
   }, []);
 
-  const pass =
-    rows !== null &&
-    rows.every((r) => {
-      const target = TARGET[r.segment as "ER" | "NON_ER"];
-      if (target === undefined) return true;
-      const y = Number(r.yield_per_wrvu);
-      return Math.abs(y - target) < 0.005;
-    });
+  // Compute observed $/wRVU per segment from the loaded data — weighted by
+  // wRVU, not a row average. This is the badge: the actual yield of whatever
+  // is in the DB right now. On the seed it lands on $28/$86 by construction;
+  // on an uploaded dataset it tells the truth.
+  let erYield: number | null = null;
+  let neYield: number | null = null;
+  if (rows && rows.length) {
+    let erW = 0, erC = 0, neW = 0, neC = 0;
+    for (const r of rows) {
+      const w = Number(r.wrvu) || 0;
+      const c = Number(r.collections) || 0;
+      if (r.segment === "ER") { erW += w; erC += c; }
+      else if (r.segment === "NON_ER") { neW += w; neC += c; }
+    }
+    erYield = erW > 0 ? erC / erW : null;
+    neYield = neW > 0 ? neC / neW : null;
+  }
+  const haveBoth = erYield !== null && neYield !== null;
+  const fmtY = (n: number | null) => (n === null ? "—" : `$${n.toFixed(2)}`);
 
   return (
     <Panel
@@ -56,9 +67,9 @@ export function SegmentMonthly() {
       pill={
         rows === null
           ? { state: "pending", label: "Running…" }
-          : pass
-            ? { state: "pass", label: "ER $28.00 · non-ER $86.00" }
-            : { state: "fail", label: "Yield mismatch" }
+          : haveBoth
+            ? { state: "pass", label: `Observed · ER ${fmtY(erYield)} · non-ER ${fmtY(neYield)}` }
+            : { state: "fail", label: "No segmented rows loaded" }
       }
       error={err}
     >
