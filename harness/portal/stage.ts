@@ -166,11 +166,24 @@ export async function stageFile(file: File, forcedType?: ExportType): Promise<St
     }
   }
 
+  // Bank statements ship with non-deposit rows (fees, interest, transfers,
+  // returns) that the README marks as noise. Filter to payer credits only.
+  let finalRows = outRows;
+  if (spec.type === "bank") {
+    finalRows = outRows.filter(
+      (r) =>
+        r.eft_trace != null &&
+        String(r.eft_trace).trim() !== "" &&
+        typeof r.amount === "number" &&
+        r.amount > 0,
+    );
+  }
+
   return {
     type: spec.type,
     fileName: file.name,
     byteSize: file.size,
-    rows: outRows,
+    rows: finalRows,
     droppedColumns,
     missingColumns,
     parseErrors,
