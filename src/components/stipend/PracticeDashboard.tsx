@@ -157,7 +157,7 @@ export function PracticeDashboard({
             step={1_000}
             armedSiblingValue={erSharePct}
             armed={armed}
-            readOnly={rightLocked}
+            readOnly={rightLocked || inputsLocked}
             derivedHint={rightLocked ? `derived · pool ${fmtMoneyM(compPool)}` : undefined}
           />
           <DriverField
@@ -170,6 +170,7 @@ export function PracticeDashboard({
             step={1}
             armedSiblingValue={avgPerPartnerDist}
             armed={armed}
+            readOnly={inputsLocked}
           />
         </div>
         <div className="mt-2 flex items-center justify-between gap-3 border-t border-ink/10 pt-2">
@@ -180,10 +181,11 @@ export function PracticeDashboard({
               value={partnerCount}
               step={1}
               min={1}
+              readOnly={inputsLocked}
               onChange={(e) => setPartnerCount(parseInt(e.target.value, 10) || 1)}
               autoComplete="off"
               data-private="true"
-              className="font-mono w-[64px] rounded-md border border-ink/15 bg-paper px-1.5 py-0.5 text-right text-[12px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
+              className={`font-mono w-[64px] rounded-md border border-ink/15 bg-paper px-1.5 py-0.5 text-right text-[12px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none ${inputsLocked ? "cursor-not-allowed opacity-70" : ""}`}
             />
           </label>
           <div className="font-mono-tab flex gap-1 text-[10.5px] uppercase tracking-[0.08em]">
