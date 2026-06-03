@@ -198,6 +198,41 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
         control, after the BAA conversation.
       </p>
 
+      <div className="mb-4 rounded-md border border-teal/40 bg-teal/[0.04] p-3">
+        <p className="font-display text-sm text-ink">
+          Just want to see it work? Load the demo dataset.
+        </p>
+        <p className="mt-1 font-mono text-[11px] text-ink/65">
+          MOCK_RAD_GROUP · 22k rows across 8 files · ~3s to ingest · fully
+          fabricated, no PHI · panels below will populate
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleLoadDemo}
+            disabled={status.kind === "loading" || status.kind === "staging"}
+            className="rounded-md border border-teal/50 bg-teal/15 px-3 py-1.5 font-mono text-[12px] text-teal hover:bg-teal/25 disabled:opacity-40"
+          >
+            Load MOCK_RAD_GROUP demo
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadDemoZip}
+            className="rounded-md border border-ink/25 bg-paper px-3 py-1.5 font-mono text-[12px] text-ink hover:bg-ink/5"
+          >
+            Download dataset (.zip · 670 KB)
+          </button>
+          <a
+            href="/sample-data/README_MOCK_RAD_GROUP.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-ink/25 bg-paper px-3 py-1.5 font-mono text-[12px] text-ink hover:bg-ink/5"
+          >
+            README
+          </a>
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
         <span className="font-mono text-[11px] uppercase tracking-wider text-ink/55">
           Active set
