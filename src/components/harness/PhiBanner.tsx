@@ -15,11 +15,12 @@ export function PhiBanner() {
         cloud in the data path BEFORE loading a single file.
       </p>
       <p className="mt-3 text-sm text-ink/80">
-        This page runs the canonical schema against fabricated rows. No upload path.
-        No real 837, 835, RIS, or bank file ever enters this build. Real ingestion
-        replaces the seed below the <span className="font-mono">DEMO ADDENDUM</span>{" "}
-        marker, and is gated on BAA, encryption at rest, access logging, and a
-        deliberate database decision — not on enabling a backend by side effect.
+        This page runs the canonical schema against fabricated rows. No server
+        path — client-side, session-only, never written to disk. The upload
+        portal below is in-tab; dropping a file does not send it anywhere.
+        Real ingestion belongs on a fork on hardware you control, gated on
+        BAA, encryption at rest, access logging, and a deliberate database
+        decision — not on enabling a backend by side effect.
       </p>
     </section>
   );
