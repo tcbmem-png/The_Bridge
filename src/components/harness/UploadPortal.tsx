@@ -200,10 +200,11 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
       }
       setStatus({ kind: "loaded", rowsLoaded: cumulative, files: stagedAll.length });
       onDatasetChange();
+      await refreshPreset("MOCK_RAD_GROUP demo");
     } catch (e) {
       setStatus({ kind: "error", message: String((e as Error)?.message ?? e) });
     }
-  }, [onDatasetChange, setDatasetName]);
+  }, [onDatasetChange, setDatasetName, refreshPreset]);
 
   const handleDownloadDemoZip = useCallback(() => {
     const a = document.createElement("a");
