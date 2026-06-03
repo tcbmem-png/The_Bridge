@@ -213,9 +213,9 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const distributionPerPartner = distributionTotal / N;
 
   // ── Sweep 0× … 4× today's ER wRVU (80 samples) ────────────────────────
-  // Explicit two-segment P&L at every x. WITH is genuinely flat because the
-  // ER terms (er_coll + stipend − er_cost) cancel — flatness is the RESULT,
-  // not a constant. WITHOUT crosses zero and runs deep negative — no floor.
+  // Explicit two-segment P&L at every x. WITH is FMV-priced stipend against
+  // actual cost, so it tilts down at −aboveFmv/wRVU (the slice the group
+  // still eats). WITHOUT crosses zero and runs deep negative — no floor.
   const samples = 80;
   const xMin = 0;
   const xMax = erWrvuToday * 4;
@@ -224,9 +224,9 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
     const x = xMin + ((xMax - xMin) * k) / samples;
     const erCollX = x * erYield;
     const erCostX = x * fairCost;
-    const stipendX = (fairCost - erYield) * x;
+    const stipendX = (fmvCost - erYield) * x; // FMV-priced
     const withoutX = nonErProfitTotal + (erCollX - erCostX);
-    const withX = nonErProfitTotal + (erCollX + stipendX - erCostX); // == nonErProfitTotal
+    const withX = nonErProfitTotal + (erCollX + stipendX - erCostX); // = nonErProfit − aboveFmv × x
     volumeSweep.push({
       erWrvu: x,
       distWith: withX / N,
