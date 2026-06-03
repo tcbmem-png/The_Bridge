@@ -36,6 +36,12 @@ function fmt(n: number | string | null | undefined, digits = 2) {
   });
 }
 
+function toIsoDate(v: unknown): string {
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  if (typeof v === "string") return v.slice(0, 10);
+  return String(v);
+}
+
 export function LineageDrill() {
   const [months, setMonths] = useState<string[]>([]);
   const [month, setMonth] = useState<string | null>(null);
