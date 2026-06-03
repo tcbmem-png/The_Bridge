@@ -967,8 +967,8 @@ function TwoNumbersPage() {
           setPartnerCount={setPartnerCount}
           view={view}
           setView={setView}
-          cut={cut}
-          setCut={setCut}
+          volumeLever={volumeLever}
+          setVolumeLever={setVolumeLever}
           redeployUtil={redeployUtilD}
           setRedeployUtil={setRedeployUtilD}
           fmvComp={comp}
