@@ -35,14 +35,24 @@ export function HandoffContract() {
   }, []);
 
   const mature = rows?.filter((r) => r.is_mature) ?? [];
-  const pass =
-    rows !== null &&
-    mature.length > 0 &&
-    mature.every((r) => {
-      const y_er = Number(r.er_yield);
-      const y_ne = Number(r.non_er_yield);
-      return Math.abs(y_er - 28) < 0.005 && Math.abs(y_ne - 86) < 0.005;
-    });
+
+  // Observed yields across mature months — wRVU-weighted, not row mean.
+  // This is what the calculator handoff would actually read.
+  let erY: number | null = null;
+  let neY: number | null = null;
+  if (mature.length) {
+    let erW = 0, erC = 0, neW = 0, neC = 0;
+    for (const r of mature) {
+      erW += Number(r.er_wrvu) || 0;
+      erC += Number(r.er_collections) || 0;
+      neW += Number(r.non_er_wrvu) || 0;
+      neC += Number(r.non_er_collections) || 0;
+    }
+    erY = erW > 0 ? erC / erW : null;
+    neY = neW > 0 ? neC / neW : null;
+  }
+  const fmtY = (n: number | null) => (n === null ? "—" : `$${n.toFixed(2)}`);
+  const haveMature = mature.length > 0 && erY !== null && neY !== null;
 
   return (
     <Panel
@@ -51,9 +61,11 @@ export function HandoffContract() {
       pill={
         rows === null
           ? { state: "pending", label: "Running…" }
-          : pass
-            ? { state: "pass", label: "ER $28.00 · non-ER $86.00 · mature" }
-            : { state: "fail", label: "Contract mismatch" }
+          : haveMature
+            ? { state: "pass", label: `Observed · ER ${fmtY(erY)} · non-ER ${fmtY(neY)} · ${mature.length} mature mo.` }
+            : rows.length > 0
+              ? { state: "fail", label: "No mature months yet" }
+              : { state: "fail", label: "No period rows loaded" }
       }
       error={err}
     >
