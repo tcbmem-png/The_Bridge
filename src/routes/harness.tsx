@@ -52,6 +52,17 @@ function HarnessPage() {
           </span>
           .
         </p>
+        <p className="mt-2 max-w-3xl text-sm text-ink/65">
+          Read every line —{" "}
+          <a
+            href="https://github.com/the-bridge/engine"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+          >
+            Source →
+          </a>
+        </p>
       </header>
 
       <PhiBanner />
