@@ -403,6 +403,57 @@ export function UploadPortal({ onDatasetChange, datasetName, setDatasetName }: P
         </p>
       )}
 
+      {preset && (
+        <div className="mt-4 rounded-md border border-gold/40 bg-gold/[0.06] p-3">
+          <p className="font-display text-sm text-ink">
+            Pushed to Sandbox + Story.
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-ink/70">
+            From <span className="text-ink">{preset.source.label}</span>:{" "}
+            coverage_volume ={" "}
+            <span className="text-ink">
+              {preset.coverage_volume.toLocaleString()}
+            </span>{" "}
+            · avg wRVU/read ={" "}
+            <span className="text-ink">{preset.avg_wRVU_per_read.toFixed(2)}</span>{" "}
+            · mix M/Mc/C/SP ={" "}
+            <span className="text-ink">
+              {preset.payer_mix.medicare}/{preset.payer_mix.medicaid}/
+              {preset.payer_mix.commercial}/{preset.payer_mix.self_pay}
+            </span>
+          </p>
+          <p className="mt-1 font-mono text-[10px] text-ink/45">
+            CFs, payer multiples, fall pattern, technical cost, denial write-off,
+            and lost-study rate stay at authored defaults — the dataset
+            doesn't speak to those.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              to="/sandbox"
+              className="rounded-md border border-teal/40 bg-teal/10 px-2.5 py-1 font-mono text-[11px] text-teal hover:bg-teal/15"
+            >
+              Open Sandbox →
+            </Link>
+            <Link
+              to="/story"
+              className="rounded-md border border-ink/25 bg-paper px-2.5 py-1 font-mono text-[11px] text-ink hover:bg-ink/5"
+            >
+              Open Story →
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                clearPreset();
+                setPreset(null);
+              }}
+              className="rounded-md border border-ink/25 bg-paper px-2.5 py-1 font-mono text-[11px] text-ink hover:bg-ink/5"
+            >
+              Clear preset
+            </button>
+          </div>
+        </div>
+      )}
+
       {status.kind === "error" && (
         <p className="mt-4 font-mono text-[12px] text-red-clinical">{status.message}</p>
       )}
