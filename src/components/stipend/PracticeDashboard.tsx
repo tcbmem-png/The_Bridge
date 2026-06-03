@@ -326,26 +326,27 @@ export function PracticeDashboard({
           </div>
         )}
         <p className="mt-2 text-[12px] leading-relaxed text-ink/55">
-          ER runs at a negative gross margin — a wRVU collects ~$
-          {out ? out.erYield.toFixed(0) : "28"} but costs ~$
-          {out ? out.fairCost.toFixed(0) : "70"} to produce, a ~$
-          {out ? (out.fairCost - out.erYield).toFixed(0) : "42"} loss each. Without
-          a stipend, more ER volume just loses more money — the downhill line
-          is the group covering the hospital's obligation out of its own
-          partners' pockets.
+          Margin is a fraction — collections ÷ cost. ER's is below 1: it
+          spends ~${out ? out.fairCost.toFixed(0) : "70"} to collect ~$
+          {out ? out.erYield.toFixed(0) : "28"}, a fraction of about{" "}
+          {out ? (out.erYield / out.fairCost).toFixed(2) : "0.40"}. The
+          stipend lifts the numerator to the denominator, so the fraction is
+          exactly 1 — break-even — at any volume.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          The stipend covers that deficit, bringing ER to break-even — and
-          break-even work adds nothing to the bottom line, no matter how much
-          you do. That's why the with-stipend line stays flat as volume climbs:
-          it's arithmetic, not a legal rule. The gap between the two lines at
-          any volume <i>is</i> the stipend.
+          Pile on ER volume and the partner line doesn't move, because zero
+          margin drops nothing to profit. The without-stipend line plunges
+          straight through zero — the group covering the hospital's
+          obligation out of its own partners' pockets. The two lines meet at
+          0× (no ER, no gap); the vertical gap at any other volume <i>is</i>{" "}
+          the stipend ÷ N.
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink/55">
-          Because the payment only covers cost and never creates a return, it's
-          pure cost-coverage — which is exactly what keeps it FMV-consistent
-          and not a kickback.
+          That flatness is arithmetic, not a legal rule — but it's exactly
+          what keeps the payment FMV-consistent and not a kickback: pure
+          cost-coverage, no return on volume.
         </p>
+
       </div>
 
       {/* VOLUME LEVER + REDEPLOY */}

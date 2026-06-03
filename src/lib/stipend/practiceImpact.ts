@@ -134,17 +134,26 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const nonErColl = collectionsToday - erCollToday;
   const nonErYield = nonErWrvu > 0 ? nonErColl / nonErWrvu : 0;
 
-  const fairCost = i.fmvComp + overheadPerWrvu; // ≈ $62
-  const distributionPerWrvu = i.compActualPerWrvu - i.fmvComp; // ≈ $8
-  const erDeficitPerWrvu = fairCost - erYield; // ≈ $34
+  // REAL two-segment P&L cost — comp actually paid + overhead = $58 + $12 = $70.
+  // This is the denominator in the margin = collections/cost framing. The
+  // stipend that closes the gap exactly takes ER's fraction to 1 (break-even).
+  const fairCost = i.compActualPerWrvu + overheadPerWrvu; // ≈ $70
+  const distributionPerWrvu = i.compActualPerWrvu - i.fmvComp; // ≈ $8 (FMV spread)
+  const erDeficitPerWrvu = fairCost - erYield; // ≈ $42
+
+  // Fixed non-ER segment dollars (lever moves ONLY ER).
+  const nonErCost = fairCost * nonErWrvu;
+  const nonErProfitTotal = nonErColl - nonErCost; // = (nonErYield − fairCost) × nonErWrvu
 
   // ── Lever — moves ONE primitive: erWrvu. Everything else cascades. ────
   const lever = Math.max(-VOLUME_LEVER_CUT_CAP, Math.min(VOLUME_LEVER_ADD_CAP, i.volumeLever));
   const erWrvu = erWrvuToday * (1 + lever);
   const erColl = erWrvu * erYield; // erYield held — payer mix, not volume
+  const erCost = erWrvu * fairCost;
   const totalWrvu = nonErWrvu + erWrvu;
   const collections = nonErColl + erColl;
 
+  // Stipend closes the gap exactly so er_collections + stipend == er_cost.
   const stipend = erWrvu * erDeficitPerWrvu;
   const stipendToday = erWrvuToday * erDeficitPerWrvu;
 
@@ -156,11 +165,11 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
       ? i.redeployUtil * freedWrvu * (reclaimValue - fairCost) // signed; below fair → loss
       : 0;
 
-  // ── Per-spec partner formulas (re-derive from the new volume state) ───
-  // Without stipend: partners absorb the ER deficit themselves.
-  const partnerWithoutTotal = collections - fairCost * totalWrvu;
-  // With stipend: ER is neutralized → flat in lever. Cut-side redeploy rolls in.
-  const partnerWithTotalNoRedeploy = (nonErYield - fairCost) * nonErWrvu;
+  // ── Two-segment partner P&L (collections − cost) ──────────────────────
+  // Without stipend: nonER profit + (er_coll − er_cost) — declines as ER grows.
+  const partnerWithoutTotal = nonErProfitTotal + (erColl - erCost);
+  // With stipend: nonER profit + (er_coll + stipend − er_cost) — ER cancels → flat.
+  const partnerWithTotalNoRedeploy = nonErProfitTotal; // ER terms cancel by construction
   const partnerWithTotal = partnerWithTotalNoRedeploy + redeployGain;
 
   const scenarios = {
@@ -183,7 +192,9 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   const distributionPerPartner = distributionTotal / N;
 
   // ── Sweep 0× … 4× today's ER wRVU (80 samples) ────────────────────────
-  // Same cascade applied at each x — no separate formula.
+  // Explicit two-segment P&L at every x. WITH is genuinely flat because the
+  // ER terms (er_coll + stipend − er_cost) cancel — flatness is the RESULT,
+  // not a constant. WITHOUT crosses zero and runs deep negative — no floor.
   const samples = 80;
   const xMin = 0;
   const xMax = erWrvuToday * 4;
@@ -191,10 +202,10 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   for (let k = 0; k <= samples; k++) {
     const x = xMin + ((xMax - xMin) * k) / samples;
     const erCollX = x * erYield;
-    const totalWrvuX = nonErWrvu + x;
-    const collX = nonErColl + erCollX;
-    const withoutX = collX - fairCost * totalWrvuX;
-    const withX = partnerWithTotalNoRedeploy; // flat — FMV proof
+    const erCostX = x * fairCost;
+    const stipendX = (fairCost - erYield) * x;
+    const withoutX = nonErProfitTotal + (erCollX - erCostX);
+    const withX = nonErProfitTotal + (erCollX + stipendX - erCostX); // == nonErProfitTotal
     volumeSweep.push({
       erWrvu: x,
       distWith: withX / N,
