@@ -565,38 +565,26 @@ function TwoNumbersPage() {
     setVolumeLever(0);
   };
 
-  // When the user edits the two numbers, treat them as the new baseline
-  // (the inputs ARE the baseline state; lever resets to 0 on edit). Mark
-  // the field as user-typed and, if R2 is present, drive the bridge
-  // left→right.
+  // When the user edits the audited two numbers, that IS left-mode source-of-
+  // truth — flip to left. Volume lever resets to 0 on edit.
   const onCollEdit = (v: number) => {
     setBaseColl(v);
     setVolumeLever(0);
-    setLeftCollSource("user");
-    if (erSharePct > 0) setBridge("left-to-right");
+    setSource("left");
   };
   const onWrvuEdit = (v: number) => {
     setBaseWrvu(v);
     setVolumeLever(0);
-    setLeftWrvuSource("user");
-    if (erSharePct > 0) setBridge("left-to-right");
-  };
-  const unlinkLeftDerived = () => {
-    setLeftCollSource("user");
-    setLeftWrvuSource("user");
-    setBridge("none");
+    setSource("left");
   };
 
-  // Right-side input handlers — drive the bridge right→left.
-  const onCompPoolEdit = (v: number) => {
-    setCompPool(v);
-    setRightSource("user");
-    if (v > 0 && erSharePct > 0) setBridge("right-to-left");
+  // Right-side input handlers — flip source back to right.
+  const onAvgDistEdit = (v: number) => {
+    setAvgPerPartnerDist(v);
+    setSource("right");
   };
   const onErShareEdit = (v: number) => {
     setErSharePct(v);
-    setRightSource("user");
-    if (compPool > 0 && v > 0) setBridge("right-to-left");
   };
 
 
