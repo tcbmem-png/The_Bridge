@@ -183,7 +183,7 @@ export async function stageFile(file: File, forcedType?: ExportType): Promise<St
     type: spec.type,
     fileName: file.name,
     byteSize: file.size,
-    rows: outRows,
+    rows: finalRows,
     droppedColumns,
     missingColumns,
     parseErrors,
