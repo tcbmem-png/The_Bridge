@@ -46,7 +46,7 @@ export function LineageDrill() {
   useEffect(() => {
     erMonths()
       .then((r) => {
-        const ms = r.map((x) => String(x.service_month).slice(0, 10));
+        const ms = r.map((x) => toIsoDate(x.service_month));
         setMonths(ms);
         if (ms.length && !month) setMonth(ms[0]);
       })
