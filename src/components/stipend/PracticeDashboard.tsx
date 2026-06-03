@@ -103,7 +103,7 @@ export function PracticeDashboard({
   // Signed lever value in [-30..+30] (% of today's ER volume).
   const leverPct = Math.round(volumeLever * 100);
   const onLeverChange = (v: number) => {
-    const clamped = Math.max(-30, Math.min(300, v));
+    const clamped = Math.max(-30, Math.min(200, v));
     setVolumeLever(clamped / 100);
   };
 
@@ -380,7 +380,7 @@ export function PracticeDashboard({
           onChange={onLeverChange}
         />
         <p className="mt-0.5 text-[11.5px] italic leading-relaxed text-ink/55">
-          Slide right to add ER volume (out to +300%) · left to cut it (capped −30%, the avoidable slice).
+          Slide right to add ER volume (out to +200%) · left to cut it (capped −30%, the avoidable slice).
           Moves ER wRVU; every figure above re-derives from that one number.
         </p>
         <div className={`mt-2 ${volumeLever >= 0 ? "opacity-50" : ""}`}>
@@ -391,7 +391,7 @@ export function PracticeDashboard({
             rightHint={
               volumeLever >= 0
                 ? "applies to cuts only"
-                : "freed time → $90/wRVU added contribution (net of labor — labor is sunk). 0% = freed time idle."
+                : "freed time → $90/wRVU added contribution (anchored to MSIT backlog yield; labor sunk — short-run only). BATNA, not the pitch."
             }
             disabled={volumeLever >= 0}
           />
@@ -594,7 +594,7 @@ function SignedLever({
         <input
           type="range"
           min={-30}
-          max={300}
+          max={200}
           step={1}
           value={value}
           onChange={(ev) => onChange(parseFloat(ev.target.value))}
@@ -608,7 +608,7 @@ function SignedLever({
       <div className="font-mono-tab mt-0.5 flex justify-between text-[9.5px] uppercase tracking-[0.08em] text-ink/35">
         <span>−30% cut</span>
         <span>0 (today)</span>
-        <span>+300% add</span>
+        <span>+200% add</span>
       </div>
     </div>
   );

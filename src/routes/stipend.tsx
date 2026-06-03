@@ -291,11 +291,13 @@ function NumField({
   value,
   onChange,
   step = 1,
+  readOnly = false,
 }: {
   label: React.ReactNode;
   value: number;
   onChange: (v: number) => void;
   step?: number;
+  readOnly?: boolean;
 }) {
   return (
     <label className="flex items-center gap-3 py-1.5 text-[13.5px]">
@@ -304,6 +306,7 @@ function NumField({
         type="number"
         value={value}
         step={step}
+        readOnly={readOnly}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         autoComplete="off"
         data-private="true"
@@ -313,11 +316,12 @@ function NumField({
         data-hj-suppress=""
         data-rrweb-ignore="true"
         data-analytics="ignore"
-        className="font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none"
+        className={`font-mono w-[128px] rounded-md border border-ink/15 bg-paper px-2 py-1 text-right text-[13px] tabular-nums text-ink focus:border-[var(--teal)] focus:outline-none ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
       />
     </label>
   );
 }
+
 
 function Erow({
   op,
@@ -460,6 +464,12 @@ function TwoNumbersPage() {
   const [partnerCount, setPartnerCount] = useState(100);
   const [view, setView] = useState<"total" | "perPartner">("perPartner");
   const [redeployUtilD, setRedeployUtilD] = useState(0);
+
+  // §6 lock — when the demonstration is perturbed (lever moved or redeploy
+  // engaged), all upstream inputs and the source toggle freeze. The Reset
+  // button on the dashboard clears the levers and unlocks everything.
+  const perturbed = volumeLever !== 0 || redeployUtilD > 0;
+
 
   // Right-mode derivation: avg per-partner distribution → comp pool.
   // totalWrvu = (avgDist × N) / $8 spread; pool = totalWrvu × $58.
@@ -649,13 +659,15 @@ function TwoNumbersPage() {
         <span className="font-mono-tab text-[10px] uppercase tracking-[0.1em] text-ink/45">
           Source
         </span>
-        <div className="font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em]">
+        <div className={`font-mono-tab inline-flex overflow-hidden rounded-full border border-ink/20 text-[10.5px] uppercase tracking-[0.08em] ${perturbed ? "opacity-60" : ""}`}>
           {(["left", "right"] as const).map((s) => (
             <button
               key={s}
               type="button"
-              onClick={() => setSource(s)}
-              className={`px-2.5 py-0.5 ${source === s ? "bg-ink text-paper" : "text-ink/55 hover:text-ink"}`}
+              onClick={() => !perturbed && setSource(s)}
+              disabled={perturbed}
+              title={perturbed ? "Reset the volume lever to switch source" : undefined}
+              className={`px-2.5 py-0.5 ${source === s ? "bg-ink text-paper" : "text-ink/55 hover:text-ink"} ${perturbed ? "cursor-not-allowed" : ""}`}
             >
               {s === "right" ? "right (partner distribution)" : "left (audited ER)"}
             </button>
@@ -664,6 +676,11 @@ function TwoNumbersPage() {
         {source === "left" && (
           <span className="font-mono-tab inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
             right side · derived from left audit
+          </span>
+        )}
+        {perturbed && (
+          <span className="font-mono-tab inline-block rounded-full border border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[var(--gold)]">
+            locked · reset volume to edit
           </span>
         )}
       </div>
@@ -685,6 +702,7 @@ function TwoNumbersPage() {
           value={showColl}
           onChange={onCollEdit}
           step={100000}
+          readOnly={perturbed}
         />
         {source === "right" && (
           <DerivedChip onUnlink={() => setSource("left")} />
@@ -696,6 +714,7 @@ function TwoNumbersPage() {
           value={showWrvu}
           onChange={onWrvuEdit}
           step={10000}
+          readOnly={perturbed}
         />
         {source === "right" && (
           <DerivedChip onUnlink={() => setSource("left")} />
@@ -716,27 +735,28 @@ function TwoNumbersPage() {
             value={net}
             onChange={setNet}
             step={1000000}
+            readOnly={perturbed}
           />
           <p className="-mt-0.5 mb-1 text-[11.5px] leading-relaxed text-ink/50">
             What the group distributes to its doctors. The known anchor.
           </p>
-          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} />
-          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} />
-          <NumField label="ER share %" value={ershare} onChange={setErshare} />
-          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
-
-          <NumField label="ER share %" value={ershare} onChange={setErshare} />
-          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} />
+          <NumField label="Total collections" value={totcoll} onChange={setTotcoll} step={1000000} readOnly={perturbed} />
+          <NumField label="Total wRVU" value={twrvu} onChange={setTwrvu} step={10000} readOnly={perturbed} />
+          <NumField label="ER share %" value={ershare} onChange={setErshare} readOnly={perturbed} />
+          <NumField label="ER yield (illustrative — audit replaces)" value={eryield} onChange={setEryield} readOnly={perturbed} />
           <OutRow l="Suggested ER collections (benchmark estimate)" r={fmtM(sugC)} />
           <OutRow l="Suggested ER wRVU (benchmark estimate)" r={`${fmtNum(sugW)} wRVU`} />
           <button
             type="button"
             onClick={useSuggested}
-            className="font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_15%,transparent)]"
+            disabled={perturbed}
+            title={perturbed ? "Reset the volume lever to apply suggested values" : undefined}
+            className={`font-mono-tab mt-3 rounded-md border border-[var(--teal)] bg-[color-mix(in_oklab,var(--teal)_10%,transparent)] px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-[var(--teal)] hover:bg-[color-mix(in_oklab,var(--teal)_15%,transparent)] ${perturbed ? "cursor-not-allowed opacity-50 hover:bg-[color-mix(in_oklab,var(--teal)_10%,transparent)]" : ""}`}
           >
             ↺ use these
           </button>
         </Sub>
+
 
 
         <Sub title="Audit" authority="yours">
@@ -892,7 +912,7 @@ function TwoNumbersPage() {
               </p>
               <p className="text-[12px] leading-relaxed text-ink/60">
                 <b className="text-ink">3. Add side uncapped.</b>{" "}
-                Volume can grow up to 4× today. ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
+                Volume can grow up to 3× today (+200%). ER collects $28 against a $70 actual cost, so without a stipend the partner line plunges deep negative. The FMV-priced stipend ($34/wRVU) closes most of the gap, leaving an $8/wRVU above-FMV residual the group eats — the with-stipend line tilts down gently, not off the cliff.
               </p>
             </div>
           </div>

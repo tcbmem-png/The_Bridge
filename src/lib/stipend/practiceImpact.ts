@@ -97,10 +97,11 @@ export const PRACTICE_IMPACT_DEFAULTS = {
 } as const;
 
 // Asymmetric on purpose: the avoidable/clinical limit is ~30% on the cut
-// side; the add side is uncapped in reality, and we plot out to +300% to
-// make the negative-gross-margin economics visible.
+// side; the add side is uncapped in reality, and we plot out to +200% to
+// show the negative-gross-margin economics without straying into numbers
+// no one believes (the persuasion lives between −30% and +100%).
 export const VOLUME_LEVER_CUT_CAP = 0.3;
-export const VOLUME_LEVER_ADD_CAP = 3.0;
+export const VOLUME_LEVER_ADD_CAP = 2.0;
 // Back-compat alias (== cut cap, the smaller of the two).
 export const VOLUME_LEVER_CAP = VOLUME_LEVER_CUT_CAP;
 
@@ -218,7 +219,7 @@ export function computePracticeImpact(i: PracticeImpactInputs): PracticeImpactOu
   // still eats). WITHOUT crosses zero and runs deep negative — no floor.
   const samples = 80;
   const xMin = 0;
-  const xMax = erWrvuToday * 4;
+  const xMax = erWrvuToday * 3;
   const volumeSweep: Array<{ erWrvu: number; distWith: number; distWithout: number }> = [];
   for (let k = 0; k <= samples; k++) {
     const x = xMin + ((xMax - xMin) * k) / samples;
