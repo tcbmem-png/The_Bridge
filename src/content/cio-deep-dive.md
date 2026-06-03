@@ -69,13 +69,13 @@
 
 If you already run a warehouse \+ BI \+ an analyst, we model in your existing stack — the thinnest possible build. If you have nothing, it's still a small footprint (a light warehouse like DuckDB/BigQuery feeding your BI).
 
-**Q. Do we depend on you forever?** No. It's flat code on data you own, sitting between systems you already run — portable and legible by design, not a black box you're locked into.
+**Q. Do we depend on you forever?** No. It's flat code on data you own, sitting between systems you already run — portable and legible by design, not a black box you're locked into. *Read the code yourself —* [**Source →**](https://github.com/the-bridge/engine)
 
 ---
 
 ## Boundaries — what it is *not*
 
-It is not real-time, not a clinical decision-support tool, not a replacement for your BI, and not a system of record. It does not set the fair-market figures — comp-per-wRVU and overhead are the **valuator's** binding numbers; the engine only sizes the gap honestly (work × the CMS rate vs. what actually collected). And where a number is still modeled rather than measured (e.g. a timestamp feed not yet wired), it's labeled as an assumption in plain sight — it tightens to an actual the moment its source comes online.
+It is not real-time, not a clinical decision-support tool, not a replacement for your BI, and not a system of record. It does not set the fair-market figures — comp-per-wRVU and overhead are the **valuator's** binding numbers; the engine only sizes the gap honestly (work × the CMS rate vs. what actually collected). And where a number is still modeled rather than measured (e.g. a timestamp feed not yet wired), it's labeled as an assumption in plain sight — it tightens to an actual the moment its source comes online. *How the structure holds up under anti-kickback and Stark:* [**For counsel →**](/for-counsel)
 
 ---
 
