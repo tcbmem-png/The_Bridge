@@ -29,6 +29,9 @@ export const Route = createFileRoute("/story")({
 function StoryPage() {
   return (
     <main>
+      <div className="mx-auto max-w-6xl px-4 pt-6">
+        <PresetBanner />
+      </div>
       <Hero />
       <ActProblem />
       <ActDashboard />
