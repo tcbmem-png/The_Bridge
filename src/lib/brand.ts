@@ -2,4 +2,4 @@
 // real GitHub URL when the engine goes public. Keeping it here means every
 // "Source →" link site-wide updates from one place.
 
-export const REPO_URL = "https://github.com/the-bridge/engine";
+export const REPO_URL = "https://github.com/tcbmem-png/The_Bridge.git";
