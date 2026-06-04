@@ -209,14 +209,13 @@ function OptimizerPage() {
         `}</style>
 
 
-        {/* Existing copy, untouched, sits between image and footer */}
+        {/* Footer copy */}
         <div style={{ marginTop: 26, paddingTop: 20, borderTop: `1px solid ${HAIR}`, ...mono, fontSize: ".7rem", letterSpacing: ".03em", color: MUTED, lineHeight: 1.8 }}>
           Runs on your machine · your data never leaves it · no BAA to sign.
           <br />
-          <b style={{ color: INK }}>Illustrative — sample data, no patient records.</b> &nbsp;·&nbsp; Same engine as the free Extractor; this edition retains the dimensions the Extractor drops and adds the slicing.
+          <b style={{ color: INK }}>Illustrative — sample data, no patient records.</b> &nbsp;·&nbsp; Same engine as the free Extractor; this edition retains the dimensions the Extractor drops and adds the slicing. &nbsp;·&nbsp; Taylor C. Berger, Attorney · <a href="mailto:taylor@tcblaw.org" style={{ color: MUTED, textDecoration: "underline" }}>taylor@tcblaw.org</a>
         </div>
       </div>
-      <SiteFooter />
     </div>
   );
 }
