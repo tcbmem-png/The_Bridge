@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import html from "../../public/story.html?raw";
+import html from "../content/story.html?raw";
 
 export const Route = createFileRoute("/story")({
   server: {
