@@ -181,14 +181,14 @@ function OptimizerPage() {
                 <div key={m} style={{ ...mono, fontSize: ".6rem", letterSpacing: ".04em", color: MUTED, textTransform: "uppercase", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 4 }}>{m}</div>
               ))}
               {SITES.map((s) => (
-                <>
-                  <div key={`l-${s.n}`} style={{ ...mono, fontSize: ".68rem", color: BODY, display: "flex", alignItems: "center" }}>{s.n}</div>
+                <React.Fragment key={s.n}>
+                  <div style={{ ...mono, fontSize: ".68rem", color: BODY, display: "flex", alignItems: "center" }}>{s.n}</div>
                   {s.row.map((v, i) => (
                     <div key={`${s.n}-${i}`} style={{ borderRadius: 5, padding: "11px 4px", textAlign: "center", ...mono, fontSize: ".72rem", fontWeight: 500, background: cellBg(v), color: s.er ? "#5a2c10" : "#10302a" }}>
                       {v}
                     </div>
                   ))}
-                </>
+                </React.Fragment>
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, ...mono, fontSize: ".62rem", color: MUTED }}>
