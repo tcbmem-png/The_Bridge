@@ -128,6 +128,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const hideFooter = pathname === "/optimizer" || pathname === "/extractor";
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -139,7 +141,7 @@ function RootComponent() {
             <div className="flex-1">
               <Outlet />
             </div>
-            <SiteFooter />
+            {!hideFooter && <SiteFooter />}
           </div>
         </LensProvider>
       </MoneyProvider>
