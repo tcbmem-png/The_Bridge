@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<title>The Bridge — Your data, net of the noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --paper:#F2ECE0; --paper-2:#EAE2D1; --ink:#1B1A17; --ink-soft:#544E43;
+    --line:#D7CDB8; --petrol:#1C4A47; --petrol-br:#2E6B66; --amber:#C07A1E;
+    --clay:#A8553A; --slate:#5E6B7A; --sage:#7C8B6E; --plum:#6E4B5E;
+    --sand:#B2944F; --char:#2A2722;
+    --mono:'IBM Plex Mono',monospace; --body:'Hanken Grotesk',sans-serif; --disp:'Fraunces',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper)}
+  html{scroll-behavior:smooth}
+  body{
+    color:var(--ink); font-family:var(--body);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    background:var(--paper); min-height:100vh; position:relative;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:54px 54px; background-position:center;
+  }
+  .page::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(ellipse at 50% 0%, rgba(242,236,224,0) 40%, var(--paper) 88%);
+  }
+  .wrap{max-width:1020px; margin:0 auto; padding:0 28px; position:relative; z-index:1}
+
+  /* ---------- header ---------- */
+  header{padding:74px 0 34px}
+  .kicker{font-family:var(--mono); font-size:12px; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--petrol); display:flex; align-items:center; gap:12px}
+  .kicker::before{content:""; width:30px; height:1px; background:var(--petrol)}
+  h1{font-family:var(--disp); font-weight:500; font-size:clamp(38px,6.4vw,68px);
+    line-height:1.03; letter-spacing:-.015em; margin:22px 0 0; max-width:14ch}
+  h1 em{font-style:italic; color:var(--petrol)}
+  .lede{font-size:clamp(17px,2vw,20px); color:var(--ink-soft); max-width:60ch; margin-top:24px}
+  .firewall{font-family:var(--mono); font-size:12.5px; color:var(--petrol); margin-top:18px;
+    letter-spacing:.02em; border-left:2px solid var(--petrol); padding-left:12px}
+
+  .reveal{opacity:0; transform:translateY(14px); animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rise{to{opacity:1; transform:none}}
+
+  /* ---------- section frame ---------- */
+  section{padding:30px 0}
+  .sec-h{display:flex; align-items:baseline; gap:14px; margin-bottom:24px}
+  .sec-n{font-family:var(--mono); font-size:13px; color:var(--petrol); font-weight:500}
+  .sec-t{font-family:var(--disp); font-weight:500; font-size:clamp(24px,3.4vw,34px); letter-spacing:-.01em}
+  .sec-sub{color:var(--ink-soft); font-size:15.5px; max-width:62ch; margin:-12px 0 24px}
+
+  /* ---------- afternoon cards ---------- */
+  .cards{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+  .card{background:var(--paper-2); border:1px solid var(--line); border-radius:3px;
+    padding:22px 20px 18px; position:relative; overflow:hidden}
+  .card::after{content:""; position:absolute; top:0; left:0; width:100%; height:3px; background:var(--petrol)}
+  .card .ic{font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--petrol);
+    text-transform:uppercase}
+  .card h3{font-family:var(--disp); font-weight:500; font-size:21px; margin:10px 0 7px}
+  .card p{font-size:14px; color:var(--ink-soft)}
+  .card .src{font-family:var(--mono); font-size:11.5px; color:var(--ink); margin-top:14px;
+    padding-top:12px; border-top:1px dashed var(--line)}
+  .card .src b{color:var(--petrol); font-weight:600}
+
+  /* ---------- centerpiece ---------- */
+  .panel{background:var(--paper-2); border:1px solid var(--line); border-radius:4px; padding:28px}
+  .topline{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; margin-bottom:26px;
+    border:1px solid var(--line); border-radius:3px; overflow:hidden}
+  .tl{padding:16px 18px; background:var(--paper)}
+  .tl+.tl{border-left:1px solid var(--line)}
+  .tl .l{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
+  .tl .v{font-family:var(--mono); font-size:26px; font-weight:500; margin-top:5px; letter-spacing:-.01em}
+  .tl.gap{background:var(--ink); }
+  .tl.gap .l{color:#C9C0AE}
+  .tl.gap .v{color:var(--amber)}
+  .tl .sub{font-size:12px; color:var(--ink-soft); margin-top:2px; font-family:var(--body)}
+
+  /* stepper */
+  .stepper{display:flex; gap:0; margin-bottom:8px; border:1px solid var(--petrol); border-radius:3px; overflow:hidden; width:fit-content}
+  .step{font-family:var(--mono); font-size:12.5px; letter-spacing:.04em; padding:9px 16px; background:transparent;
+    color:var(--petrol); border:none; cursor:pointer; transition:.25s; white-space:nowrap}
+  .step+.step{border-left:1px solid var(--petrol)}
+  .step.on{background:var(--petrol); color:var(--paper)}
+  .step:not(.on):hover{background:rgba(28,74,71,.08)}
+  .step-cap{font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); margin-bottom:20px}
+
+  /* the bar */
+  .barwrap{margin:6px 0 6px}
+  .bar{display:flex; height:74px; width:100%; border-radius:3px; overflow:hidden;
+    border:1px solid rgba(27,26,23,.18)}
+  .seg{height:100%; display:flex; flex-direction:column; justify-content:center; padding:0 11px;
+    color:#fff; overflow:hidden; position:relative; min-width:0;
+    transition:width .7s cubic-bezier(.65,0,.2,1), background .4s;
+    border-right:1px solid rgba(242,236,224,.32)}
+  .seg:last-child{border-right:none}
+  .seg .sl{font-family:var(--mono); font-size:11px; line-height:1.2; font-weight:500;
+    white-space:nowrap; opacity:.95; text-overflow:ellipsis; overflow:hidden}
+  .seg .sv{font-family:var(--mono); font-size:13.5px; font-weight:600; margin-top:2px}
+  .seg.tiny .sl,.seg.tiny .sv{display:none}
+
+  /* legend / detail rows */
+  .rows{margin-top:22px; display:flex; flex-direction:column; gap:0}
+  .row{display:grid; grid-template-columns:14px 1fr auto; gap:13px; align-items:start;
+    padding:12px 2px; border-top:1px solid var(--line)}
+  .row:first-child{border-top:none}
+  .sw{width:13px; height:13px; border-radius:2px; margin-top:4px}
+  .row .nm{font-weight:600; font-size:15px}
+  .row .ds{font-size:13px; color:var(--ink-soft); margin-top:1px}
+  .row .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--petrol); margin-top:6px}
+  .row .amt{font-family:var(--mono); font-size:16px; font-weight:600; white-space:nowrap; text-align:right}
+  .row .ak{font-family:var(--mono); font-size:10.5px; color:var(--amber); text-align:right; margin-top:3px}
+
+  /* ask-for */
+  .ask{margin-top:24px; background:var(--ink); color:var(--paper); border-radius:4px; padding:22px 24px}
+  .ask .ah{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--amber)}
+  .ask .at{font-family:var(--disp); font-size:21px; font-weight:500; margin:8px 0 6px; line-height:1.25}
+  .ask .ap{font-size:14.5px; color:#D7CFBF; max-width:64ch}
+  .ask .ap b{color:#fff; font-weight:600}
+  .ask .ap .num{font-family:var(--mono); color:var(--amber); font-weight:600}
+
+  .note{font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-top:14px; letter-spacing:.01em}
+
+  /* ---------- provenance band ---------- */
+  .prov{padding:38px 0 6px}
+  .prov .pk{font-family:var(--mono); font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--petrol)}
+  .prov .ph{font-family:var(--disp); font-weight:500; font-size:clamp(25px,3.7vw,36px); margin:16px 0 13px; max-width:19ch; line-height:1.1; letter-spacing:-.012em}
+  .prov .ph em{font-style:italic; color:var(--petrol)}
+  .prov .pp{color:var(--ink-soft); max-width:60ch; font-size:16px}
+
+  /* ---------- close ---------- */
+  .close{background:var(--char); color:var(--paper); border-radius:4px; padding:40px 38px; margin-top:8px}
+  .close .ck{font-family:var(--mono); font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--sand)}
+  .close h2{font-family:var(--disp); font-weight:500; font-size:clamp(24px,3.4vw,32px); margin:16px 0 14px; max-width:22ch; line-height:1.12}
+  .close p{color:#D7CFBF; max-width:58ch; font-size:15.5px}
+  .close .tag2{font-family:var(--disp); font-style:italic; font-size:22px; color:var(--paper); margin-top:24px}
+
+  footer{padding:34px 0 60px; display:flex; flex-wrap:wrap; gap:18px 30px; align-items:center;
+    border-top:1px solid var(--line); margin-top:36px}
+  footer .f{font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); letter-spacing:.04em}
+  footer .f b{color:var(--petrol)}
+
+  @media(max-width:880px){ .cards{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:760px){
+    .cards{grid-template-columns:1fr}
+    .topline{grid-template-columns:1fr}
+    .tl+.tl{border-left:none; border-top:1px solid var(--line)}
+    .seg{padding:0 6px}
+    .seg .sl{font-size:9.5px}
+    .stepper{width:100%}
+    .step{flex:1; text-align:center; padding:9px 4px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+
+  <header>
+    <div class="kicker reveal" style="animation-delay:.05s">The Bridge · runs on your machine</div>
+    <h1 class="reveal" style="animation-delay:.16s">It's your data.<br><em>Make it mean something.</em></h1>
+    <p class="lede reveal" style="animation-delay:.30s">We built an open-source tool designed to live on your machine and process data you already own and can access — a snapshot of what your own sources say is true, taken before the billing company touches anything.</p>
+    <div class="firewall reveal" style="animation-delay:.42s">It surfaces. It doesn't judge. What you do with what it shows is yours.</div>
+  </header>
+
+  <!-- 1 — the snapshot -->
+  <section>
+    <div class="sec-h"><span class="sec-n">01</span><span class="sec-t">The snapshot — before the RCM touches anything.</span></div>
+    <p class="sec-sub">Four things you already own and can access. The engine captures what they say is true first — independent of, and earlier than, the billing company's version. None of it leaves your machine.</p>
+    <div class="cards">
+      <div class="card reveal" style="animation-delay:.1s">
+        <div class="ic">When · where · who</div>
+        <h3>The read</h3>
+        <p>Every study — its date, its site, the radiologist who read it. The originating fact, from your dictation and worklist.</p>
+        <div class="src">source · <b>your dictation / RIS</b></div>
+      </div>
+      <div class="card reveal" style="animation-delay:.18s">
+        <div class="ic">What you're owed</div>
+        <h3>The rate card</h3>
+        <p>What each payer agreed to pay, by site — your contracts, as a multiple of Medicare. The big payers are enough to start.</p>
+        <div class="src">source · <b>your contracts</b></div>
+      </div>
+      <div class="card reveal" style="animation-delay:.26s">
+        <div class="ic">The public floor</div>
+        <h3>The CMS layer</h3>
+        <p>Medicare's published rates — the open basis your rate card sits on. Data anyone, on any side of the table, can verify.</p>
+        <div class="src">source · <b>CMS, public</b></div>
+      </div>
+      <div class="card reveal" style="animation-delay:.34s">
+        <div class="ic">What actually landed</div>
+        <h3>Your cash</h3>
+        <p>What hit the account, read straight from your bank — the independent witness to what arrived, not the billing company's tally of it.</p>
+        <div class="src">source · <b>your bank</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 — the fuller picture -->
+  <section>
+    <div class="sec-h"><span class="sec-n">02</span><span class="sec-t">Layer in more, and the picture fills.</span></div>
+    <p class="sec-sub">Your work at your own rates says what you should have collected; your bank says what you did. As you add the clearinghouse 835/837 and the RCM's own data, the gap resolves into named causes — and every record keeps the provenance of where it came from.</p>
+
+    <div class="panel">
+      <div class="topline">
+        <div class="tl"><div class="l">Expected · net of fee</div><div class="v">$9.20M</div><div class="sub">your reads × your rates</div></div>
+        <div class="tl"><div class="l">Collected</div><div class="v">$8.60M</div><div class="sub">what hit the bank</div></div>
+        <div class="tl gap"><div class="l">The gap</div><div class="v">$600K</div><div class="sub">what we explain below</div></div>
+      </div>
+
+      <div class="stepper" role="tablist">
+        <button class="step on" data-s="0">Layer 1 · what you have</button>
+        <button class="step" data-s="1">+ 835 remittances</button>
+        <button class="step" data-s="2">+ 837 claims</button>
+      </div>
+      <div class="step-cap" id="cap"></div>
+
+      <div class="barwrap"><div class="bar" id="bar"></div></div>
+
+      <div class="rows" id="rows"></div>
+
+      <div class="ask" id="ask"></div>
+
+      <div class="note">Illustrative — the <em>shape</em> of the output for a group this size, not a real result. Coverage shown: 82% of reads · your top 6 payers · the other 18% is surfaced, not buried.</div>
+    </div>
+  </section>
+
+  <!-- provenance band -->
+  <section>
+    <div class="prov">
+      <div class="pk">Provenance</div>
+      <h2 class="ph">The only picture that carries the provenance of <em>every</em> record.</h2>
+      <p class="pp">Where each number came from — yours, the payer's, or the RCM's — never blurred together, down to the source file and line. A figure you can follow to its origin is a figure you don't have to take on faith. No dashboard you're sold gives you that. This one does.</p>
+    </div>
+  </section>
+
+  <!-- 3 — close -->
+  <section>
+    <div class="close">
+      <div class="ck">The floor</div>
+      <h2>The last $70K is judgment, not data.</h2>
+      <p>Write-offs and claims left un-appealed are internal decisions — there's no outside document to check them against. So the engine shows them, and the pattern, and the one that doesn't fit. Whether each was the right call is yours to make, with your people. It can't be proven from the data, and the tool won't pretend otherwise.</p>
+      <div class="tag2">That should mean something.</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="f"><b>open source</b> · audit it yourself</div>
+    <div class="f"><b>runs local</b> · no PHI leaves your machine</div>
+    <div class="f"><b>every figure</b> drills to its source file</div>
+    <div class="f"><b>no BAA needed</b> — nothing to send</div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+const MONO = {clay:'#A8553A',slate:'#5E6B7A',sage:'#7C8B6E',plum:'#6E4B5E',sand:'#B2944F',char:'#2A2722',amber:'#C07A1E'};
+
+// each layer = ordered segments of the $600K gap (value in $000)
+const LAYERS = [
+  { // L1
+    cap:'Only your work and your cash are in. Everything between them is still one block — the engine won\'t guess what it can\'t source.',
+    segs:[{k:'amber',nm:'Unexplained',v:600,ds:'The whole gap, undivided. Could be underpayment, denials, lost charges, or just timing — indistinguishable until better-sourced data comes in.',tag:'needs more to attribute',ask:'→ ask for 835s'}],
+    ask:{h:'What to ask for next',t:'Your 835 remittances — from the clearinghouse or payer portals.',
+      p:'The 835 is written by the <b>payer</b>, not your billing company. Projected to attribute <span class="num">~$420K</span> of the <span class="num">$600K</span> — underpayment, denials by reason, and what\'s simply still in AR. It\'s the big one.'}
+  },
+  { // L2 +835
+    cap:'The payer\'s own remittances drop in. The block breaks apart — and timing separates from real loss.',
+    segs:[
+      {k:'clay',nm:'Underpayment',v:190,ds:'Paid below your contracted rate. The payer owes this — measured against the deal you negotiated.',tag:'source · payer 835',ask:''},
+      {k:'slate',nm:'Denials',v:150,ds:'Claimed and refused, grouped by the payer\'s own reason codes. Some workable, some not.',tag:'source · payer 835',ask:''},
+      {k:'sage',nm:'Still in AR',v:80,ds:'Not lost — just late. Adjudicated, on its way. The engine pulls timing out so it stops masquerading as a problem.',tag:'source · payer 835',ask:''},
+      {k:'amber',nm:'Unexplained',v:180,ds:'What the payer\'s data still can\'t reach: work that may never have been billed at all, and internal decisions.',tag:'needs 837',ask:'→ ask for 837s'}
+    ],
+    ask:{h:'What to ask for next',t:'Your 837 claim files.',
+      p:'Checking your <b>own reads</b> against what was actually claimed finds work that never became a bill. Projected <span class="num">~$110K</span> more — lost charges and coding. Leaves <span class="num">~$70K</span> the engine can surface but not judge.'}
+  },
+  { // L3 +837
+    cap:'Your reads meet the claim record. Every hop now has both ends — so each leak is pinned to where it happened.',
+    segs:[
+      {k:'clay',nm:'Underpayment',v:190,ds:'Paid below contract. The payer owes it.',tag:'source · payer 835',ask:''},
+      {k:'slate',nm:'Denials',v:150,ds:'Refused claims, by reason code.',tag:'source · payer 835',ask:''},
+      {k:'sage',nm:'Still in AR',v:80,ds:'Late, not lost.',tag:'source · payer 835',ask:''},
+      {k:'plum',nm:'Lost charges',v:90,ds:'Work you read that never became a claim. Found only by checking your independent read record against the billing company\'s claims.',tag:'source · your reads × 837',ask:''},
+      {k:'sand',nm:'Coding',v:20,ds:'Read says one thing, claim says less. Downcoded or mismatched.',tag:'source · your reads × 837',ask:''},
+      {k:'char',nm:'Internal decisions',v:70,ds:'Written off or not appealed. No outside document to check against — surfaced and questioned, never adjudicated.',tag:'irreducible · yours to judge',ask:''}
+    ],
+    ask:{h:'Where it ends',t:'$70K of internal decisions remain.',
+      p:'No external record exists to verify a write-off or a choice not to appeal. The engine shows each one and the pattern; <b>whether it was value well placed is yours to decide</b>. That\'s the line — and the tool holds it.'}
+  }
+];
+
+const bar=document.getElementById('bar'), rows=document.getElementById('rows'),
+      cap=document.getElementById('cap'), ask=document.getElementById('ask');
+const TOTAL=600;
+
+function fmt(v){ return '$'+(v>=1000?(v/1000).toFixed(2)+'M':v+'K'); }
+
+function render(i){
+  const L=LAYERS[i];
+  cap.textContent=L.cap;
+  // bar
+  bar.innerHTML='';
+  L.segs.forEach(s=>{
+    const pct=(s.v/TOTAL)*100;
+    const d=document.createElement('div');
+    d.className='seg'+(pct<7?' tiny':'');
+    d.style.width=pct+'%';
+    d.style.background=MONO[s.k];
+    d.innerHTML='<span class="sl">'+s.nm+'</span><span class="sv">'+fmt(s.v)+'</span>';
+    bar.appendChild(d);
+  });
+  // rows
+  rows.innerHTML='';
+  L.segs.forEach(s=>{
+    const r=document.createElement('div'); r.className='row';
+    r.innerHTML='<span class="sw" style="background:'+MONO[s.k]+'"></span>'+
+      '<div><div class="nm">'+s.nm+'</div><div class="ds">'+s.ds+'</div><div class="tag">'+s.tag+'</div></div>'+
+      '<div><div class="amt">'+fmt(s.v)+'</div>'+(s.ask?'<div class="ak">'+s.ask+'</div>':'')+'</div>';
+    rows.appendChild(r);
+  });
+  // ask
+  ask.innerHTML='<div class="ah">'+L.ask.h+'</div><div class="at">'+L.ask.t+'</div><div class="ap">'+L.ask.p+'</div>';
+}
+
+document.querySelectorAll('.step').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.step').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    render(+b.dataset.s);
+  });
+});
+render(0);
+</script>
+</body>
+</html>
