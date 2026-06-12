@@ -21,6 +21,7 @@ import { Route as HarnessRouteImport } from './routes/harness'
 import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as ForCounselRouteImport } from './routes/for-counsel'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ExtractordemoRouteImport } from './routes/extractordemo'
 import { Route as ExtractorRouteImport } from './routes/extractor'
 import { Route as CioRouteImport } from './routes/cio'
 import { Route as IndexRouteImport } from './routes/index'
@@ -85,6 +86,11 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExtractordemoRoute = ExtractordemoRouteImport.update({
+  id: '/extractordemo',
+  path: '/extractordemo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExtractorRoute = ExtractorRouteImport.update({
   id: '/extractor',
   path: '/extractor',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/extractor': typeof ExtractorRoute
+  '/extractordemo': typeof ExtractordemoRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/extractor': typeof ExtractorRoute
+  '/extractordemo': typeof ExtractordemoRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/extractor': typeof ExtractorRoute
+  '/extractordemo': typeof ExtractordemoRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/extractor'
+    | '/extractordemo'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/extractor'
+    | '/extractordemo'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/extractor'
+    | '/extractordemo'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CioRoute: typeof CioRoute
   ExtractorRoute: typeof ExtractorRoute
+  ExtractordemoRoute: typeof ExtractordemoRoute
   FaqRoute: typeof FaqRoute
   ForCounselRoute: typeof ForCounselRoute
   ForItRoute: typeof ForItRoute
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/extractordemo': {
+      id: '/extractordemo'
+      path: '/extractordemo'
+      fullPath: '/extractordemo'
+      preLoaderRoute: typeof ExtractordemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extractor': {
       id: '/extractor'
       path: '/extractor'
@@ -339,6 +359,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CioRoute: CioRoute,
   ExtractorRoute: ExtractorRoute,
+  ExtractordemoRoute: ExtractordemoRoute,
   FaqRoute: FaqRoute,
   ForCounselRoute: ForCounselRoute,
   ForItRoute: ForItRoute,
