@@ -13,10 +13,18 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink/15 bg-paper/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className="flex items-center gap-2.5">
-          <BrandMark />
-          <span className="font-display text-lg leading-none">The Bridge</span>
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link to="/" className="flex items-center gap-2.5">
+            <BrandMark />
+            <span className="font-display text-lg leading-none">The Bridge</span>
+          </Link>
+          <a
+            href="/extractordemo/"
+            className="text-sm text-ink/70 transition-colors hover:text-ink"
+          >
+            Live demo — The Extractor
+          </a>
+        </div>
 
         <span
           className="font-mono-tab inline-flex items-center rounded-full border border-ink/25 bg-paper px-2.5 py-1 text-[10.5px] uppercase tracking-[0.08em] text-ink/75"
