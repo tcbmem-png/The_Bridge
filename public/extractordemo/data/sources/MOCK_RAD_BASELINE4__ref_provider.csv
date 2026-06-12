@@ -1,0 +1,9 @@
+rendering_npi,provider_name,subspecialty
+1900000000,Radiologist A,Body
+1900000001,Radiologist B,Neuro
+1900000002,Radiologist C,MSK
+1900000003,Radiologist D,Chest
+1900000004,Radiologist E,Breast
+1900000005,Radiologist F,Abdominal
+1900000006,Radiologist G,General
+1900000007,Radiologist H,ER/Trauma

@@ -1,0 +1,179 @@
+{
+  "all_mapped_or_unmappable": true,
+  "as_of": "2026-06-30",
+  "counts": {
+    "inherited_drift": 1,
+    "match": 2,
+    "methodology": 1,
+    "report_drift": 1,
+    "unmappable": 1
+  },
+  "drill_index": {
+    "denial_rate_pct": {
+      "rows": [
+        {
+          "key": "denial_rate_pct",
+          "usd": 9.78
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    },
+    "net_collection_rate_pct": {
+      "rows": [
+        {
+          "key": "net_collection_rate_pct",
+          "usd": 33.88
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    },
+    "noner_collections_usd": {
+      "rows": [
+        {
+          "key": "noner_collections_usd",
+          "usd": 234417.64
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    },
+    "total_billed_usd": {
+      "rows": [
+        {
+          "key": "total_billed_usd",
+          "usd": 932441.68
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    },
+    "total_collections_rcm_usd": {
+      "rows": [
+        {
+          "key": "total_collections_rcm_usd",
+          "usd": 311531.77
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    },
+    "total_write_offs_usd": {
+      "rows": [
+        {
+          "key": "total_write_offs_usd",
+          "usd": 43275.43
+        }
+      ],
+      "sha256": "c2bc37afbc799adfe2038818f848cc014589302b85017019d1af218f4a703396",
+      "source_file": "MOCK_RAD_BASELINE4__processed_report.csv"
+    }
+  },
+  "figures": [
+    {
+      "authored_by": {
+        "independent": "group",
+        "rcm_raw": null,
+        "report": "rcm"
+      },
+      "delta_vs_independent": 0,
+      "delta_vs_own_raw": null,
+      "drift_type": "match",
+      "figure_name": "total_billed_usd",
+      "firewall": null,
+      "independent": 932441.68,
+      "lead_verdict": "match",
+      "rcm_raw": null,
+      "reported": 932441.68,
+      "sub_verdict": null
+    },
+    {
+      "authored_by": {
+        "independent": "group",
+        "rcm_raw": null,
+        "report": "rcm"
+      },
+      "delta_vs_independent": 0,
+      "delta_vs_own_raw": null,
+      "drift_type": "match",
+      "figure_name": "noner_collections_usd",
+      "firewall": null,
+      "independent": 234417.64,
+      "lead_verdict": "match",
+      "rcm_raw": null,
+      "reported": 234417.64,
+      "sub_verdict": null
+    },
+    {
+      "authored_by": {
+        "independent": "payer",
+        "rcm_raw": "rcm",
+        "report": "rcm"
+      },
+      "delta_vs_independent": 20868.22,
+      "delta_vs_own_raw": 0,
+      "drift_type": "inherited_drift",
+      "figure_name": "total_collections_rcm_usd",
+      "firewall": null,
+      "independent": 290663.55,
+      "lead_verdict": "diverges",
+      "rcm_raw": 311531.77,
+      "reported": 311531.77,
+      "sub_verdict": "matches_own_raw"
+    },
+    {
+      "authored_by": {
+        "independent": "independent",
+        "rcm_raw": "rcm",
+        "report": "rcm"
+      },
+      "delta_vs_independent": 0.8194,
+      "delta_vs_own_raw": 0,
+      "drift_type": "methodology",
+      "figure_name": "denial_rate_pct",
+      "firewall": "may be methodology, not error — surfaced, not adjudicated",
+      "independent": 8.9634,
+      "lead_verdict": "diverges",
+      "rcm_raw": 9.7828,
+      "reported": 9.7828,
+      "sub_verdict": "matches_own_raw"
+    },
+    {
+      "authored_by": {
+        "independent": "rcm_ledger",
+        "rcm_raw": "rcm",
+        "report": "rcm"
+      },
+      "delta_vs_independent": 2060.73,
+      "delta_vs_own_raw": 2060.73,
+      "drift_type": "report_drift",
+      "figure_name": "total_write_offs_usd",
+      "firewall": null,
+      "independent": 41214.7,
+      "lead_verdict": "diverges",
+      "rcm_raw": 41214.7,
+      "reported": 43275.43,
+      "sub_verdict": "drifts_from_own_raw"
+    },
+    {
+      "authored_by": {
+        "independent": null,
+        "rcm_raw": null,
+        "report": "rcm"
+      },
+      "drift_type": "unmappable",
+      "figure_name": "net_collection_rate_pct",
+      "firewall": null,
+      "independent": null,
+      "lead_verdict": "unmappable",
+      "rcm_raw": null,
+      "reported": 33.88,
+      "sub_verdict": null
+    }
+  ],
+  "firewall": "surfaced, not adjudicated — a divergence may be timing or methodology, not error",
+  "label": "Their story (processed reports) — reconciled",
+  "payoff": "You now hold an independent account of your own money. Every figure the RCM reports is checked against the payer's record AND against the RCM's own raw ledger. Where it matches, trust it; where it doesn't, ask — armed.",
+  "stage": 4
+}

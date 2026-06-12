@@ -1,0 +1,6 @@
+payer_id,contract_factor,rcm_fee_rate
+COMM1,1.25,0.05
+COMM2,1.2,0.05
+MCR,1.0,0.05
+MCD,0.65,0.05
+SELF,0.4,0.05

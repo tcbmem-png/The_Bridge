@@ -1,0 +1,9 @@
+figure,value,authored_by,formula_or_basis,sources,assumption
+expected_usd,367817.24,group,Σ (work_rvu+pe_rvu+mp_rvu) × gpci × cf per mature RIS exam,RIS/dictation; MPFS (CMS public),
+collected_usd,290663.55,group,Payer EFT deposits (eft_trace prefix EFT-; positive amount),bank statement,deposit_classification=eft_prefix; production value operator-set
+residual_usd,77153.69,computed,expected_usd − collected_usd,—,
+coverage.exams_total,4500,group,"Count of mature RIS exams (in-window, DOS basis)",RIS/dictation,
+coverage.exams_covered,4500,group,Mature exams with MPFS lookup match (CPT + service year),RIS/dictation; MPFS (CMS public),
+coverage.exams_uncovered,0,group,"Mature exams excluded from expected_usd (no MPFS entry) — surfaced, not swallowed",RIS/dictation,
+coverage.pct_covered,100,computed,exams_covered / exams_total × 100,—,
+as_of,2026-06-30,operator,Run date anchor for maturity window,—,

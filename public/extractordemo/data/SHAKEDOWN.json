@@ -1,0 +1,50 @@
+{
+  "as_of": "2026-06-30",
+  "cash_tie_out": {
+    "actual_cents": 29066355,
+    "expected_cents": 31152231,
+    "pass": false,
+    "variance_cents": 2085876
+  },
+  "engine_commit": "e166e1a1c086cb3ead222c58370d9631f796a6a2",
+  "file_recognition": {
+    "recognized": [
+      "MOCK_RAD_BASELINE4__bank_statement.csv",
+      "MOCK_RAD_BASELINE4__billing_837.csv",
+      "MOCK_RAD_BASELINE4__era_835.csv",
+      "MOCK_RAD_BASELINE4__processed_report.csv",
+      "MOCK_RAD_BASELINE4__rcm_ar_aging.csv",
+      "MOCK_RAD_BASELINE4__rcm_denial_worklist.csv",
+      "MOCK_RAD_BASELINE4__rcm_ledger.csv",
+      "MOCK_RAD_BASELINE4__ref_facility.csv",
+      "MOCK_RAD_BASELINE4__ref_mpfs_wrvu.csv",
+      "MOCK_RAD_BASELINE4__ref_payer.csv",
+      "MOCK_RAD_BASELINE4__ref_provider.csv",
+      "MOCK_RAD_BASELINE4__ref_rate_card.csv",
+      "MOCK_RAD_BASELINE4__ris_productivity.csv"
+    ],
+    "unrecognized": [
+      "README.md",
+      "ground_truth.json"
+    ]
+  },
+  "input_set_sha256": "fb0cf2201ccaf41d96582b88cb725075f4d8635d4b688fe092d835c5f50a7164",
+  "mpfs_coverage": {
+    "lines_covered": 5277,
+    "lines_total": 5277,
+    "lines_uncovered": 0,
+    "pct_covered": 100,
+    "uncovered_cpts": []
+  },
+  "no_swallow": {
+    "green": 4835,
+    "nongreen": 565,
+    "pass": true,
+    "total": 5400
+  },
+  "settings": {
+    "runout_months": 5,
+    "standard_delta_days": 45,
+    "writeoff_delta_days": 180
+  }
+}

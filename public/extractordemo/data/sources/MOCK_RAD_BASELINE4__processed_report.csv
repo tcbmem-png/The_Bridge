@@ -1,0 +1,7 @@
+figure_name,reported_value,rcm_note
+total_billed_usd,932441.68,
+noner_collections_usd,234417.64,
+total_collections_rcm_usd,311531.77,
+denial_rate_pct,9.7828,adjudicated-basis
+total_write_offs_usd,43275.43,
+net_collection_rate_pct,33.88,net-charge basis

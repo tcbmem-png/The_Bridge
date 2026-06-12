@@ -1,0 +1,9 @@
+{
+  "set": "MOCK_RAD_BASELINE4",
+  "stages": [
+    "intake-stage1.json",
+    "intake-stage2.json",
+    "intake-stage3.json",
+    "intake-stage4.json"
+  ]
+}

@@ -1,0 +1,6 @@
+payer_id,payer_name,financial_class
+COMM1,BlueCross Commercial,Commercial
+COMM2,Cigna Commercial,Commercial
+MCR,Medicare,Medicare
+MCD,TennCare Medicaid,Medicaid
+SELF,Self-Pay / Uninsured,Self-Pay
