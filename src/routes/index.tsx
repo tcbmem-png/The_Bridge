@@ -163,6 +163,31 @@ function LandingScroll() {
           </div>
         </Section>
 
+        {/* 4.5 · Live demo card */}
+        <Section>
+          <Kicker>Try it yourself</Kicker>
+          <div className="reveal d1 mt-2 rounded-[3px] border border-[var(--bridge-hair)] bg-[var(--bridge-cream-2)] px-9 py-[34px]">
+            <div className="mb-3 font-mono-tab text-[11px] uppercase tracking-[0.13em] text-teal">
+              Interactive demo · fully synthetic data
+            </div>
+            <h2 className="mb-4 font-display text-[1.9rem] font-medium leading-[1.15] tracking-[-0.01em] text-ink">
+              The Extractor — live demo
+            </h2>
+            <p className="mb-6 max-w-[52ch]">
+              Follow a radiology practice's money end to end on fully synthetic data — from the
+              studies it read to the cash that reached its bank, and how the billing company's
+              report compares to the receipts. Four stages, and every figure clicks open to its
+              source rows. No signup. Runs entirely in your browser.
+            </p>
+            <a
+              href="/extractordemo/"
+              className="inline-block font-mono-tab text-[13px] tracking-[0.04em] text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+            >
+              Give it a whirl →
+            </a>
+          </div>
+        </Section>
+
         {/* 5 · Close */}
         <section className="py-[7vh]">
           <Kicker>Where it belongs</Kicker>

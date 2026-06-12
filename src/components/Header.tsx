@@ -22,7 +22,7 @@ export function Header() {
             href="/extractordemo/"
             className="text-sm text-ink/70 transition-colors hover:text-ink"
           >
-            Live demo — The Extractor
+            Live demo
           </a>
         </div>
 
