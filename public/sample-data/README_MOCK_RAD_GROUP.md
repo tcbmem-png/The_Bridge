@@ -12,7 +12,7 @@
 | `MOCK_RAD_GROUP_835_remittance_export.csv` | ERA / remittance posting detail (835) | 4,491 | claim_id, claim_line, cpt_code, billed_amount, allowed_amount, paid_amount, patient_resp, adj_group_code, carc_code, rarc_code, check_eft_trace, payment_date, payer_id, posted_at | payment_method, payer_name, patient_mrn, deductible, coinsurance, copay, prov_adj_amount, crossover_flag, era_id |
 | `MOCK_RAD_GROUP_RIS_exam_export.csv` | RIS/PACS productivity export | 5,055 | accession, dos, cpt_code, modality, ordering_location, pos_code, site_code (→facility), reading_radiologist_npi, finalized_dt | mrn, patient_name, ordered/scheduled/begin/complete dt, exam_code/description, body_part, priority, patient_class, scanner_id, technologist, report_status, addendum_flag |
 | `MOCK_RAD_GROUP_bank_statement.csv` | Operating-account bank export | 2,950 | post_date, amount, eft_trace (payer CREDIT rows only) | description, transaction_type, value_date, running_balance, bank_reference — **and 110 non-deposit rows** (account fees, transfers to operating, interest, returned items) that must be filtered out |
-| `MOCK_PUBLIC_MPFS_reference.csv` | Public CMS MPFS schedule (NOT from MSIT) | 124 | cpt_code, service_year, work_rvu | conversion_factor, source_note |
+| `MOCK_PUBLIC_MPFS_reference.csv` | Public CMS MPFS schedule (NOT from the billing company) | 124 | cpt_code, service_year, work_rvu | conversion_factor, source_note |
 | `MOCK_RAD_GROUP_ref_facility.csv` | Facility dimension | 4 | facility_id, is_er_site | facility_name, pos_default |
 | `MOCK_RAD_GROUP_ref_payer.csv` | Payer dimension | 6 | payer_id, financial_class | payer_name |
 | `MOCK_RAD_GROUP_ref_provider.csv` | Provider dimension | ~20 | rendering_npi | provider_name, subspecialty |

@@ -6,7 +6,7 @@
     "pass": false,
     "variance_cents": 2085876
   },
-  "engine_commit": "3d910cff25da6384c30aa7de972984b5eac8566f",
+  "engine_commit": "c672da24fa64cf484da9519261858f66d0d6a927",
   "file_recognition": {
     "recognized": [
       "MOCK_RAD_BASELINE4__bank_statement.csv",
@@ -28,7 +28,7 @@
       "ground_truth.json"
     ]
   },
-  "input_set_sha256": "fb0cf2201ccaf41d96582b88cb725075f4d8635d4b688fe092d835c5f50a7164",
+  "input_set_sha256": "c413daf1fc7d4383dc31818378b04fa9b889adcfe07d6e5e3c845bff6173afee",
   "mpfs_coverage": {
     "lines_covered": 5277,
     "lines_total": 5277,

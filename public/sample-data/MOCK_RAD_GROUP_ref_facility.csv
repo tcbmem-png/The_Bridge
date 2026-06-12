@@ -1,5 +1,5 @@
 _mock_label,facility_id,facility_name,pos_default,is_er_site
-MOCK_RAD_GROUP_DEMO_ONLY,F-ERMAIN,Mid-South Regional ED,23,True
-MOCK_RAD_GROUP_DEMO_ONLY,F-HOSP,Mid-South Hospital Outpatient,22,False
-MOCK_RAD_GROUP_DEMO_ONLY,F-IMG,Mid-South Imaging Center,11,False
+MOCK_RAD_GROUP_DEMO_ONLY,F-ERMAIN,Riverbend Regional ED,23,True
+MOCK_RAD_GROUP_DEMO_ONLY,F-HOSP,Lakeview Hospital Outpatient,22,False
+MOCK_RAD_GROUP_DEMO_ONLY,F-IMG,Lakeview Imaging Center,11,False
 MOCK_RAD_GROUP_DEMO_ONLY,F-WEST,West Clinic Imaging,11,False
