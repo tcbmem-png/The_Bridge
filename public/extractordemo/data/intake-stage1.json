@@ -20,7 +20,7 @@
     "deposit_classification": {
       "assumption": "Collected basis: payer EFT deposits (traces prefixed EFT-, excludes bank noise).",
       "definition": "Which bank rows count as 'collected'. Real bank files carry EFT deposits, paper checks, patient payments, lockbox sweeps. Options: eft_prefix | all_positive. Production value set by operator per lockbox/net-vs-gross setup.",
-      "real_shop_resolution": "Pending Brian/MSI answer on lockbox and net-vs-gross setup.",
+      "real_shop_resolution": "Set per the operating practice's lockbox / remittance setup — pending real-shop validation.",
       "value": "eft_prefix"
     }
   },

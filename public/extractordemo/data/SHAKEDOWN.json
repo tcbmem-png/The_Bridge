@@ -6,7 +6,7 @@
     "pass": false,
     "variance_cents": 2085876
   },
-  "engine_commit": "e166e1a1c086cb3ead222c58370d9631f796a6a2",
+  "engine_commit": "3d910cff25da6384c30aa7de972984b5eac8566f",
   "file_recognition": {
     "recognized": [
       "MOCK_RAD_BASELINE4__bank_statement.csv",
