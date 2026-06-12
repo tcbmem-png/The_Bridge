@@ -19,7 +19,7 @@ export type SiteKind = "hospital" | "group_outside";
 export interface SiteInput {
   name: string;
   kind: SiteKind;
-  is_catch_site: boolean;   // rolls into the coverage-need total (ER, ped ER) — PIN (Jonathan/Taylor)
+  is_catch_site: boolean;   // rolls into the coverage-need total (ER, ped ER) — PIN (the group)
   wrvu_share: number;       // [0,1], Σ over sites = 1 (validate). WORKFLOW assumption (dashed tick)
   payer_mix: PayerMix;      // {medicare, medicaid, commercial, self_pay}, sums to 1. BILLING assumption
   anchor?: string;          // schematic position/cluster — RENDER ONLY, never math
@@ -108,7 +108,7 @@ export function validateSiteInputs(i: SiteBlockInputs): string[] {
   return msgs;
 }
 
-// ILLUSTRATIVE DEFAULTS (labeled placeholders). The site list + is_catch_site are pins (Taylor/Jonathan);
+// ILLUSTRATIVE DEFAULTS (labeled placeholders). The site list + is_catch_site are pins (the group);
 // wrvu_share is the worklist (dashed); payer_mix is illustrative-by-site-type until billing-by-site is joined.
 // W_total / C_total are wired from the money module in the render — here, labeled illustrative anchors.
 export const ILLUSTRATIVE_SITES: SiteInput[] = [
@@ -221,7 +221,7 @@ export function defaultFallInputs(): FallInputs & { placeholders: string[] } {
     y_redeploy: 85,       // PLACEHOLDER · ~y_core (high-value work) — assumption
     y_fall: 18,           // PLACEHOLDER · fall-work yield, <= y_cov — billing assumption
     redeploy_target: "Outside Specialty",
-    avoidable_share: { "Emergency Dept": 0.35, "Pediatric ER": 0.30 }, // PLACEHOLDER · Jonathan's clinical low-yield definition (dashed)
+    avoidable_share: { "Emergency Dept": 0.35, "Pediatric ER": 0.30 }, // PLACEHOLDER · clinical lead's clinical low-yield definition (dashed)
     placeholders: ["reduce", "redeploy", "y_redeploy", "y_fall", "avoidable_share (clinical low-yield def)"],
   };
 }

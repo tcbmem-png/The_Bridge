@@ -14,12 +14,12 @@ import { DEFAULT_PINS, type Pins } from "../config/pins.ts";
 
 export interface CurveInputs {
   w: number;             // THE SLIDER — avg wRVU per radiologist per year
-  w_core: number;        // productivity up to which work is core/well-paid (PLACEHOLDER — Jonathan)
+  w_core: number;        // productivity up to which work is core/well-paid (PLACEHOLDER — clinical lead)
   y_core: number;        // $/wRVU on core work (derived from money mix + CF)
   y_cov: number;         // $/wRVU on marginal coverage work, y_cov < y_core (derived from structural mix + CF)
   F: number;             // overhead allocated per partner / yr (PLACEHOLDER — finance)
   B: number;             // base comp per partner / yr (PLACEHOLDER — finance)
-  w_sustainable: number; // sustainable annual wRVU ceiling — greyed beyond (PLACEHOLDER — Jonathan)
+  w_sustainable: number; // sustainable annual wRVU ceiling — greyed beyond (PLACEHOLDER — clinical lead)
   N: number;             // partner count (NUMERIC FINGERPRINT — genericize; PLACEHOLDER — finance)
   y_cov_fair?: number;   // phase-2 fair coverage rate for the optional overlay (illustrative; counsel owns FMV/AKS)
 }
@@ -76,7 +76,7 @@ export function deriveYieldForMix(mix: PayerMix, pins: Pins = DEFAULT_PINS): num
 }
 
 // ILLUSTRATIVE PLACEHOLDER pins — labeled, genericized; the assumptions panel absorbs the real values
-// (Jonathan: w_core/w_sustainable/ranges; finance: F/B/N) with NO rebuild. Do NOT treat as authored.
+// (clinical lead: w_core/w_sustainable/ranges; finance: F/B/N) with NO rebuild. Do NOT treat as authored.
 export const ILLUSTRATIVE_CORE_MIX: PayerMix = { medicare: 0.25, medicaid: 0.10, commercial: 0.55, self_pay: 0.10 };
 export const ILLUSTRATIVE_COVERAGE_MIX: PayerMix = { medicare: 0.20, medicaid: 0.45, commercial: 0.10, self_pay: 0.25 };
 // even worse than the coverage lane — the after-hours mix (more self-pay/Medicaid) → y_night <= y_cov (illustrative)
@@ -133,8 +133,8 @@ export function computeWorkflowLayer(i: WorkflowLayerInputs): WorkflowLayer {
 
 export function defaultCurveInputs(pins: Pins = DEFAULT_PINS): Omit<CurveInputs, "w"> & { w_min: number; w_max: number; w_default: number; night_share: number; y_night: number; avoidable_share: number; placeholders: string[] } {
   return {
-    w_core: 8000,            // PLACEHOLDER · Jonathan
-    w_sustainable: 12000,    // PLACEHOLDER · Jonathan
+    w_core: 8000,            // PLACEHOLDER · clinical lead
+    w_sustainable: 12000,    // PLACEHOLDER · clinical lead
     y_core: deriveYieldForMix(ILLUSTRATIVE_CORE_MIX, pins),     // illustrative, from CF + core mix
     y_cov: deriveYieldForMix(ILLUSTRATIVE_COVERAGE_MIX, pins),  // illustrative, from CF + coverage mix
     F: 100000,               // PLACEHOLDER · finance (overhead/partner)
@@ -142,9 +142,9 @@ export function defaultCurveInputs(pins: Pins = DEFAULT_PINS): Omit<CurveInputs,
     N: 100,                  // PLACEHOLDER · GENERICIZED (numeric fingerprint)
     w_min: 4000, w_max: 16000, w_default: 9000, // PLACEHOLDER · genericized ranges
     // §2A workflow-layer pins — non-computable until the worklist is wired (dashed tick); labeled placeholders
-    night_share: 0.5,        // PLACEHOLDER · Jonathan + worklist
+    night_share: 0.5,        // PLACEHOLDER · clinical lead + worklist
     y_night: deriveYieldForMix(ILLUSTRATIVE_NIGHT_MIX, pins),   // illustrative, from CF + after-hours mix (<= y_cov)
-    avoidable_share: 0.4,    // PLACEHOLDER · Jonathan (clinical low-yield definition) + worklist
+    avoidable_share: 0.4,    // PLACEHOLDER · clinical lead (clinical low-yield definition) + worklist
     placeholders: ["w_core", "w_sustainable", "F", "B", "N", "w_min/w_max/w_default", "night_share", "y_night", "avoidable_share"],
   };
 }

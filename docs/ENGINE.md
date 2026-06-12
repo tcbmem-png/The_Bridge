@@ -33,7 +33,7 @@ npm run snapshot                     # writes dist/operator-snapshot.json (what 
 
 Defaulted as **labeled assumptions** (adjust here): N=90d, M=4mo, accrual lens (+cash toggle), calendar months, CMS CY2026 @ $33.40, bridge rule. Three pins are **human-gated and not guessed**:
 
-- **low-yield / negative-read definition** — clinical, the group (Jonathan). The night-block yield cut runs against a flagged PLACEHOLDER until then.
+- **low-yield / negative-read definition** — clinical, the group's clinical lead. The night-block yield cut runs against a flagged PLACEHOLDER until then.
 - **patient-key hashing** — counsel; gates Phase 5 real-data ingestion.
 - **stipend evidence-pack scope** — counsel.
 

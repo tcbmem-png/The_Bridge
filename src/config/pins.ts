@@ -19,7 +19,7 @@ export interface Pins {
   site_grouping: { childrens_sites: string[] }; // which site labels roll up as "childrens" vs "system"
 
   // ---- HUMAN-GATED (surfaced, NOT guessed) ----
-  low_yield_definition: LowYieldDefinition | null; // CLINICAL — Jonathan/the group. null = seam, placeholder used + flagged.
+  low_yield_definition: LowYieldDefinition | null; // CLINICAL — the group's clinical lead. null = seam, placeholder used + flagged.
   patient_key_hashing: string | null;              // counsel; gates Phase 5 real-data ingestion
   stipend_evidence_scope: string | null;           // counsel; gates the structural output pack
   cross_coverage: CrossCoverageRule | null;        // SEAM — "reading outside subspecialty" (credentialing pin)
@@ -57,7 +57,7 @@ export const DEFAULT_PINS: Pins = {
   site_grouping: { childrens_sites: ["childrens"] }, // ASSUMPTION (default)
 
   // seams — human must author; do NOT guess
-  low_yield_definition: null,        // SEAM — clinical pin, Jonathan/the group
+  low_yield_definition: null,        // SEAM — clinical pin, the group's clinical lead
   patient_key_hashing: null,         // SEAM — counsel; Phase 5 gate
   stipend_evidence_scope: null,      // SEAM — counsel
   cross_coverage: null,              // SEAM — credentialing/subspecialty pin

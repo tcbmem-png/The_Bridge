@@ -174,7 +174,7 @@ export function defaultPracticeInputs(): PracticeInputs & { placeholders: string
     er_wrvu, er_yield: er_coll / er_wrvu, // $28
     nonER_wrvu, nonER_yield,
     fair_cost: 70,   // comp + overhead (valuator-owned)
-    N: 100,          // PLACEHOLDER · partner count (Jonathan's group)
+    N: 100,          // PLACEHOLDER · partner count (clinical lead's group)
     placeholders: ["nonER_yield (from total − ER)", "fair_cost (valuator)", "N (partners)"],
   };
 }
