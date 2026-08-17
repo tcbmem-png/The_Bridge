@@ -88,6 +88,7 @@ function IntakePage() {
       <PracticeQuestionnaire cfg={cfg} onChange={updateCfg} />
       <OntologyReview cfg={cfg} />
       <ReadinessReport report={report} />
+      <PilotPlanExport entries={entries} cfg={cfg} />
 
       <footer className="mt-12 flex flex-wrap items-center gap-3 border-t border-ink/15 pt-5">
         <button
