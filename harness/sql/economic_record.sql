@@ -394,3 +394,329 @@ UNION ALL SELECT 'bank',       (SELECT COUNT(*) FROM stg.deposit)
 UNION ALL SELECT 'physician',  (SELECT COUNT(*) FROM ref.physician)
 UNION ALL SELECT 'payer',      (SELECT COUNT(*) FROM ref.payer)
 UNION ALL SELECT 'facility',   (SELECT COUNT(*) FROM ref.facility);
+
+-- ============================================================================
+-- PHASE 2 — PORTED AUDIT MACHINERY
+-- ----------------------------------------------------------------------------
+-- Everything below implements audit invariants, not specialty logic:
+--   * chain of custody on raw bytes;
+--   * deterministic repairs, recorded, never silent;
+--   * rows that fail a constraint are PARKED and counted, never dropped;
+--   * every row lands in exactly one visible disposition (no-swallow);
+--   * cash is a separate evidence class from payer remittance;
+--   * unknown payer / facility / reference stays unknown — never a default.
+-- ============================================================================
+
+-- Chain of custody, extended. sha256 is over the raw bytes AS RECEIVED,
+-- before any parsing or repair.
+ALTER TABLE raw.source_file ADD COLUMN stage            TEXT;
+ALTER TABLE raw.source_file ADD COLUMN source_key       TEXT;
+ALTER TABLE raw.source_file ADD COLUMN detection_status TEXT;  -- detected | ambiguous | unrecognized
+ALTER TABLE raw.source_file ADD COLUMN parser_version   TEXT;
+ALTER TABLE raw.source_file ADD COLUMN contract_version TEXT;
+
+-- Rows that could not be staged. Parked and visible: a rejected row is a
+-- finding, not a silent deletion.
+CREATE TABLE raw.rejected_row (
+    rejected_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_file_id BIGINT REFERENCES raw.source_file(file_id),
+    source_key     TEXT,
+    row_index      INT,
+    reason         TEXT NOT NULL,
+    payload        TEXT
+);
+
+-- Deterministic repairs. Allowed. Never invisible.
+CREATE TABLE raw.repair (
+    repair_id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_file_id BIGINT REFERENCES raw.source_file(file_id),
+    source_key     TEXT,
+    row_index      INT,
+    target_table   TEXT,
+    row_key        TEXT,
+    field          TEXT NOT NULL,
+    rule           TEXT NOT NULL,
+    original       TEXT,
+    normalized     TEXT
+);
+
+-- Governed method configuration. A load-bearing election (which bank rows are
+-- professional collections, what runout means) is a declared config value with
+-- a status, not a hardcoded constant.
+CREATE TABLE ref.method_config (
+    key         TEXT PRIMARY KEY,
+    value       TEXT,
+    definition  TEXT,
+    status      TEXT,     -- record | model | fixture | pilot_question
+    source      TEXT
+);
+
+-- CARC / RARC preserved on ingest even though MVP analysis is basic.
+ALTER TABLE stg.remit_line ADD COLUMN carc_code TEXT;
+ALTER TABLE stg.remit_line ADD COLUMN rarc_code TEXT;
+
+-- Deposit classification is explicit. NULL means "no governed rule applied" —
+-- it never silently means "collections".
+ALTER TABLE stg.deposit ADD COLUMN classification      TEXT;
+ALTER TABLE stg.deposit ADD COLUMN classification_rule TEXT;
+
+-- ----------------------------------------------------------------------------
+-- Optional Stage-3 evidence class: the vendor's own raw account.
+-- Present as schema so the ladder is real even before a group loads one.
+-- ----------------------------------------------------------------------------
+CREATE TABLE stg.rcm_ledger (
+    ledger_row_id  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_file_id BIGINT REFERENCES raw.source_file(file_id),
+    claim_id       TEXT,
+    line_number    INT,
+    posted_amount  NUMERIC(12,2),
+    writeoff_amount NUMERIC(12,2),
+    writeoff_reason TEXT,
+    fee_amount     NUMERIC(12,2),
+    post_date      DATE,
+    status         TEXT
+);
+
+CREATE TABLE stg.processed_report (
+    report_row_id  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_file_id BIGINT REFERENCES raw.source_file(file_id),
+    period         TEXT,
+    metric         TEXT,
+    reported_value NUMERIC(16,2),
+    unit           TEXT
+);
+
+-- ============================================================================
+-- CORE — dispositions. Every claim line lands in exactly one.
+-- ============================================================================
+CREATE VIEW core.line_disposition AS
+SELECT
+    s.service_id,
+    s.claim_id,
+    s.claim_line_id,
+    s.dos,
+    s.cpt_code,
+    s.payer_id,
+    s.facility_id,
+    s.charge_amount,
+    s.allowed_amount,
+    s.paid_amount,
+    s.work_rvu,
+    s.remittance_match_status,
+    s.cash_match_status,
+    s.adjudication_status,
+
+    -- Identity resolution. Unknown stays unknown; nothing defaults into a
+    -- segment or onto a contract.
+    CASE WHEN s.payer_id IS NULL THEN 'absent'
+         WHEN s.payer_known      THEN 'resolved'
+         ELSE 'unresolved_identity' END                       AS payer_resolution,
+    CASE WHEN s.facility_id IS NULL THEN 'absent'
+         WHEN s.facility_known      THEN 'resolved'
+         ELSE 'unresolved_identity' END                       AS facility_resolution,
+    CASE WHEN s.pos_known OR s.facility_known THEN 'resolved'
+         ELSE 'gap' END                                       AS site_resolution,
+    CASE WHEN s.wrvu_mapped THEN 'covered' ELSE 'uncovered' END AS wrvu_coverage,
+
+    EXISTS (SELECT 1 FROM raw.repair r
+             WHERE r.target_table = 'stg.claim_line'
+               AND r.row_key = s.claim_id || ':' || s.claim_line_id) AS repaired,
+
+    -- The partition itself. Order matters: the first true class wins, and the
+    -- classes are mutually exclusive by construction.
+    CASE
+        WHEN s.remittance_match_status = 'contradictory' THEN 'contradictory'
+        WHEN s.remittance_match_status = 'ambiguous'     THEN 'ambiguous'
+        WHEN s.remittance_match_status = 'unmatched'     THEN 'unmatched'
+        WHEN NOT s.wrvu_mapped                           THEN 'uncovered'
+        WHEN s.paid_amount IS NULL                       THEN 'unresolved'
+        WHEN EXISTS (SELECT 1 FROM raw.repair r
+                      WHERE r.target_table = 'stg.claim_line'
+                        AND r.row_key = s.claim_id || ':' || s.claim_line_id)
+                                                         THEN 'resolved_repaired'
+        ELSE 'resolved_clean'
+    END                                                       AS disposition
+FROM core.service_economics s;
+
+-- Encounter universe: every encounter lands somewhere too.
+CREATE VIEW core.encounter_disposition AS
+SELECT
+    e.encounter_row_id,
+    e.encounter_id,
+    e.dos,
+    CASE
+        WHEN cc.n IS NULL OR cc.n = 0 THEN 'unmatched'
+        WHEN cc.n > 1                 THEN 'ambiguous'
+        ELSE 'resolved_clean'
+    END AS disposition
+FROM stg.encounter e
+LEFT JOIN (
+    SELECT encounter_id, COUNT(*) n FROM stg.claim_line
+    WHERE encounter_id IS NOT NULL GROUP BY encounter_id
+) cc ON cc.encounter_id = e.encounter_id;
+
+-- Deposit universe. A bank row with no payer trace is not an error and not a
+-- zero: it is an unmatched deposit, and it stays visible.
+CREATE VIEW core.deposit_disposition AS
+SELECT
+    d.deposit_row_id,
+    d.deposit_date,
+    d.amount,
+    d.eft_trace,
+    COALESCE(d.classification, 'unclassified') AS classification,
+    CASE
+        WHEN d.eft_trace IS NULL                   THEN 'unmatched'
+        WHEN t.remit_rows IS NULL                  THEN 'unmatched'
+        WHEN t.deposit_rows > 1                    THEN 'ambiguous'
+        ELSE 'resolved_clean'
+    END AS disposition
+FROM stg.deposit d
+LEFT JOIN (
+    SELECT r.eft_trace,
+           COUNT(DISTINCT r.remit_line_row_id) AS remit_rows,
+           (SELECT COUNT(*) FROM stg.deposit d2 WHERE d2.eft_trace = r.eft_trace) AS deposit_rows
+    FROM stg.remit_line r WHERE r.eft_trace IS NOT NULL
+    GROUP BY r.eft_trace
+) t ON t.eft_trace = d.eft_trace;
+
+-- ============================================================================
+-- RECON — partition checks, trace reconciliation, timing, the carve.
+-- ============================================================================
+
+-- One row per (universe, disposition). The UI sums these and asserts the
+-- invariant; the invariant is never printed unless it holds.
+CREATE VIEW recon.partition_class AS
+SELECT 'claim_lines' AS universe, disposition, COUNT(*) AS row_count,
+       ROUND(COALESCE(SUM(charge_amount),0) * 100)::bigint AS amount_cents
+FROM core.line_disposition GROUP BY disposition
+UNION ALL
+SELECT 'encounters', disposition, COUNT(*), NULL::bigint
+FROM core.encounter_disposition GROUP BY disposition
+UNION ALL
+SELECT 'deposits', disposition, COUNT(*),
+       ROUND(COALESCE(SUM(amount),0) * 100)::bigint
+FROM core.deposit_disposition GROUP BY disposition
+UNION ALL
+SELECT 'remit_rows',
+       CASE WHEN c.claim_id IS NULL THEN 'unmappable' ELSE 'resolved_clean' END,
+       COUNT(*), ROUND(COALESCE(SUM(r.paid_amount),0) * 100)::bigint
+FROM stg.remit_line r
+LEFT JOIN stg.claim_line c
+       ON c.claim_id = r.claim_id AND c.line_number = r.line_number
+GROUP BY 2
+UNION ALL
+SELECT 'rejected_rows', 'not_applicable', COUNT(*), NULL::bigint
+FROM raw.rejected_row;
+
+-- Population entering each reconciliation universe, straight from staging.
+CREATE VIEW recon.partition_population AS
+SELECT 'claim_lines' AS universe, COUNT(*)::bigint AS population FROM stg.claim_line
+UNION ALL SELECT 'encounters', COUNT(*) FROM stg.encounter
+UNION ALL SELECT 'deposits',   COUNT(*) FROM stg.deposit
+UNION ALL SELECT 'remit_rows', COUNT(*) FROM stg.remit_line
+UNION ALL SELECT 'rejected_rows', COUNT(*) FROM raw.rejected_row;
+
+CREATE VIEW recon.partition_check AS
+SELECT p.universe,
+       p.population,
+       COALESCE(SUM(x.row_count), 0)::bigint            AS classified,
+       (p.population - COALESCE(SUM(x.row_count),0))::bigint AS unaccounted,
+       (p.population = COALESCE(SUM(x.row_count),0))    AS closes
+FROM recon.partition_population p
+LEFT JOIN recon.partition_class x ON x.universe = p.universe
+GROUP BY p.universe, p.population;
+
+-- Payment-trace reconciliation. Payer remittance and bank cash are separate
+-- facts; a trace is the only thing that joins them, and its cardinality is
+-- stated explicitly rather than assumed 1:1.
+CREATE VIEW recon.trace_reconciliation AS
+WITH remit AS (
+    SELECT eft_trace,
+           COUNT(*)                          AS remit_rows,
+           ROUND(SUM(COALESCE(paid_amount,0)) * 100)::bigint AS remit_paid_cents
+    FROM stg.remit_line WHERE eft_trace IS NOT NULL GROUP BY eft_trace
+), bank AS (
+    SELECT eft_trace,
+           COUNT(*)                          AS deposit_rows,
+           ROUND(SUM(amount) * 100)::bigint  AS deposit_cents
+    FROM stg.deposit WHERE eft_trace IS NOT NULL GROUP BY eft_trace
+)
+SELECT
+    COALESCE(r.eft_trace, b.eft_trace)                       AS eft_trace,
+    COALESCE(r.remit_rows, 0)                                AS remit_rows,
+    COALESCE(b.deposit_rows, 0)                              AS deposit_rows,
+    r.remit_paid_cents,
+    b.deposit_cents,
+    CASE
+        WHEN r.eft_trace IS NULL                       THEN 'bank_only'
+        WHEN b.eft_trace IS NULL                       THEN 'remit_only'
+        WHEN b.deposit_rows > 1                        THEN 'ambiguous_duplicate_deposit'
+        WHEN r.remit_paid_cents = b.deposit_cents      THEN 'matched'
+        ELSE 'matched_amount_differs'
+    END                                                      AS trace_state,
+    COALESCE(b.deposit_cents,0) - COALESCE(r.remit_paid_cents,0) AS variance_cents
+FROM remit r
+FULL OUTER JOIN bank b ON b.eft_trace = r.eft_trace;
+
+CREATE VIEW recon.trace_summary AS
+SELECT trace_state,
+       COUNT(*)                    AS traces,
+       SUM(remit_rows)             AS remit_rows,
+       SUM(deposit_rows)           AS deposit_rows,
+       SUM(COALESCE(remit_paid_cents,0)) AS remit_paid_cents,
+       SUM(COALESCE(deposit_cents,0))    AS deposit_cents,
+       SUM(variance_cents)         AS variance_cents
+FROM recon.trace_reconciliation
+GROUP BY trace_state ORDER BY 2 DESC;
+
+-- Days to pay. Two distinct measures, never conflated.
+CREATE VIEW recon.days_to_pay AS
+SELECT
+    payer_id,
+    COUNT(*) FILTER (WHERE payment_date IS NOT NULL AND claim_submit_date IS NOT NULL) AS measurable_lines,
+    COUNT(*) FILTER (WHERE payment_date IS NULL OR claim_submit_date IS NULL)          AS unmeasurable_lines,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY (payment_date - claim_submit_date))    AS median_submit_to_pay,
+    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY (payment_date - claim_submit_date))   AS p25_submit_to_pay,
+    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY (payment_date - claim_submit_date))   AS p75_submit_to_pay,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY (payment_date - dos))                  AS median_dos_to_pay
+FROM core.service_economics
+GROUP BY payer_id;
+
+-- The Stage-2 carve, in exact cents.
+--
+--   starting gap  = charges the group's own books show as work billed
+--                   minus the cash that arrived
+--   explained     = named slices the wire actually establishes
+--   remainder     = unexplained_after, stated, never absorbed
+CREATE VIEW recon.carve_inputs AS
+SELECT
+    ROUND(COALESCE((SELECT SUM(charge_amount) FROM stg.claim_line),0) * 100)::bigint       AS charges_cents,
+    ROUND(COALESCE((SELECT SUM(amount) FROM stg.deposit
+                     WHERE classification IS DISTINCT FROM 'excluded'),0) * 100)::bigint   AS bank_cash_cents,
+    ROUND(COALESCE((SELECT SUM(paid_amount) FROM core.service_economics),0) * 100)::bigint AS payer_paid_cents,
+    ROUND(COALESCE((SELECT SUM(adjustment_amount) FROM core.service_economics),0) * 100)::bigint AS contractual_adjustments_cents,
+    ROUND(COALESCE((SELECT SUM(patient_resp) FROM core.service_economics),0) * 100)::bigint      AS patient_resp_cents,
+    ROUND(COALESCE((SELECT SUM(charge_amount) FROM core.service_economics
+                     WHERE adjudication_status IN ('denied','zero_pay')),0) * 100)::bigint       AS denied_charges_cents,
+    ROUND(COALESCE((SELECT SUM(charge_amount) FROM core.service_economics
+                     WHERE remittance_match_status = 'unmatched'),0) * 100)::bigint              AS no_remittance_charges_cents,
+    ROUND(COALESCE((SELECT SUM(paid_amount) FROM core.service_economics
+                     WHERE cash_match_status = 'unmatched'),0) * 100)::bigint                    AS paid_without_bank_trace_cents,
+    (SELECT COUNT(*) FROM core.service_economics WHERE adjudication_status IN ('denied','zero_pay'))  AS denied_lines,
+    (SELECT COUNT(*) FROM core.service_economics WHERE remittance_match_status = 'unmatched')         AS no_remittance_lines,
+    (SELECT COUNT(*) FROM core.service_economics WHERE cash_match_status = 'unmatched')               AS paid_without_bank_trace_lines;
+
+-- Repairs, summarized for the lineage rail.
+CREATE VIEW recon.repair_summary AS
+SELECT rule, field, COUNT(*) AS row_count
+FROM raw.repair GROUP BY rule, field ORDER BY 3 DESC;
+
+-- File-level chain of custody, as loaded.
+CREATE VIEW recon.custody AS
+SELECT f.file_id, f.source_key, f.stage, f.file_type, f.file_name,
+       f.detection_status, f.sha256, f.byte_size, f.row_count,
+       f.parser_version, f.contract_version, f.received_at,
+       (SELECT COUNT(*) FROM raw.rejected_row rr WHERE rr.source_file_id = f.file_id) AS rejected_rows,
+       (SELECT COUNT(*) FROM raw.repair rp WHERE rp.source_file_id = f.file_id)       AS repairs
+FROM raw.source_file f
+ORDER BY f.file_id;

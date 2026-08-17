@@ -261,3 +261,118 @@ export const payerMedicareComparison = () =>
     GROUP BY s.payer_id
     ORDER BY 3 DESC NULLS LAST;
   `);
+
+// ---------------------------------------------------------------------------
+// Ported audit machinery: custody, partitions, traces, repairs, the carve.
+// ---------------------------------------------------------------------------
+
+export interface CustodyRow {
+  file_id: number;
+  source_key: string | null;
+  stage: string | null;
+  file_type: string;
+  file_name: string;
+  detection_status: string | null;
+  sha256: string | null;
+  byte_size: number | null;
+  row_count: number | null;
+  rejected_rows: number;
+  repairs: number;
+}
+
+export const custody = () => q<CustodyRow>(`SELECT * FROM recon.custody;`);
+
+export interface PartitionClassRow {
+  universe: string;
+  disposition: string;
+  row_count: number;
+  amount_cents: number | null;
+}
+
+export const partitionClasses = () =>
+  q<PartitionClassRow>(
+    `SELECT universe, disposition, row_count, amount_cents
+     FROM recon.partition_class ORDER BY universe, row_count DESC;`,
+  );
+
+export interface PartitionCheckRow {
+  universe: string;
+  population: number;
+  classified: number;
+  unaccounted: number;
+  closes: boolean;
+}
+
+export const partitionCheck = () =>
+  q<PartitionCheckRow>(`SELECT * FROM recon.partition_check ORDER BY universe;`);
+
+export interface TraceSummaryRow {
+  trace_state: string;
+  traces: number;
+  remit_rows: number;
+  deposit_rows: number;
+  remit_paid_cents: number;
+  deposit_cents: number;
+  variance_cents: number;
+}
+
+export const traceSummary = () => q<TraceSummaryRow>(`SELECT * FROM recon.trace_summary;`);
+
+export const tracesInState = (state: string, limit = 100) =>
+  q(
+    `SELECT eft_trace, remit_rows, deposit_rows, remit_paid_cents, deposit_cents, variance_cents
+     FROM recon.trace_reconciliation WHERE trace_state = $1
+     ORDER BY ABS(variance_cents) DESC LIMIT ${limit};`,
+    [state],
+  );
+
+export const repairSummary = () =>
+  q<{ rule: string; field: string; row_count: number }>(`SELECT * FROM recon.repair_summary;`);
+
+export const rejectedRows = (limit = 100) =>
+  q(
+    `SELECT rejected_id, source_key, row_index, reason, payload
+     FROM raw.rejected_row ORDER BY rejected_id LIMIT ${limit};`,
+  );
+
+export const methodConfig = () =>
+  q<{ key: string; value: string; definition: string; status: string; source: string }>(
+    `SELECT key, value, definition, status, source FROM ref.method_config ORDER BY key;`,
+  );
+
+export interface CarveInputs {
+  charges_cents: number;
+  bank_cash_cents: number;
+  payer_paid_cents: number;
+  contractual_adjustments_cents: number;
+  patient_resp_cents: number;
+  denied_charges_cents: number;
+  no_remittance_charges_cents: number;
+  paid_without_bank_trace_cents: number;
+  denied_lines: number;
+  no_remittance_lines: number;
+  paid_without_bank_trace_lines: number;
+}
+
+export const carveInputs = () => q<CarveInputs>(`SELECT * FROM recon.carve_inputs;`);
+
+export const daysToPay = () =>
+  q<{
+    payer_id: string | null;
+    measurable_lines: number;
+    unmeasurable_lines: number;
+    median_submit_to_pay: number | null;
+    p25_submit_to_pay: number | null;
+    p75_submit_to_pay: number | null;
+    median_dos_to_pay: number | null;
+  }>(`SELECT * FROM recon.days_to_pay ORDER BY measurable_lines DESC;`);
+
+export const linesInDisposition = (disposition: string, limit = 100) =>
+  q(
+    `SELECT claim_id, claim_line_id, dos, cpt_code, payer_id, charge_amount,
+            paid_amount, payer_resolution, facility_resolution, wrvu_coverage,
+            remittance_match_status, cash_match_status
+     FROM core.line_disposition WHERE disposition = $1
+     ORDER BY charge_amount DESC NULLS LAST LIMIT ${limit};`,
+    [disposition],
+  );

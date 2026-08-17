@@ -19,6 +19,54 @@ export type ProvenanceType =
   | "gap"
   | "contradiction";
 
+/**
+ * WHOSE account a figure comes from. A separate dimension from provenance:
+ * provenance says what kind of statement it is, authorship says who asserted
+ * it. A payer's number, the vendor's number, the bank's number and a computed
+ * number are different evidence classes even when they agree.
+ */
+export type AuthoredBy =
+  | "group"
+  | "clinical_system"
+  | "payer"
+  | "rcm"
+  | "bank"
+  | "cms"
+  | "external_reference"
+  | "computed"
+  | "model";
+
+export const AUTHORED_BY_LABEL: Record<AuthoredBy, string> = {
+  group: "GROUP",
+  clinical_system: "CLINICAL SYSTEM",
+  payer: "PAYER",
+  rcm: "RCM VENDOR",
+  bank: "BANK",
+  cms: "CMS",
+  external_reference: "EXTERNAL REFERENCE",
+  computed: "COMPUTED",
+  model: "MODEL",
+};
+
+/**
+ * GAP is not one thing. Each reason is a different honest way of saying
+ * "I cannot know this" — and none of them is zero.
+ */
+export type GapReason =
+  | "uncovered" // reference needed to price/measure the row is absent
+  | "unmeasurable" // required source fields are not available
+  | "unmappable" // the record has no reliable counterpart
+  | "unresolved" // the record exists, its lifecycle is incomplete
+  | "refused"; // a non-record input was refused entry to a governed total
+
+export const GAP_REASON_LABEL: Record<GapReason, string> = {
+  uncovered: "UNCOVERED",
+  unmeasurable: "UNMEASURABLE",
+  unmappable: "UNMAPPABLE",
+  unresolved: "UNRESOLVED",
+  refused: "REFUSED",
+};
+
 export type MatchState =
   | "matched"
   | "unmatched"
@@ -26,12 +74,50 @@ export type MatchState =
   | "contradictory"
   | "not_applicable";
 
+/**
+ * The no-swallow partition vocabulary. Every row entering a reconciliation
+ * universe lands in exactly one of these, and the classes sum to the total.
+ */
+export type Disposition =
+  | "resolved_clean"
+  | "resolved_repaired"
+  | "unmatched"
+  | "ambiguous"
+  | "contradictory"
+  | "uncovered"
+  | "unresolved"
+  | "not_applicable";
+
+export const DISPOSITION_LABEL: Record<Disposition, string> = {
+  resolved_clean: "RESOLVED — CLEAN",
+  resolved_repaired: "RESOLVED — REPAIRED",
+  unmatched: "UNMATCHED",
+  ambiguous: "AMBIGUOUS",
+  contradictory: "CONTRADICTORY",
+  uncovered: "UNCOVERED",
+  unresolved: "UNRESOLVED",
+  not_applicable: "NOT APPLICABLE",
+};
+
+/** A deterministic repair. Allowed. Never silent. */
+export interface Repair {
+  rule: string;
+  field: string;
+  original: string | null;
+  normalized: string | null;
+  source: string;
+}
+
 export interface Figure {
   /** null means the record does not establish a value. Never coerce to 0. */
   value: number | null;
   type: ProvenanceType;
   label: string;
   unit?: "usd" | "count" | "wrvu" | "usd_per_wrvu" | "percent" | "days";
+  /** Whose account this is. Multiple accounts for a derived figure. */
+  authoredBy?: AuthoredBy[];
+  /** Which of the four source stages this figure is admissible at. */
+  stage?: "own_books" | "the_wire" | "their_ledger" | "their_story";
   /** Source artefacts / tables that established the inputs. */
   sources?: string[];
   /** Human-readable derivation. */
@@ -40,10 +126,16 @@ export interface Figure {
   assumption?: string;
   /** The document or act that would turn an "if" into an "is". */
   closesOn?: string;
+  /** Why this is a gap, when it is one. */
+  gapReason?: GapReason;
   /** Inputs this figure requires, with whether each is satisfied. */
   requires?: { name: string; satisfied: boolean }[];
   /** Conflicting readings, when type is "contradiction". */
   conflict?: { source: string; reading: string }[];
+  /** Deterministic repairs standing behind the value. */
+  repairs?: Repair[];
+  /** Basis note when a denominator excludes uncovered rows. */
+  coveredBasis?: { covered: number; uncovered: number };
   note?: string;
 }
 
@@ -55,6 +147,7 @@ export const PROVENANCE_LABEL: Record<ProvenanceType, string> = {
   gap: "GAP",
   contradiction: "CONTRADICTION",
 };
+
 
 /** A figure that may legitimately enter a governed rollup. */
 export function isGoverned(f: Figure): boolean {
@@ -72,19 +165,19 @@ export function record(
   opts: Partial<Figure> = {},
 ): Figure {
   if (value === null) {
-    return { label, value: null, type: "gap", ...opts };
+    return { label, value: null, type: "gap", gapReason: "unmeasurable", ...opts };
   }
   return { label, value, type: "record", ...opts };
 }
 
 /** A declared model input. Never a record fact. */
 export function model(label: string, value: number, opts: Partial<Figure> = {}): Figure {
-  return { label, value, type: "model_derived", ...opts };
+  return { label, value, type: "model_derived", authoredBy: ["model"], ...opts };
 }
 
-/** An explicit gap. Carries what would close it. */
+/** An explicit gap. Carries why, and what would close it. */
 export function gap(label: string, opts: Partial<Figure> = {}): Figure {
-  return { label, value: null, type: "gap", ...opts };
+  return { label, value: null, type: "gap", gapReason: "unmeasurable", ...opts };
 }
 
 export function contradiction(
@@ -106,9 +199,15 @@ function combineType(inputs: Figure[]): ProvenanceType {
   return "record_derived";
 }
 
+/** Union of the accounts standing behind a set of inputs. */
+export function mergeAuthors(inputs: Figure[]): AuthoredBy[] {
+  return [...new Set(inputs.flatMap((i) => i.authoredBy ?? []))];
+}
+
 /**
  * Derive a figure from inputs. The resulting provenance type is decided by the
- * algebra, never by the caller — that is the point.
+ * algebra, never by the caller — that is the point. Authorship is carried
+ * through: a computed figure names the accounts it drew on.
  */
 export function derive(
   label: string,
@@ -117,23 +216,34 @@ export function derive(
   opts: Partial<Figure> = {},
 ): Figure {
   const type = combineType(inputs);
+  const inputAuthors = mergeAuthors(inputs);
   const base: Figure = {
     label,
     value: null,
     type,
+    authoredBy: opts.authoredBy ?? ["computed", ...inputAuthors],
     sources: opts.sources ?? [...new Set(inputs.flatMap((i) => i.sources ?? []))],
     requires:
       opts.requires ??
       inputs.map((i) => ({ name: i.label, satisfied: i.value !== null && i.type !== "gap" })),
+    repairs: opts.repairs ?? inputs.flatMap((i) => i.repairs ?? []),
     ...opts,
   };
   if (type === "gap" || type === "contradiction") {
-    return { ...base, value: null, type };
+    const missing = inputs.find((i) => i.value === null || i.type === "gap");
+    return {
+      ...base,
+      value: null,
+      type,
+      gapReason: opts.gapReason ?? missing?.gapReason ?? "unmeasurable",
+      closesOn: opts.closesOn ?? missing?.closesOn,
+    };
   }
   const values = inputs.map((i) => i.value as number);
   const value = compute(values);
   return { ...base, value, type: value === null ? "gap" : type };
 }
+
 
 /**
  * Counterfactual: a declared assumption stands in for a missing fact.
@@ -212,4 +322,95 @@ export function realizedYield(paid: Figure, wrvu: Figure): Figure {
       formula: "professional dollars received / physician work units",
     },
   );
+}
+
+// ---------------------------------------------------------------------------
+// NO-SWALLOW PARTITION
+//
+//   sum(all mutually exclusive visible classes) = population entering the
+//   reconciliation.
+//
+// No record may disappear because a join failed, a reference lookup failed, a
+// payer was unknown, a facility was unknown, an amount was missing, a parser
+// repaired a field, or a classification was inconvenient. A hidden record is a
+// product failure.
+// ---------------------------------------------------------------------------
+
+export interface PartitionClass {
+  disposition: Disposition;
+  rows: number;
+  /** Integer cents, where the class carries money. */
+  amount_cents?: number | null;
+}
+
+export interface PartitionCheck {
+  universe: string;
+  total: number;
+  classified: number;
+  classes: PartitionClass[];
+  /** Only true when every input row landed in exactly one visible class. */
+  closes: boolean;
+  unaccounted: number;
+}
+
+export function checkPartition(
+  universe: string,
+  total: number,
+  classes: PartitionClass[],
+): PartitionCheck {
+  const classified = classes.reduce((s, c) => s + c.rows, 0);
+  return {
+    universe,
+    total,
+    classified,
+    classes,
+    closes: classified === total,
+    unaccounted: total - classified,
+  };
+}
+
+/**
+ * A user election — "assume Medicare for analysis", "treat every EFT row as a
+ * professional collection" — turns a gap into a COUNTERFACTUAL. It never turns
+ * it into a record fact, and it never overwrites one.
+ */
+export function elect(
+  base: Figure,
+  value: number,
+  meta: { assumption: string; closesOn: string; formula?: string },
+): Figure {
+  if (base.type === "record" || base.type === "record_derived") {
+    return {
+      ...base,
+      note:
+        "Refused: an election may fill a gap. It may never overwrite a record fact. " +
+        (base.note ?? ""),
+    };
+  }
+  return {
+    ...base,
+    value,
+    type: "counterfactual",
+    authoredBy: ["model"],
+    assumption: meta.assumption,
+    closesOn: meta.closesOn,
+    formula: meta.formula,
+  };
+}
+
+/**
+ * Covered basis. A denominator that excludes rows the reference cannot price
+ * must say so — never shrink a denominator silently, never call an uncovered
+ * row zero.
+ */
+export function coveredBasis(f: Figure, covered: number, uncovered: number): Figure {
+  if (uncovered === 0) return f;
+  return {
+    ...f,
+    coveredBasis: { covered, uncovered },
+    note:
+      `Covered basis: ${covered.toLocaleString()} of ${(covered + uncovered).toLocaleString()} rows carry the reference value. ` +
+      `${uncovered.toLocaleString()} uncovered rows are excluded from the denominator and are not counted as zero. ` +
+      (f.note ?? ""),
+  };
 }

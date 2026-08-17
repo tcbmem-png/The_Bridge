@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { RecordLoader } from "../components/record/RecordLoader";
+import { AuditMachinery } from "../components/record/AuditMachinery";
 import { FigureTile } from "../components/record/FigureTile";
 import { ProvenanceStamp } from "../components/record/ProvenanceStamp";
 import { useRecord, useRecordQuery } from "../lib/provenance/useRecord";
@@ -132,6 +133,8 @@ function RecordPage() {
       ) : (
         <RecordBody data={data} />
       )}
+
+      <AuditMachinery enabled={loaded} />
     </main>
   );
 }
