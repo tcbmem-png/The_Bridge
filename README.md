@@ -1,6 +1,12 @@
 # The Bridge
 
+**Live:** https://mdmd.dev
+
 **Independent economic record for physician groups — work to claim to payment to cash.**
+
+The Bridge reconstructs the path from physician work to claim, payer
+adjudication, payment and bank cash — with every material figure traceable to
+its source. `mdmd.dev` is the address; the product is The Bridge.
 
 A physician group performs the work, but the economic record of that work is
 fragmented across clinical, billing, clearinghouse, payer, posting and banking
@@ -28,7 +34,7 @@ WORK → CLAIM → ADJUDICATION → PAYMENT → POSTING → BANK CASH
 
 | Route | What it does |
 | --- | --- |
-| `/record` | The work-to-cash chain, handoff by handoff, with a row-level gap register |
+| [`/record`](https://mdmd.dev/record) | The work-to-cash chain, handoff by handoff, with a row-level gap register |
 | `/economics` | What the work actually yielded, sliced and drillable to source rows |
 | `/method` | How a figure earns its label |
 | `/intake` | Staged source intake, custody hashing, readiness and pilot-preparation export |
