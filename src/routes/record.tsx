@@ -433,12 +433,17 @@ function Panel({
                 )}
               </td>
               <td className="w-[1%] py-2 pl-3">
-                {Number(value) > 0 && kind !== "record" ? (
+                {Number(value) > 0 && kind === "ambiguous" ? (
+                  <span className="inline-flex items-center rounded-full border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-2 py-[2px] font-mono text-[9.5px] uppercase tracking-[0.11em] text-[var(--gold)]">
+                    Ambiguous
+                  </span>
+                ) : Number(value) > 0 && kind !== "record" ? (
                   <ProvenanceStamp
                     type={kind === "contradiction" ? "contradiction" : "gap"}
                   />
                 ) : null}
               </td>
+
             </tr>
           ))}
         </tbody>
