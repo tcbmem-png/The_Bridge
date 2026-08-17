@@ -5,6 +5,7 @@ import { CustodyLedger } from "../components/intake/CustodyLedger";
 import { PracticeQuestionnaire } from "../components/intake/PracticeQuestionnaire";
 import { OntologyReview } from "../components/intake/OntologyReview";
 import { ReadinessReport } from "../components/intake/ReadinessReport";
+import { PilotPlanExport } from "../components/intake/PilotPlanExport";
 import {
   clearCustody,
   loadCustody,
