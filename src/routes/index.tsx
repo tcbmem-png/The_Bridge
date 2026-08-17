@@ -226,6 +226,8 @@ function LandingScroll() {
           <footer className="reveal pb-20 pt-12 font-mono-tab text-[12px] leading-[1.8] tracking-[0.04em] text-[var(--bridge-muted)]">
             Illustrative — synthetic data, no patient records.
             <br />
+            The Bridge · {SITE.domain}
+            <br />
             Flat, deterministic code; every figure drills to its source. Read the
             engine →{" "}
             <a
