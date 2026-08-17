@@ -126,6 +126,7 @@ const PAYER_RATE = {
   [UNKNOWN_PAYER]: 1.05,
 };
 const CF = 32.35; // synthetic conversion factor for the sample year
+const TOTAL_RVU_FACTOR = 1.72; // synthetic total-RVU-to-work-RVU relationship
 
 // ---------------------------------------------------------------- generation
 const YEAR = 2025;
@@ -263,7 +264,7 @@ for (let i = 0; i < N_ENCOUNTERS; i++) {
   let paid = null;
   let pr = 0;
 
-  const medicareEquivalent = wrvu === null ? charge * 0.42 : wrvu * CF;
+  const medicareEquivalent = wrvu === null ? charge * 0.42 : wrvu * CF * TOTAL_RVU_FACTOR;
   const contractAllowed = money(Math.max(medicareEquivalent * (PAYER_RATE[payer] ?? 1), 12));
 
   if (roll < 0.041) {
