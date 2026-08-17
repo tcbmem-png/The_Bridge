@@ -32,13 +32,15 @@ export interface CustodyEntry {
 export async function hashBytes(bytes: ArrayBuffer | Uint8Array): Promise<string | null> {
   try {
     const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-    const buf = view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
-    const digest = await crypto.subtle.digest("SHA-256", buf);
+    const copy = new Uint8Array(view.byteLength);
+    copy.set(view);
+    const digest = await crypto.subtle.digest("SHA-256", copy);
     return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
   } catch {
     return null;
   }
 }
+
 
 /** Short form for display. The full hash is always available on hover/copy. */
 export function shortHash(sha: string | null): string {
