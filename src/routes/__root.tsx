@@ -129,7 +129,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const hideFooter = pathname === "/optimizer" || pathname === "/extractor";
+  const hideFooter = pathname === "/optimizer" || pathname === "/legacy/extractor";
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/twonumbers")({
   beforeLoad: () => {
-    throw redirect({ to: "/stipend" });
+    throw redirect({ to: "/record" });
   },
   component: () => null,
 });

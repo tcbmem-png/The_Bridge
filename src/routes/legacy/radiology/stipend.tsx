@@ -11,7 +11,7 @@ import {
   computePracticeImpact,
 } from "@/lib/stipend/practiceImpact";
 
-export const Route = createFileRoute("/stipend")({
+export const Route = createFileRoute("/legacy/radiology/stipend")({
   head: () => ({
     meta: [
       { title: "See it move — The Bridge" },

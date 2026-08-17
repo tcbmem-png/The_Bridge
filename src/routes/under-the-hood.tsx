@@ -229,7 +229,7 @@ function UnderTheHoodPage() {
             Questions you're probably asking →
           </Link>
           <Link
-            to="/harness"
+            to="/internal/harness"
             className="inline-flex items-center gap-2 font-mono-tab text-[11px] uppercase tracking-[0.12em] text-[var(--gold)] underline underline-offset-4 decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:decoration-[var(--gold)] transition-colors"
           >
             Run it yourself →
