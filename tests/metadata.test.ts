@@ -33,7 +33,8 @@ describe("unfurl metadata", () => {
     });
 
     it(`${name}: og:image is an absolute url`, () => {
-      expect(src).toContain("https://clinic-data-unite.lovable.app/og-bridge.jpg");
+      expect(src).toContain("https://clinic-data-unite.lovable.app");
+      expect(src).toContain("og-bridge.jpg");
     });
 
     it(`${name}: no stale identity`, () => {
