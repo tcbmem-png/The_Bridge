@@ -323,3 +323,94 @@ export function realizedYield(paid: Figure, wrvu: Figure): Figure {
     },
   );
 }
+
+// ---------------------------------------------------------------------------
+// NO-SWALLOW PARTITION
+//
+//   sum(all mutually exclusive visible classes) = population entering the
+//   reconciliation.
+//
+// No record may disappear because a join failed, a reference lookup failed, a
+// payer was unknown, a facility was unknown, an amount was missing, a parser
+// repaired a field, or a classification was inconvenient. A hidden record is a
+// product failure.
+// ---------------------------------------------------------------------------
+
+export interface PartitionClass {
+  disposition: Disposition;
+  rows: number;
+  /** Integer cents, where the class carries money. */
+  amount_cents?: number | null;
+}
+
+export interface PartitionCheck {
+  universe: string;
+  total: number;
+  classified: number;
+  classes: PartitionClass[];
+  /** Only true when every input row landed in exactly one visible class. */
+  closes: boolean;
+  unaccounted: number;
+}
+
+export function checkPartition(
+  universe: string,
+  total: number,
+  classes: PartitionClass[],
+): PartitionCheck {
+  const classified = classes.reduce((s, c) => s + c.rows, 0);
+  return {
+    universe,
+    total,
+    classified,
+    classes,
+    closes: classified === total,
+    unaccounted: total - classified,
+  };
+}
+
+/**
+ * A user election — "assume Medicare for analysis", "treat every EFT row as a
+ * professional collection" — turns a gap into a COUNTERFACTUAL. It never turns
+ * it into a record fact, and it never overwrites one.
+ */
+export function elect(
+  base: Figure,
+  value: number,
+  meta: { assumption: string; closesOn: string; formula?: string },
+): Figure {
+  if (base.type === "record" || base.type === "record_derived") {
+    return {
+      ...base,
+      note:
+        "Refused: an election may fill a gap. It may never overwrite a record fact. " +
+        (base.note ?? ""),
+    };
+  }
+  return {
+    ...base,
+    value,
+    type: "counterfactual",
+    authoredBy: ["model"],
+    assumption: meta.assumption,
+    closesOn: meta.closesOn,
+    formula: meta.formula,
+  };
+}
+
+/**
+ * Covered basis. A denominator that excludes rows the reference cannot price
+ * must say so — never shrink a denominator silently, never call an uncovered
+ * row zero.
+ */
+export function coveredBasis(f: Figure, covered: number, uncovered: number): Figure {
+  if (uncovered === 0) return f;
+  return {
+    ...f,
+    coveredBasis: { covered, uncovered },
+    note:
+      `Covered basis: ${covered.toLocaleString()} of ${(covered + uncovered).toLocaleString()} rows carry the reference value. ` +
+      `${uncovered.toLocaleString()} uncovered rows are excluded from the denominator and are not counted as zero. ` +
+      (f.note ?? ""),
+  };
+}
