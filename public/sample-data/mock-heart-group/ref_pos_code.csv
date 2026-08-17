@@ -1,0 +1,7 @@
+pos_code,description,site
+11,Office,office
+19,Off-campus outpatient hospital,hospital
+21,Inpatient hospital,hospital
+22,On-campus outpatient hospital,hospital
+23,Emergency room — hospital,ed
+24,Ambulatory surgical center,asc

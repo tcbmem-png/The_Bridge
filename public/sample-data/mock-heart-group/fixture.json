@@ -1,0 +1,28 @@
+{
+  "name": "MOCK_HEART_GROUP",
+  "synthetic": true,
+  "service_year": 2025,
+  "physicians": 9,
+  "encounters": 6400,
+  "claim_lines": 6280,
+  "remit_rows": 6106,
+  "deposit_rows": 4609,
+  "total_charges": 9388316.72,
+  "total_allowed": 770463.48,
+  "total_paid": 698552.19,
+  "total_deposits": 715574.58,
+  "mapped_wrvu": 24246.59,
+  "bank_only_rows": 14,
+  "breaks": {
+    "work_without_claim": 120,
+    "claim_without_remit": 186,
+    "denied": 216,
+    "zero_pay": 114,
+    "paid_not_in_bank": 67,
+    "unknown_payer_lines": 98,
+    "unmapped_cpt_lines": 70,
+    "contradictory_payer": 10,
+    "ambiguous_remit": 12,
+    "unknown_physician_lines": 22
+  }
+}

@@ -1,0 +1,5 @@
+facility_id,facility_name,facility_type
+OFFICE1,Main Office,office
+HOSPA,Hospital A,hospital
+HOSPB,Hospital B,hospital
+ASC1,Outpatient Center,asc

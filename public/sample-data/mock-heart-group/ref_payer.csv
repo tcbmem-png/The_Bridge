@@ -1,0 +1,7 @@
+payer_id,payer_name,financial_class
+MCR,Medicare,medicare
+MA1,Medicare Advantage Plan,medicare_advantage
+MCAL,State Medicaid,medicaid
+COMM_A,Commercial A,commercial
+COMM_B,Commercial B,commercial
+SELF,Self-pay,self_pay

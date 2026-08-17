@@ -1,0 +1,6 @@
+denial_code,description,category
+CO-16,Claim lacks information needed for adjudication,coding
+CO-97,Benefit included in payment for another service,bundling
+CO-197,Precertification / authorization absent,authorization
+PR-27,Expenses incurred after coverage terminated,eligibility
+CO-50,Not deemed a medical necessity,other
