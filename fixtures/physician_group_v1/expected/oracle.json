@@ -1,0 +1,110 @@
+{
+  "fixture_id": "synthetic_physician_group",
+  "fixture_version": "1.0",
+  "authored_by": "independent recount (scripts/oracle/recount.mjs) — not the production pipeline",
+  "note": "Engineering specimen. Synthetic. Not an empirical claim about any specialty. This answer key changes only through an intentional fixture-version bump.",
+  "source_dir": "public/sample-data/mock-heart-group",
+  "custody": {
+    "encounters": "38a7afd871d250ccf5bc4bbf485b63b743b9948ac154bfce2cf68d8ce6dcdc39",
+    "claims": "244f507159e3b0eb74ee1dcb95b37487d22bcda0140bdf64df377328508dd5da",
+    "remits": "c452468292538ebda8d4b8b62d04ee4c7a21ae7f6e4f1c9ccb16512b6ccd86cd",
+    "deposits": "8d9d55d886fc7e744eebf838ac8fbc2e0fb799d27d6d3a45cd09dbe42e4dfd4c"
+  },
+  "source_counts": {
+    "encounters": 6400,
+    "claim_lines": 6280,
+    "remit_rows": 6106,
+    "deposits": 4609,
+    "ref_mpfs": 24,
+    "ref_physician": 9,
+    "ref_payer": 6,
+    "ref_facility": 4,
+    "ref_service_family": 24,
+    "ref_pos_code": 6
+  },
+  "chain": {
+    "encounters": 6400,
+    "unbilled": 120,
+    "claim_lines": 6280,
+    "claim_lines_without_remittance": 186,
+    "payer_contradictions": 10,
+    "ambiguous_remittance": 12,
+    "denied_lines": 216,
+    "zero_pay_lines": 114,
+    "wrvu_mapped_lines": 6210
+  },
+  "money_cents": {
+    "charges": 938831672,
+    "allowed": 131223711,
+    "payer_paid": 119018532,
+    "patient_responsibility": 12205179,
+    "contractual_adjustments": 786105785,
+    "bank_cash": 119926339
+  },
+  "reference_integrity": {
+    "unmapped_cpt_lines": 70,
+    "unknown_payer_lines": 98,
+    "unknown_physician_lines": 22,
+    "unknown_facility_lines": 0,
+    "unknown_pos_lines": 0,
+    "unmapped_family_lines": 70
+  },
+  "partition": {
+    "claim_lines": {
+      "population": 6280,
+      "resolved_clean": 6003,
+      "resolved_repaired": 0,
+      "unmatched": 186,
+      "ambiguous": 12,
+      "contradictory": 10,
+      "uncovered": 69,
+      "unresolved": 0
+    },
+    "encounters": {
+      "population": 6400,
+      "resolved_clean": 6280,
+      "unmatched": 120,
+      "ambiguous": 0
+    },
+    "deposits": {
+      "population": 4609,
+      "resolved_clean": 4595,
+      "unmatched": 14,
+      "ambiguous": 0
+    }
+  },
+  "trace": {
+    "states": {
+      "matched": 4595,
+      "matched_amount_differs": 0,
+      "ambiguous_duplicate_deposit": 0,
+      "remit_only": 475,
+      "bank_only": 14
+    },
+    "unexplained_bank_cash_cents": 2861581
+  },
+  "cash_carve": {
+    "starting_gap_cents": 907807,
+    "explained": [
+      {
+        "key": "bank_cash_with_no_payer_trace",
+        "amount_cents": 2861581
+      },
+      {
+        "key": "payer_payment_with_no_bank_trace",
+        "amount_cents": -1953774
+      }
+    ],
+    "explained_cents": 907807,
+    "unexplained_after_cents": 0
+  },
+  "charge_side": {
+    "charges_cents": 938831672,
+    "no_remittance_charges_cents": 24945527,
+    "adjudicated_charges_cents": 913886145,
+    "components_cents": 917329496,
+    "component_overage_cents": 3443351,
+    "denied_or_zero_pay_charges_cents": 43875088,
+    "payer_paid_without_bank_trace_cents": 1953774
+  }
+}
