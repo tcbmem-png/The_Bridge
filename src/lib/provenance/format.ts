@@ -34,8 +34,8 @@ export function formatValue(value: number | null, unit: Figure["unit"]): string 
 }
 
 export function formatFigure(f: Figure): string {
-  if (f.type === "gap") return "GAP";
-  if (f.type === "contradiction") return "UNRESOLVED";
+  if (f.type === "gap") return "Not on record";
+  if (f.type === "contradiction") return "Sources disagree";
   return formatValue(f.value, f.unit);
 }
 

@@ -137,7 +137,9 @@ export const leakage = () =>
       MAX(dc.category)                           AS category,
       COUNT(*)                                   AS lines,
       SUM(s.charge_amount)                       AS charges,
-      SUM(COALESCE(s.allowed_amount, 0) - COALESCE(s.paid_amount, 0)) AS unpaid
+      SUM(s.allowed_amount - s.paid_amount) FILTER (
+        WHERE s.allowed_amount IS NOT NULL AND s.paid_amount IS NOT NULL
+      ) AS unpaid
     FROM core.service_economics s
     LEFT JOIN ref.denial_code dc ON dc.denial_code = s.denial_code
     GROUP BY 1
