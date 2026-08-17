@@ -1,34 +1,33 @@
-// The Bridge — landing scroll. One continuous read that merges the doctor
-// and executive doors: problem → a located number → the two numbers →
-// bidirectional slider → quiet close. /for-it, /for-counsel, /stipend stay
-// separate; this page only links to them at the bottom.
+// The Bridge — landing scroll.
 //
-// Decisions (mine, called out so the next pass knows):
-//  1. /stipend survives as the deeper exec page (linked from the close as
-//     "the demo").
-//  2. The slider uses illustrative hardcoded sample numbers ported verbatim
-//     from the prototype's vanilla-JS model — what holds is the relationship
-//     shape (with flat, without craters, stipend = gap, freed-capacity upside
-//     on the left). The real engine still backs /stipend and the harness;
-//     wiring it through here without changing those surfaces is a follow-up.
+// The thesis is specialty-agnostic: a physician group should be able to hold
+// an independent record of what it did and what happened to the money, without
+// asking the entity that benefits from the ambiguity for permission. The scroll
+// runs: the problem → the four handoffs → what a label means → the record itself.
+//
+// Radiology-specific material still exists at /stipend and /extractordemo; this
+// page no longer leads with it.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode } from "react";
-import { VolumeSlider } from "../components/landing/VolumeSlider";
 import { REPO_URL } from "../lib/brand";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "The Bridge — for the radiology group" },
+      { title: "The Bridge — an independent record of your own economics" },
       {
         name: "description",
         content:
-          "The work isn't the problem — the yield on it is. One picture you can question, and check, down to the record.",
+          "You did the work. You should be able to see what happened to the money. The Bridge reconstructs the chain from service performed to cash received, and names every gap.",
       },
-      { property: "og:title", content: "The Bridge — for the radiology group" },
+      {
+        property: "og:title",
+        content: "The Bridge — an independent record of your own economics",
+      },
       {
         property: "og:description",
-        content: "The loss has an address. The Bridge locates it and ties it out.",
+        content:
+          "Work to claim to adjudication to payment to cash. Four handoffs, each one checkable, each gap named.",
       },
     ],
   }),
@@ -36,8 +35,6 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingScroll() {
-  // Page-scoped reveal observer — fade-up on scroll-enter. Respects
-  // prefers-reduced-motion via the .reveal styles in styles.css.
   const root = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const scope = root.current;
@@ -67,20 +64,21 @@ function LandingScroll() {
     <main
       ref={root}
       className="font-hanken bg-paper text-[var(--bridge-body)]"
-      style={{
-        fontSize: "clamp(1.02rem, 1.15vw, 1.18rem)",
-        lineHeight: 1.66,
-      }}
+      style={{ fontSize: "clamp(1.02rem, 1.15vw, 1.18rem)", lineHeight: 1.66 }}
     >
       <div className="mx-auto max-w-[760px] px-8">
-
         {/* 1 · Hero */}
         <Section>
-          <Kicker>For the radiology group working as hard as it ever has</Kicker>
-          <H1 className="reveal d1">The work isn't the problem.<br />The yield on it is.</H1>
+          <Kicker>For the independent physician group</Kicker>
+          <H1 className="reveal d1">
+            You did the work.
+            <br />
+            You should be able to see what happened to the money.
+          </H1>
           <Lede className="reveal d2">
-            When the same reads bring in less, effort isn't the fix. The Bridge joins your billing,
-            your reports, and your worklist into one picture you can question — and check, down to the record.
+            Most groups learn what they earned from a report written by someone
+            else. The Bridge builds the other copy: your own record, from your own
+            files, reconstructed on your own machine.
           </Lede>
           <div className="reveal d3 mt-16 flex items-center gap-3 font-mono-tab text-[11.5px] tracking-[0.18em] text-[var(--bridge-muted)]">
             <span className="h-px w-[38px] bg-[var(--bridge-hair)]" />
@@ -89,81 +87,99 @@ function LandingScroll() {
           </div>
         </Section>
 
-        {/* 2 · The loss has an address */}
+        {/* 2 · The four handoffs */}
         <Section>
-          <Kicker>The loss has an address</Kicker>
+          <Kicker>Where money goes missing</Kicker>
           <H2 className="reveal d1">
-            Not <em className="text-[#3f3a33] italic">yield fell.</em> Yield fell here.
+            Four handoffs sit between a service and a dollar.
           </H2>
           <Lede className="reveal d1">
-            On these reads, on this shift, at this site, for this payer. An average is a complaint.
-            A located number is something you can put on a table.
+            Each one is a place where a link can fail without anyone being told.
+            Not fraud. Just a join that nobody owns.
           </Lede>
-          <div className="reveal d2 mt-9 max-w-[520px] rounded-[3px] border border-[var(--bridge-hair)] bg-[var(--bridge-cream-2)] px-9 py-[34px]">
+          <ol className="reveal d2 mt-9 border-t border-[var(--bridge-hair)]">
+            {HANDOFFS.map((h) => (
+              <li
+                key={h.step}
+                className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-[var(--bridge-hair)] py-5"
+              >
+                <span className="font-mono-tab pt-1 text-[11px] uppercase tracking-[0.13em] text-[var(--bridge-muted)]">
+                  {h.step}
+                </span>
+                <span>
+                  <b className="font-medium text-ink">{h.title}</b>
+                  <span className="mt-1 block text-[0.95em] text-[var(--bridge-body)]">
+                    {h.failure}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
+        {/* 3 · Unknown is not zero */}
+        <Section>
+          <Kicker>The rule that makes it usable</Kicker>
+          <H2 className="reveal d1">Unknown is not zero.</H2>
+          <Lede className="reveal d1">
+            A claim with no remittance is not a claim paid nothing. It is a claim
+            with nothing on the record. Treating those the same turns an open
+            question into a settled loss — and quietly makes the report look
+            complete.
+          </Lede>
+          <div className="reveal d2 mt-9 max-w-[560px] rounded-[3px] border border-[var(--bridge-hair)] bg-[var(--bridge-cream-2)] px-9 py-[34px]">
             <div className="mb-[22px] font-mono-tab text-[11px] uppercase tracking-[0.13em] text-[var(--bridge-muted)]">
-              ER · Night shift · Site B · Aetna
+              Every figure carries its provenance
             </div>
-            <div className="font-display text-[3.4rem] font-medium leading-none tracking-[-0.02em] text-ink">
-              $26.87
-              <span className="ml-2 font-hanken text-[1.15rem] font-normal text-[var(--bridge-muted)]">per read</span>
-            </div>
-            <div className="mt-3.5">
-              vs <b className="font-medium text-ink">$59.83</b> on the same group's reads elsewhere.
-            </div>
-            <div className="mt-6 flex items-center gap-2.5 border-t border-[var(--bridge-hair)] pt-[18px] font-mono-tab text-[12px] tracking-[0.04em] text-[var(--bridge-muted)]">
-              1,204 reads · Mar–Aug
-              <span className="ml-auto text-teal">open →</span>
+            <ul className="space-y-3">
+              {LABELS.map((l) => (
+                <li key={l.k} className="flex gap-4">
+                  <span className="font-mono-tab w-[124px] shrink-0 text-[11px] uppercase tracking-[0.1em] text-ink">
+                    {l.k}
+                  </span>
+                  <span className="text-[0.95em]">{l.v}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-7 border-t border-[var(--bridge-hair)] pt-[18px]">
+              <Link
+                to="/method"
+                className="font-mono-tab text-[12px] tracking-[0.04em] text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
+              >
+                The full method →
+              </Link>
             </div>
           </div>
         </Section>
 
-        {/* 3 · Two numbers you already own */}
+        {/* 4 · Your machine */}
         <Section>
-          <Kicker>Two numbers you already own</Kicker>
-          <H2 className="reveal d1">What the ER costs you is two figures.</H2>
+          <Kicker>Where it runs</Kicker>
+          <H2 className="reveal d1">On your machine. Nowhere else.</H2>
           <Lede className="reveal d1">
-            The work your group does covering it, and what that work actually collects. You hold both already —
-            sometimes they just sit in the seam between systems.
+            Postgres compiled into the browser tab. Your exports are parsed and
+            queried on the computer in front of you, and gone on reload. No
+            account, no upload, no vendor holding the copy. The demonstration set
+            is synthetic; real claim data belongs on hardware you control,
+            running the same open engine.
           </Lede>
-          <div className="reveal d2 mt-9 flex flex-col border-y border-[var(--bridge-hair)] md:flex-row">
-            <div className="flex-1 py-[30px] pr-[30px]">
-              <div className="mb-4 font-mono-tab text-[11.5px] uppercase tracking-[0.13em] text-[var(--bridge-muted)]">
-                Your ER read
-              </div>
-              <div className="font-display text-[2.7rem] font-medium leading-none tracking-[-0.02em] text-ink">
-                $26.87
-                <span className="ml-1.5 font-hanken text-[1rem] font-normal text-[var(--bridge-muted)]">/ read</span>
-              </div>
-            </div>
-            <div className="flex-1 border-t border-[var(--bridge-hair)] py-[30px] pl-0 md:border-l md:border-t-0 md:pl-9">
-              <div className="mb-4 font-mono-tab text-[11.5px] uppercase tracking-[0.13em] text-[var(--bridge-muted)]">
-                Every other read
-              </div>
-              <div className="font-display text-[2.7rem] font-medium leading-none tracking-[-0.02em] text-ink">
-                $59.83
-                <span className="ml-1.5 font-hanken text-[1rem] font-normal text-[var(--bridge-muted)]">/ read</span>
-              </div>
-            </div>
-          </div>
-          <p className="reveal d2 mt-6">
-            <b className="font-medium text-ink">$32.96 of yield, gone</b> — on every ER read. That's not effort. That's structure.
-          </p>
-        </Section>
-
-        {/* 4 · The bidirectional slider */}
-        <Section>
-          <Kicker>The volume is the problem — and you don't control it</Kicker>
-          <H2 className="reveal d1">One slider. Both sides on it.</H2>
-          <Lede className="reveal d1">
-            Protocol scans off miscoded falls, the ER used as primary care — that volume isn't yours to set.
-            So move it, and watch who it costs.
-          </Lede>
-          <div className="reveal d1">
-            <VolumeSlider />
+          <div className="reveal d2 mt-9 flex flex-wrap gap-3">
+            <Link
+              to="/record"
+              className="rounded-full bg-ink px-5 py-2.5 text-[15px] font-medium text-paper no-underline transition-colors hover:bg-ink/90"
+            >
+              Open the record
+            </Link>
+            <Link
+              to="/economics"
+              className="rounded-full border border-ink/30 px-5 py-2.5 text-[15px] font-medium text-ink no-underline transition-colors hover:bg-ink/[0.06]"
+            >
+              See realized yield
+            </Link>
           </div>
         </Section>
 
-        {/* 4.5 · Live demo card */}
+        {/* 5 · Live demo card */}
         <Section>
           <Kicker>Try it yourself</Kicker>
           <div className="reveal d1 mt-2 rounded-[3px] border border-[var(--bridge-hair)] bg-[var(--bridge-cream-2)] px-9 py-[34px]">
@@ -174,10 +190,11 @@ function LandingScroll() {
               The Extractor — live demo
             </h2>
             <p className="mb-6 max-w-[52ch]">
-              Follow a radiology practice's money end to end on fully synthetic data — from the
-              studies it read to the cash that reached its bank, and how the billing company's
-              report compares to the receipts. Four stages, and every figure clicks open to its
-              source rows. No signup. Runs entirely in your browser.
+              Follow a practice's money end to end on fully synthetic data — from
+              the work it performed to the cash that reached its bank, and how the
+              billing company's report compares to the receipts. Every figure
+              clicks open to its source rows. No signup. Runs entirely in your
+              browser.
             </p>
             <a
               href="/extractordemo/"
@@ -188,22 +205,28 @@ function LandingScroll() {
           </div>
         </Section>
 
-        {/* 5 · Close */}
+        {/* 6 · Close */}
         <section className="py-[7vh]">
           <Kicker>Where it belongs</Kicker>
           <H2 className="reveal d1">A number both sides can check.</H2>
-          <p className="reveal d1 mb-9 max-w-[40ch]">
-            The coverage isn't yours to govern — it's the hospital's, and it moves when they see the same
-            figure and decide to act. The structure just puts the risk where the control already is.
+          <p className="reveal d1 mb-9 max-w-[42ch]">
+            An independent record does not win an argument by asserting a bigger
+            number. It wins by being openable — every figure down to the row it
+            came from, every gap named with the document that would close it.
           </p>
           <div className="reveal d2">
-            <QuietLink to="/stipend" it="See the whole table" go="the demo" />
+            <QuietLink to="/record" it="The chain, handoff by handoff" go="The record" />
+            <QuietLink to="/economics" it="Dollars per unit of work" go="Economics" />
+            <QuietLink to="/method" it="How a figure earns its label" go="Method" />
+            <QuietLink to="/stipend" it="The hospital-coverage case" go="Stipend detail" />
             <QuietLink to="/for-it" it="The technical + security detail" go="For IT / your CIO" />
             <QuietLink to="/for-counsel" it="The legal structure" go="For counsel" />
           </div>
           <footer className="reveal pb-20 pt-12 font-mono-tab text-[12px] leading-[1.8] tracking-[0.04em] text-[var(--bridge-muted)]">
-            Illustrative — sample data, no patient records.<br />
-            Flat, deterministic code; every figure drills to its source. Read the engine →{" "}
+            Illustrative — synthetic data, no patient records.
+            <br />
+            Flat, deterministic code; every figure drills to its source. Read the
+            engine →{" "}
             <a
               href={REPO_URL}
               target="_blank"
@@ -216,11 +239,45 @@ function LandingScroll() {
         </section>
       </div>
 
-      {/* Subtle bob keyframe for the scroll cue arrow. */}
       <style>{`@keyframes bridge-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}`}</style>
     </main>
   );
 }
+
+const HANDOFFS = [
+  {
+    step: "01",
+    title: "Work becomes a claim.",
+    failure:
+      "Encounters that never reach a claim line. The service happened; no billing artefact exists behind it.",
+  },
+  {
+    step: "02",
+    title: "A claim becomes an adjudication.",
+    failure:
+      "Lines submitted with no remittance ever returned. Not denied — simply unanswered, and invisible on a collections report.",
+  },
+  {
+    step: "03",
+    title: "An adjudication becomes a payment.",
+    failure:
+      "Allowed amounts that never turn into paid amounts, under reason codes nobody reconciles.",
+  },
+  {
+    step: "04",
+    title: "A payment becomes cash.",
+    failure:
+      "Remittances with no matching deposit, and deposits with no matching remittance.",
+  },
+];
+
+const LABELS = [
+  { k: "Record", v: "Read directly off a source file." },
+  { k: "Record-derived", v: "Arithmetic over record facts only." },
+  { k: "Counterfactual", v: "A fact plus a stated assumption, with the document that would replace it." },
+  { k: "Gap", v: "Required input the record does not establish. Never shown as zero." },
+  { k: "Contradiction", v: "Two sources disagree. Displayed, not resolved by preference." },
+];
 
 function Section({ children }: { children: ReactNode }) {
   return (
@@ -241,8 +298,10 @@ function Kicker({ children }: { children: ReactNode }) {
 function H1({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <h1
-      className={"mb-[34px] font-display font-medium leading-[1.04] tracking-[-0.012em] text-ink " + className}
-      style={{ fontSize: "clamp(2.7rem, 6.2vw, 4.5rem)" }}
+      className={
+        "mb-[34px] font-display font-medium leading-[1.04] tracking-[-0.012em] text-ink " + className
+      }
+      style={{ fontSize: "clamp(2.4rem, 5.2vw, 3.9rem)" }}
     >
       {children}
     </h1>
@@ -261,22 +320,26 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
 }
 
 function Lede({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <p className={"max-w-[38ch] " + className}>{children}</p>;
+  return <p className={"max-w-[42ch] " + className}>{children}</p>;
 }
 
 function QuietLink({
-  to, it, go,
-}: { to: "/stipend" | "/for-it" | "/for-counsel"; it: string; go: string }) {
+  to,
+  it,
+  go,
+}: {
+  to: "/record" | "/economics" | "/method" | "/stipend" | "/for-it" | "/for-counsel";
+  it: string;
+  go: string;
+}) {
   return (
     <Link
       to={to}
-      className="block border-t border-[var(--bridge-hair)] py-[15px] text-[17px] text-[var(--bridge-body)] no-underline last:border-b last:border-[var(--bridge-hair)] font-hanken"
+      className="block border-t border-[var(--bridge-hair)] py-[15px] font-hanken text-[17px] text-[var(--bridge-body)] no-underline last:border-b last:border-[var(--bridge-hair)]"
     >
       <span className="italic text-[var(--bridge-muted)]">{it}</span>
       &nbsp;→ &nbsp;
-      <span className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]">
-        {go}
-      </span>
+      <span className="font-medium text-ink">{go}</span>
     </Link>
   );
 }
