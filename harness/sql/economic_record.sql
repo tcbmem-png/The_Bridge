@@ -433,6 +433,7 @@ CREATE TABLE raw.repair (
     source_key     TEXT,
     row_index      INT,
     target_table   TEXT,
+    row_key        TEXT,
     field          TEXT NOT NULL,
     rule           TEXT NOT NULL,
     original       TEXT,
@@ -519,7 +520,7 @@ SELECT
 
     EXISTS (SELECT 1 FROM raw.repair r
              WHERE r.target_table = 'stg.claim_line'
-               AND r.row_index = s.service_id)                AS repaired,
+               AND r.row_key = s.claim_id || ':' || s.claim_line_id) AS repaired,
 
     -- The partition itself. Order matters: the first true class wins, and the
     -- classes are mutually exclusive by construction.
@@ -531,7 +532,8 @@ SELECT
         WHEN s.paid_amount IS NULL                       THEN 'unresolved'
         WHEN EXISTS (SELECT 1 FROM raw.repair r
                       WHERE r.target_table = 'stg.claim_line'
-                        AND r.row_index = s.service_id)  THEN 'resolved_repaired'
+                        AND r.row_key = s.claim_id || ':' || s.claim_line_id)
+                                                         THEN 'resolved_repaired'
         ELSE 'resolved_clean'
     END                                                       AS disposition
 FROM core.service_economics s;
@@ -583,8 +585,8 @@ LEFT JOIN (
 
 -- One row per (universe, disposition). The UI sums these and asserts the
 -- invariant; the invariant is never printed unless it holds.
-CREATE VIEW recon.partition AS
-SELECT 'claim_lines' AS universe, disposition, COUNT(*) AS rows,
+CREATE VIEW recon.partition_class AS
+SELECT 'claim_lines' AS universe, disposition, COUNT(*) AS row_count,
        ROUND(COALESCE(SUM(charge_amount),0) * 100)::bigint AS amount_cents
 FROM core.line_disposition GROUP BY disposition
 UNION ALL
@@ -617,11 +619,11 @@ UNION ALL SELECT 'rejected_rows', COUNT(*) FROM raw.rejected_row;
 CREATE VIEW recon.partition_check AS
 SELECT p.universe,
        p.population,
-       COALESCE(SUM(x.rows), 0)::bigint            AS classified,
-       (p.population - COALESCE(SUM(x.rows),0))::bigint AS unaccounted,
-       (p.population = COALESCE(SUM(x.rows),0))    AS closes
+       COALESCE(SUM(x.row_count), 0)::bigint            AS classified,
+       (p.population - COALESCE(SUM(x.row_count),0))::bigint AS unaccounted,
+       (p.population = COALESCE(SUM(x.row_count),0))    AS closes
 FROM recon.partition_population p
-LEFT JOIN recon.partition x ON x.universe = p.universe
+LEFT JOIN recon.partition_class x ON x.universe = p.universe
 GROUP BY p.universe, p.population;
 
 -- Payment-trace reconciliation. Payer remittance and bank cash are separate
@@ -706,7 +708,7 @@ SELECT
 
 -- Repairs, summarized for the lineage rail.
 CREATE VIEW recon.repair_summary AS
-SELECT rule, field, COUNT(*) AS rows
+SELECT rule, field, COUNT(*) AS row_count
 FROM raw.repair GROUP BY rule, field ORDER BY 3 DESC;
 
 -- File-level chain of custody, as loaded.
