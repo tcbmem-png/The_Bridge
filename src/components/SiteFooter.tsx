@@ -1,12 +1,16 @@
 import { Link } from "@tanstack/react-router";
 
 const LINKS: Array<{ label: string; to: string }> = [
+  { label: "The record", to: "/record" },
+  { label: "Economics", to: "/economics" },
+  { label: "Method", to: "/method" },
   { label: "Sandbox", to: "/sandbox" },
   { label: "Extractor / Open Source", to: "/extractor" },
   { label: "Technical", to: "/for-it" },
   { label: "Legal", to: "/for-counsel" },
   { label: "Optimizer", to: "/optimizer" },
 ];
+
 
 export function SiteFooter() {
   return (
