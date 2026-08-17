@@ -335,6 +335,7 @@ async function insertRows(
   db: PGlite,
   spec: SourceSpec,
   fileId: number | null,
+  custodyId: number,
   rows: Record<string, string>[],
 ): Promise<{ inserted: number; rejected: number; repairs: number }> {
   const numeric = new Set(spec.numeric ?? []);
@@ -392,8 +393,8 @@ async function insertRows(
     inserted += tuples.length;
   }
 
-  await writeRepairs(db, spec, fileId, repairs);
-  await writeRejects(db, spec, fileId, rejects);
+  await writeRepairs(db, spec, custodyId, repairs);
+  await writeRejects(db, spec, custodyId, rejects);
   return { inserted, rejected: rejects.length, repairs: repairs.length };
 }
 
@@ -508,7 +509,7 @@ export async function loadCsvIntoRecord(
   );
   const custodyId = res.rows[0].file_id;
   const fileId = HAS_SOURCE_FILE.has(spec.table) ? custodyId : null;
-  const { inserted, rejected, repairs } = await insertRows(db, spec, fileId, rows);
+  const { inserted, rejected, repairs } = await insertRows(db, spec, fileId, custodyId, rows);
   return {
     key: spec.key,
     file: fileName,
@@ -544,14 +545,79 @@ export async function loadSamplePackage(
       const text = await res.text();
       reports.push(await loadCsvIntoRecord(spec, text, spec.file));
     } catch {
-      reports.push({ key: spec.key, file: spec.file, rows: 0, rejected: 0, present: false });
+      reports.push({
+        key: spec.key,
+        file: spec.file,
+        rows: 0,
+        rejected: 0,
+        repairs: 0,
+        sha256: null,
+        present: false,
+      });
     }
   }
 
+  await declareMethodConfig();
   loaded = true;
   report("ready", "Record loaded", 1);
   notify();
   return reports;
+}
+
+/**
+ * Load-bearing elections are declared, not hardcoded. Each one names what it
+ * means, whether it is a record fact or a model choice, and where it came
+ * from. The deposit classification below is the clearest example: which bank
+ * rows count as professional collections is a decision, and it is visible.
+ */
+async function declareMethodConfig() {
+  const db = await getRecordDb();
+  const rows: [string, string, string, string, string][] = [
+    [
+      "deposit.classification_rule",
+      "eft_trace_present",
+      "A bank row is treated as a professional collection when it carries an EFT trace that appears on payer remittance. Bank rows without a trace stay unmatched — never zero, never assumed.",
+      "model",
+      "The Bridge method",
+    ],
+    [
+      "cash.evidence_class",
+      "separate",
+      "Payer remittance (835) and bank cash are separate evidence classes. Neither is used to prove the other; the trace is the only join.",
+      "record",
+      "The Bridge method",
+    ],
+    [
+      "reference.unknown_handling",
+      "stay_unknown",
+      "An unknown payer, facility, or place of service resolves to unresolved_identity. It never defaults to a common value.",
+      "record",
+      "The Bridge method",
+    ],
+    [
+      "denominator.covered_basis",
+      "exclude_uncovered",
+      "Lines with no reference wRVU are excluded from wRVU denominators and counted as uncovered. They are never treated as zero work.",
+      "record",
+      "The Bridge method",
+    ],
+  ];
+  for (const [key, value, definition, status, source] of rows) {
+    await db.query(
+      `INSERT INTO ref.method_config (key, value, definition, status, source)
+       VALUES ($1,$2,$3,$4,$5) ON CONFLICT (key) DO NOTHING;`,
+      [key, value, definition, status, source],
+    );
+  }
+  await db.query(
+    `UPDATE stg.deposit d
+        SET classification = CASE
+              WHEN d.eft_trace IS NULL THEN 'unclassified'
+              WHEN EXISTS (SELECT 1 FROM stg.remit_line r WHERE r.eft_trace = d.eft_trace)
+                THEN 'professional_collection'
+              ELSE 'unclassified' END,
+            classification_rule = 'deposit.classification_rule = eft_trace_present';`,
+  );
 }
 
 export async function q<T = Record<string, unknown>>(
