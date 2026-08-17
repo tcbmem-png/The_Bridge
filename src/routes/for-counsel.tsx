@@ -270,10 +270,10 @@ function ForCounselPage() {
           </Link>{" "}
           ; the live model is at{" "}
           <Link
-            to="/stipend"
+            to="/record"
             className="text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
           >
-            the demo →
+            the record →
           </Link>
           .
         </p>

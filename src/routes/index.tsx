@@ -5,7 +5,7 @@
 // asking the entity that benefits from the ambiguity for permission. The scroll
 // runs: the problem → the four handoffs → what a label means → the record itself.
 //
-// Radiology-specific material still exists at /stipend and /extractordemo; this
+// Radiology-specific material is archived under /legacy/*; this
 // page no longer leads with it.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -218,7 +218,6 @@ function LandingScroll() {
             <QuietLink to="/record" it="The chain, handoff by handoff" go="The record" />
             <QuietLink to="/economics" it="Dollars per unit of work" go="Economics" />
             <QuietLink to="/method" it="How a figure earns its label" go="Method" />
-            <QuietLink to="/stipend" it="The hospital-coverage case" go="Stipend detail" />
             <QuietLink to="/for-it" it="The technical + security detail" go="For IT / your CIO" />
             <QuietLink to="/for-counsel" it="The legal structure" go="For counsel" />
           </div>
@@ -328,7 +327,7 @@ function QuietLink({
   it,
   go,
 }: {
-  to: "/record" | "/economics" | "/method" | "/stipend" | "/for-it" | "/for-counsel";
+  to: "/record" | "/economics" | "/method" | "/for-it" | "/for-counsel";
   it: string;
   go: string;
 }) {

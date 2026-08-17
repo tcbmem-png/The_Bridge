@@ -25,7 +25,7 @@ export function PresetBanner() {
       </div>
       <div className="flex items-center gap-2">
         <Link
-          to="/harness"
+          to="/internal/harness"
           className="rounded-md border border-ink/20 bg-paper px-2 py-1 font-mono text-[11px] text-ink hover:bg-ink/5"
         >
           Re-derive
