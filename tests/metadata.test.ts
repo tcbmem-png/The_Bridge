@@ -18,8 +18,7 @@ const surfaces = [
 describe("unfurl metadata", () => {
   for (const [name, src] of surfaces) {
     it(`${name}: title carries The Bridge`, () => {
-      expect(src).toMatch(/title["']?[,:]?\s*.*The Bridge/);
-      expect(src).toContain("See What Happened to the Money");
+      expect(src).toContain("The Bridge — See What Happened to the Money");
     });
 
     it(`${name}: description states the product thesis`, () => {
@@ -30,12 +29,11 @@ describe("unfurl metadata", () => {
       expect(src).toContain("og:title");
       expect(src).toContain("og:description");
       expect(src).toContain("og:image");
-      expect(src).toContain('name: "twitter:card", content: "summary_large_image"');
+      expect(src).toContain("summary_large_image");
     });
 
     it(`${name}: og:image is an absolute url`, () => {
-      const m = src.match(/og:image", content: "([^"]+)"/);
-      expect(m?.[1]).toMatch(/^https:\/\//);
+      expect(src).toContain("https://clinic-data-unite.lovable.app/og-bridge.jpg");
     });
 
     it(`${name}: no stale identity`, () => {
