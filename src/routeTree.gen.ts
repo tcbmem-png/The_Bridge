@@ -24,6 +24,7 @@ import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as ForCounselRouteImport } from './routes/for-counsel'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ExtractorRouteImport } from './routes/extractor'
+import { Route as EconomicsRouteImport } from './routes/economics'
 import { Route as CioRouteImport } from './routes/cio'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -102,6 +103,11 @@ const ExtractorRoute = ExtractorRouteImport.update({
   path: '/extractor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EconomicsRoute = EconomicsRouteImport.update({
+  id: '/economics',
+  path: '/economics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CioRoute = CioRouteImport.update({
   id: '/cio',
   path: '/cio',
@@ -116,6 +122,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
+  '/economics': typeof EconomicsRoute
   '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
+  '/economics': typeof EconomicsRoute
   '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
+  '/economics': typeof EconomicsRoute
   '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cio'
+    | '/economics'
     | '/extractor'
     | '/faq'
     | '/for-counsel'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cio'
+    | '/economics'
     | '/extractor'
     | '/faq'
     | '/for-counsel'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/cio'
+    | '/economics'
     | '/extractor'
     | '/faq'
     | '/for-counsel'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CioRoute: typeof CioRoute
+  EconomicsRoute: typeof EconomicsRoute
   ExtractorRoute: typeof ExtractorRoute
   FaqRoute: typeof FaqRoute
   ForCounselRoute: typeof ForCounselRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExtractorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/economics': {
+      id: '/economics'
+      path: '/economics'
+      fullPath: '/economics'
+      preLoaderRoute: typeof EconomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cio': {
       id: '/cio'
       path: '/cio'
@@ -378,6 +398,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CioRoute: CioRoute,
+  EconomicsRoute: EconomicsRoute,
   ExtractorRoute: ExtractorRoute,
   FaqRoute: FaqRoute,
   ForCounselRoute: ForCounselRoute,
