@@ -19,12 +19,20 @@ export function Header() {
             <span className="font-display text-lg leading-none">The Bridge</span>
           </Link>
           <Link
+            to="/intake"
+            className="text-sm text-ink/70 transition-colors hover:text-ink"
+            activeProps={{ className: "text-ink" }}
+          >
+            Intake
+          </Link>
+          <Link
             to="/record"
             className="text-sm text-ink/70 transition-colors hover:text-ink"
             activeProps={{ className: "text-ink" }}
           >
             The record
           </Link>
+
           <Link
             to="/economics"
             className="text-sm text-ink/70 transition-colors hover:text-ink"

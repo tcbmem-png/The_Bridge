@@ -18,6 +18,7 @@ import { Route as RecordRouteImport } from './routes/record'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as LegalRouteImport } from './routes/legal'
+import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as ForCounselRouteImport } from './routes/for-counsel'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -73,6 +74,11 @@ const LegalRoute = LegalRouteImport.update({
   path: '/legal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntakeRoute = IntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForItRoute = ForItRouteImport.update({
   id: '/for-it',
   path: '/for-it',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
+  '/intake': typeof IntakeRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
+  '/intake': typeof IntakeRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
+  '/intake': typeof IntakeRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/for-counsel'
     | '/for-it'
+    | '/intake'
     | '/legal'
     | '/method'
     | '/optimizer'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/for-counsel'
     | '/for-it'
+    | '/intake'
     | '/legal'
     | '/method'
     | '/optimizer'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/for-counsel'
     | '/for-it'
+    | '/intake'
     | '/legal'
     | '/method'
     | '/optimizer'
@@ -250,6 +262,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   ForCounselRoute: typeof ForCounselRoute
   ForItRoute: typeof ForItRoute
+  IntakeRoute: typeof IntakeRoute
   LegalRoute: typeof LegalRoute
   MethodRoute: typeof MethodRoute
   OptimizerRoute: typeof OptimizerRoute
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/intake': {
+      id: '/intake'
+      path: '/intake'
+      fullPath: '/intake'
+      preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/for-it': {
       id: '/for-it'
       path: '/for-it'
@@ -402,6 +422,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   ForCounselRoute: ForCounselRoute,
   ForItRoute: ForItRoute,
+  IntakeRoute: IntakeRoute,
   LegalRoute: LegalRoute,
   MethodRoute: MethodRoute,
   OptimizerRoute: OptimizerRoute,
