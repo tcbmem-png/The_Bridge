@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PhiBanner } from "../components/harness/PhiBanner";
-import { SegmentMonthly } from "../components/harness/SegmentMonthly";
-import { CashTieout } from "../components/harness/CashTieout";
-import { VolumeTieout } from "../components/harness/VolumeTieout";
-import { HandoffContract } from "../components/harness/HandoffContract";
-import { LineageDrill } from "../components/harness/LineageDrill";
-import { UploadPortal } from "../components/harness/UploadPortal";
-import { IntegrityPanel } from "../components/harness/IntegrityPanel";
+import { PhiBanner } from "../../components/harness/PhiBanner";
+import { SegmentMonthly } from "../../components/harness/SegmentMonthly";
+import { CashTieout } from "../../components/harness/CashTieout";
+import { VolumeTieout } from "../../components/harness/VolumeTieout";
+import { HandoffContract } from "../../components/harness/HandoffContract";
+import { LineageDrill } from "../../components/harness/LineageDrill";
+import { UploadPortal } from "../../components/harness/UploadPortal";
+import { IntegrityPanel } from "../../components/harness/IntegrityPanel";
 
 export const Route = createFileRoute("/internal/harness")({
   head: () => ({
