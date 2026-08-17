@@ -193,6 +193,93 @@ function MethodPage() {
       </section>
 
       <section className="mt-10 border-t border-ink/12 pt-6">
+        <h2 className="font-display text-2xl text-ink">The intake ladder</h2>
+        <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-ink/70">
+          Sources arrive on rungs. Each rung adds a class of evidence and buys
+          more resolution. It never rewrites the rung below it: a later file can
+          explain a difference the earlier stage found, but it cannot make that
+          difference disappear.
+        </p>
+        <ol className="mt-4 space-y-4">
+          {STAGES.map((s) => (
+            <li key={s.id} className="border-l-2 border-ink/15 pl-4">
+              <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink/50">
+                Stage {s.n}
+              </p>
+              <p className="mt-1 text-[15px] text-ink">{s.label}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-ink/70">
+                Establishes: {s.establishes.join("; ")}.
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+                Cannot establish: {s.cannotEstablish.join("; ")}.
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="mt-10 border-t border-ink/12 pt-6">
+        <h2 className="font-display text-2xl text-ink">Four rules the engine enforces</h2>
+        <dl className="mt-4 space-y-4 text-[14px] leading-relaxed">
+          <div>
+            <dt className="text-ink">No row is swallowed.</dt>
+            <dd className="mt-1 text-ink/70">
+              Every claim line, encounter, deposit and remittance row lands in
+              exactly one visible class, and the classes are required to sum to
+              the population that entered. A row that fails a join, a lookup or a
+              constraint is parked and counted — never dropped, never rounded
+              into a neighbouring bucket.
+            </dd>
+          </div>
+          <div>
+            <dt className="text-ink">Cash and remittance are separate evidence.</dt>
+            <dd className="mt-1 text-ink/70">
+              A remittance is the payer's account of itself. A deposit is money.
+              Neither is used to prove the other. The EFT trace is the only join,
+              and its cardinality is stated rather than assumed one-to-one.
+            </dd>
+          </div>
+          <div>
+            <dt className="text-ink">Money is handled in whole cents.</dt>
+            <dd className="mt-1 text-ink/70">
+              Every reconciliation is carried out in integer cents, so a closure
+              either holds exactly or reports its remainder. Nothing closes
+              because of a rounding tolerance.
+            </dd>
+          </div>
+          <div>
+            <dt className="text-ink">Unknown identities stay unknown.</dt>
+            <dd className="mt-1 text-ink/70">
+              An unrecognised payer, facility or place of service resolves to
+              unresolved, not to the most common value. A code with no reference
+              work unit is marked uncovered and excluded from the denominator —
+              it is never counted as zero work.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section className="mt-10 border-t border-ink/12 pt-6">
+        <h2 className="font-display text-2xl text-ink">Repairs and elections</h2>
+        <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-ink/70">
+          Deterministic cleanup is allowed. Silent cleanup is not. Stripping a
+          dollar sign, reading parentheses as a negative, trimming whitespace —
+          each one is written to a repair log with the original text, the
+          normalised text and the rule that changed it, and each repaired row is
+          labelled as repaired rather than clean.
+        </p>
+        <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-ink/70">
+          A load-bearing choice — which bank rows count as professional
+          collections, how an unknown payer is treated — is an election. It is
+          declared with a definition, a status and an author. An election may
+          fill a gap. It may never overwrite a record fact, and it is stamped
+          COUNTERFACTUAL wherever it touches a number.
+        </p>
+      </section>
+
+
+
+      <section className="mt-10 border-t border-ink/12 pt-6">
         <h2 className="font-display text-2xl text-ink">Where the data lives</h2>
         <p className="mt-2 text-[14px] leading-relaxed text-ink/70">
           Postgres runs in the browser tab, compiled to WebAssembly. Files are
