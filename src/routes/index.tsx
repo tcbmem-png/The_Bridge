@@ -80,7 +80,7 @@ function LandingScroll() {
             You should be able to see what happened to the money.
           </H1>
           <Lede className="reveal d2">
-            Most groups learn what they earned from a report written by someone
+            Most groups learn how they did from a report written by someone
             else. The Bridge builds the other copy: your own record, from your own
             files, reconstructed on your own machine.
           </Lede>
@@ -93,7 +93,7 @@ function LandingScroll() {
 
         {/* 2 · The four handoffs */}
         <Section>
-          <Kicker>Where money goes missing</Kicker>
+          <Kicker>Where the chain can break</Kicker>
           <H2 className="reveal d1">
             Four handoffs sit between a service and a dollar.
           </H2>
@@ -127,8 +127,8 @@ function LandingScroll() {
           <H2 className="reveal d1">Unknown is not zero.</H2>
           <Lede className="reveal d1">
             A claim with no remittance is not a claim paid nothing. It is a claim
-            with nothing on the record. Treating those the same turns an open
-            question into a settled loss — and quietly makes the report look
+            with no remittance in the record. Treating those as the same turns an
+            open question into a settled loss — and quietly makes the report look
             complete.
           </Lede>
           <div className="reveal d2 mt-9 max-w-[560px] rounded-[3px] border border-[var(--bridge-hair)] bg-[var(--bridge-cream-2)] px-9 py-[34px]">
@@ -161,11 +161,11 @@ function LandingScroll() {
           <Kicker>Where it runs</Kicker>
           <H2 className="reveal d1">On your machine. Nowhere else.</H2>
           <Lede className="reveal d1">
-            Postgres compiled into the browser tab. Your exports are parsed and
-            queried on the computer in front of you, and gone on reload. No
-            account, no upload, no vendor holding the copy. The demonstration set
-            is synthetic; real claim data belongs on hardware you control,
-            running the same open engine.
+            Postgres runs inside the browser tab. In this demonstration, files
+            are parsed and queried on the computer in front of you and disappear
+            on reload — no account, no server upload, no vendor holding the copy.
+            The demonstration data is fully synthetic. For real practice data, the
+            same engine can run in an environment the practice controls.
           </Lede>
           <div className="reveal d2 mt-9 flex flex-wrap gap-3">
             <Link
@@ -191,20 +191,23 @@ function LandingScroll() {
               Interactive demo · fully synthetic data
             </div>
             <h2 className="mb-4 font-display text-[1.9rem] font-medium leading-[1.15] tracking-[-0.01em] text-ink">
-              The Extractor — live demo
+              Follow the record.
             </h2>
             <p className="mb-6 max-w-[52ch]">
-              Follow a practice's money end to end on fully synthetic data — from
-              the work it performed to the cash that reached its bank, and how the
-              billing company's report compares to the receipts. Every figure
-              clicks open to its source rows. No signup. Runs entirely in your
-              browser.
+              Trace a synthetic physician group's money from work performed to
+              claim, adjudication, payment and bank cash. Open every figure to the
+              rows behind it and see where the billing company's report agrees with
+              the underlying record — and where the record remains open.
+              <br />
+              <span className="mt-3 block">
+                No signup. Runs entirely in your browser.
+              </span>
             </p>
             <a
               href="/extractordemo/"
               className="inline-block font-mono-tab text-[13px] tracking-[0.04em] text-[var(--gold)] underline decoration-[color-mix(in_oklab,var(--gold)_45%,transparent)] underline-offset-[3px] hover:decoration-[var(--gold)]"
             >
-              Give it a whirl →
+              Open the live record →
             </a>
           </div>
         </Section>
@@ -215,14 +218,15 @@ function LandingScroll() {
           <H2 className="reveal d1">A number both sides can check.</H2>
           <p className="reveal d1 mb-9 max-w-[42ch]">
             An independent record does not win an argument by asserting a bigger
-            number. It wins by being openable — every figure down to the row it
-            came from, every gap named with the document that would close it.
+            number. It wins by being inspectable — every figure traceable to the
+            rows that produced it, every gap named with the source that would
+            close it.
           </p>
           <div className="reveal d2">
             <QuietLink to="/record" it="The chain, handoff by handoff" go="The record" />
-            <QuietLink to="/economics" it="Dollars per unit of work" go="Economics" />
+            <QuietLink to="/economics" it="What the work actually yielded" go="Economics" />
             <QuietLink to="/method" it="How a figure earns its label" go="Method" />
-            <QuietLink to="/for-it" it="The technical + security detail" go="For IT / your CIO" />
+            <QuietLink to="/for-it" it="How it runs + where the data stays" go="For IT / your CIO" />
             <QuietLink to="/for-counsel" it="The legal structure" go="For counsel" />
           </div>
           <footer className="reveal pb-20 pt-12 font-mono-tab text-[12px] leading-[1.8] tracking-[0.04em] text-[var(--bridge-muted)]">
@@ -252,19 +256,19 @@ const HANDOFFS = [
     step: "01",
     title: "Work becomes a claim.",
     failure:
-      "Encounters that never reach a claim line. The service happened; no billing artefact exists behind it.",
+      "Work with no matching claim line in the record. The service happened; the billing handoff has not been established.",
   },
   {
     step: "02",
     title: "A claim becomes an adjudication.",
     failure:
-      "Lines submitted with no remittance ever returned. Not denied — simply unanswered, and invisible on a collections report.",
+      "Submitted claim lines with no matching remittance in the record. Not zero. Not necessarily denied. The adjudication handoff remains open.",
   },
   {
     step: "03",
     title: "An adjudication becomes a payment.",
     failure:
-      "Allowed amounts that never turn into paid amounts, under reason codes nobody reconciles.",
+      "An adjudication that does not become a payer payment. The reason may be established by adjustment and denial codes — or remain unresolved.",
   },
   {
     step: "04",
@@ -275,11 +279,12 @@ const HANDOFFS = [
 ];
 
 const LABELS = [
-  { k: "Record", v: "Read directly off a source file." },
-  { k: "Record-derived", v: "Arithmetic over record facts only." },
-  { k: "Counterfactual", v: "A fact plus a stated assumption, with the document that would replace it." },
+  { k: "Record", v: "Read directly from a source file." },
+  { k: "Record-derived", v: "Arithmetic or logic over record facts only." },
+  { k: "Counterfactual", v: "Record facts plus a stated assumption, with the source or act that would close it." },
+  { k: "Model-derived", v: "A result calculated entirely inside a declared model." },
   { k: "Gap", v: "Required input the record does not establish. Never shown as zero." },
-  { k: "Contradiction", v: "Two sources disagree. Displayed, not resolved by preference." },
+  { k: "Contradiction", v: "Two governed sources disagree. Displayed, not resolved by preference." },
 ];
 
 function Section({ children }: { children: ReactNode }) {
