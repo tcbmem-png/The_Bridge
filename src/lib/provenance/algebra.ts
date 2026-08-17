@@ -165,19 +165,19 @@ export function record(
   opts: Partial<Figure> = {},
 ): Figure {
   if (value === null) {
-    return { label, value: null, type: "gap", ...opts };
+    return { label, value: null, type: "gap", gapReason: "unmeasurable", ...opts };
   }
   return { label, value, type: "record", ...opts };
 }
 
 /** A declared model input. Never a record fact. */
 export function model(label: string, value: number, opts: Partial<Figure> = {}): Figure {
-  return { label, value, type: "model_derived", ...opts };
+  return { label, value, type: "model_derived", authoredBy: ["model"], ...opts };
 }
 
-/** An explicit gap. Carries what would close it. */
+/** An explicit gap. Carries why, and what would close it. */
 export function gap(label: string, opts: Partial<Figure> = {}): Figure {
-  return { label, value: null, type: "gap", ...opts };
+  return { label, value: null, type: "gap", gapReason: "unmeasurable", ...opts };
 }
 
 export function contradiction(
@@ -199,9 +199,15 @@ function combineType(inputs: Figure[]): ProvenanceType {
   return "record_derived";
 }
 
+/** Union of the accounts standing behind a set of inputs. */
+export function mergeAuthors(inputs: Figure[]): AuthoredBy[] {
+  return [...new Set(inputs.flatMap((i) => i.authoredBy ?? []))];
+}
+
 /**
  * Derive a figure from inputs. The resulting provenance type is decided by the
- * algebra, never by the caller — that is the point.
+ * algebra, never by the caller — that is the point. Authorship is carried
+ * through: a computed figure names the accounts it drew on.
  */
 export function derive(
   label: string,
@@ -210,23 +216,34 @@ export function derive(
   opts: Partial<Figure> = {},
 ): Figure {
   const type = combineType(inputs);
+  const inputAuthors = mergeAuthors(inputs);
   const base: Figure = {
     label,
     value: null,
     type,
+    authoredBy: opts.authoredBy ?? ["computed", ...inputAuthors],
     sources: opts.sources ?? [...new Set(inputs.flatMap((i) => i.sources ?? []))],
     requires:
       opts.requires ??
       inputs.map((i) => ({ name: i.label, satisfied: i.value !== null && i.type !== "gap" })),
+    repairs: opts.repairs ?? inputs.flatMap((i) => i.repairs ?? []),
     ...opts,
   };
   if (type === "gap" || type === "contradiction") {
-    return { ...base, value: null, type };
+    const missing = inputs.find((i) => i.value === null || i.type === "gap");
+    return {
+      ...base,
+      value: null,
+      type,
+      gapReason: opts.gapReason ?? missing?.gapReason ?? "unmeasurable",
+      closesOn: opts.closesOn ?? missing?.closesOn,
+    };
   }
   const values = inputs.map((i) => i.value as number);
   const value = compute(values);
   return { ...base, value, type: value === null ? "gap" : type };
 }
+
 
 /**
  * Counterfactual: a declared assumption stands in for a missing fact.
