@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { STAGES } from "../lib/provenance/stages";
 import { ProvenanceStamp } from "../components/record/ProvenanceStamp";
 import type { ProvenanceType } from "../lib/provenance/algebra";
 
