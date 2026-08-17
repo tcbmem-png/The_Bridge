@@ -7,6 +7,7 @@ import { useRecord, useRecordQuery } from "../lib/provenance/useRecord";
 import { record, gap, realizedYield, derive } from "../lib/provenance/algebra";
 import { formatValue } from "../lib/provenance/format";
 import {
+import { routeMeta } from "../lib/site";
   segments,
   totals,
   linesFor,
@@ -32,8 +33,9 @@ export const Route = createFileRoute("/economics")({
           "Realized dollars per work unit, by any cut of the record, drillable to the 837 and 835 rows behind it.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...routeMeta("/economics").meta,
     ],
+    links: routeMeta("/economics").links,
   }),
   component: EconomicsPage,
   ssr: false,

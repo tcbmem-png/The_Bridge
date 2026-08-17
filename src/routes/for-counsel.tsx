@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
+import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/for-counsel")({
   head: () => ({
@@ -16,7 +17,9 @@ export const Route = createFileRoute("/for-counsel")({
         content:
           "A measurement instrument that sizes the uncompensated cost of ER coverage as an input to a fair-market-value analysis. Not the arrangement; not the opinion.",
       },
+      ...routeMeta("/for-counsel").meta,
     ],
+    links: routeMeta("/for-counsel").links,
   }),
   component: ForCounselPage,
 });

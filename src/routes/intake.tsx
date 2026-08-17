@@ -14,6 +14,7 @@ import {
 } from "../lib/intake/custody";
 import { clearConfig, loadConfig, saveConfig, type PracticeConfig } from "../lib/intake/config";
 import { buildReadiness } from "../lib/intake/readiness";
+import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -31,8 +32,9 @@ export const Route = createFileRoute("/intake")({
           "Progressive intake for a physician group's economic record: chain of custody, practice configuration, readiness, and the next source to request.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...routeMeta("/intake").meta,
     ],
+    links: routeMeta("/intake").links,
   }),
   component: IntakePage,
   ssr: false,

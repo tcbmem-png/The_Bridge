@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { STAGES } from "../lib/provenance/stages";
 import { ProvenanceStamp } from "../components/record/ProvenanceStamp";
 import type { ProvenanceType } from "../lib/provenance/algebra";
+import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/method")({
   head: () => ({
@@ -19,8 +20,9 @@ export const Route = createFileRoute("/method")({
           "Six labels, one rule set. A model assumption may fill a gap. It may never overwrite a record fact.",
       },
       { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...routeMeta("/method").meta,
     ],
+    links: routeMeta("/method").links,
   }),
   component: MethodPage,
 });
