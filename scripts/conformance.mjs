@@ -21,8 +21,6 @@ function expect(label, actual, want) {
   if (a !== w) failures.push(`${label}: expected ${w}, actual ${a}`);
 }
 
-const one = async (db, sql) => (await db.query(sql)).rows[0];
-const all = async (db, sql) => (await db.query(sql)).rows;
 
 async function main() {
   const db = await bootFixtureDb();
