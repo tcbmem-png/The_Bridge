@@ -5,6 +5,7 @@ import { CustodyLedger } from "../components/intake/CustodyLedger";
 import { PracticeQuestionnaire } from "../components/intake/PracticeQuestionnaire";
 import { OntologyReview } from "../components/intake/OntologyReview";
 import { ReadinessReport } from "../components/intake/ReadinessReport";
+import { PilotPlanExport } from "../components/intake/PilotPlanExport";
 import {
   clearCustody,
   loadCustody,
@@ -88,6 +89,7 @@ function IntakePage() {
       <PracticeQuestionnaire cfg={cfg} onChange={updateCfg} />
       <OntologyReview cfg={cfg} />
       <ReadinessReport report={report} />
+      <PilotPlanExport entries={entries} cfg={cfg} />
 
       <footer className="mt-12 flex flex-wrap items-center gap-3 border-t border-ink/15 pt-5">
         <button
