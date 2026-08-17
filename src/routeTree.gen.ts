@@ -15,6 +15,7 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as StipendRouteImport } from './routes/stipend'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as RecordRouteImport } from './routes/record'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as HarnessRouteImport } from './routes/harness'
@@ -53,6 +54,11 @@ const SiteRoute = SiteRouteImport.update({
 const SandboxRoute = SandboxRouteImport.update({
   id: '/sandbox',
   path: '/sandbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordRoute = RecordRouteImport.update({
+  id: '/record',
+  path: '/record',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OptimizerRoute = OptimizerRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/optimizer': typeof OptimizerRoute
+  '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/optimizer': typeof OptimizerRoute
+  '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/optimizer': typeof OptimizerRoute
+  '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
   '/stipend': typeof StipendRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/harness'
     | '/legal'
     | '/optimizer'
+    | '/record'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/harness'
     | '/legal'
     | '/optimizer'
+    | '/record'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/harness'
     | '/legal'
     | '/optimizer'
+    | '/record'
     | '/sandbox'
     | '/site'
     | '/stipend'
@@ -217,6 +229,7 @@ export interface RootRouteChildren {
   HarnessRoute: typeof HarnessRoute
   LegalRoute: typeof LegalRoute
   OptimizerRoute: typeof OptimizerRoute
+  RecordRoute: typeof RecordRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
   StipendRoute: typeof StipendRoute
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/sandbox'
       fullPath: '/sandbox'
       preLoaderRoute: typeof SandboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/record': {
+      id: '/record'
+      path: '/record'
+      fullPath: '/record'
+      preLoaderRoute: typeof RecordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/optimizer': {
@@ -345,6 +365,7 @@ const rootRouteChildren: RootRouteChildren = {
   HarnessRoute: HarnessRoute,
   LegalRoute: LegalRoute,
   OptimizerRoute: OptimizerRoute,
+  RecordRoute: RecordRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
   StipendRoute: StipendRoute,
