@@ -1,0 +1,25 @@
+cpt_code,service_family,description
+99213,office_em,"Office visit, established, level 3"
+99214,office_em,"Office visit, established, level 4"
+99204,office_em,"Office visit, new, level 4"
+99232,hospital_em,"Subsequent inpatient care, level 2"
+99233,hospital_em,"Subsequent inpatient care, level 3"
+99223,hospital_em,"Initial inpatient care, level 3"
+99284,ed_em,"Emergency department visit, level 4"
+99285,ed_em,"Emergency department visit, level 5"
+93306,echo,"Transthoracic echo, complete w/ Doppler"
+93351,echo,"Stress echo, complete"
+93312,echo,Transesophageal echo
+78452,nuclear,"Myocardial perfusion imaging, SPECT"
+78451,nuclear,"Myocardial perfusion imaging, single"
+93880,vascular,"Carotid duplex, complete"
+93970,vascular,"Venous duplex, bilateral"
+93458,cath,Left heart cath with coronary angiography
+93460,cath,Right and left heart cath
+92928,pci,Percutaneous coronary intervention with stent
+92941,pci,"PCI, acute MI"
+93653,ep,Comprehensive EP study with ablation
+93656,ep,AF ablation
+33208,device,"Pacemaker insertion, dual chamber"
+93289,device,"Device interrogation, ICD"
+36415,other,Venipuncture

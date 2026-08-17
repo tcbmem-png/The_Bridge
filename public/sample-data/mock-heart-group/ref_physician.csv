@@ -1,0 +1,10 @@
+physician_npi,physician_name,specialty,subspecialty,class
+1730000101,"A. Okafor, MD",cardiology,interventional,partner
+1730000102,"B. Nakamura, MD",cardiology,interventional,partner
+1730000103,"C. Alvarez, MD",cardiology,interventional,partner
+1730000104,"D. Whitfield, MD",cardiology,interventional,partner
+1730000105,"E. Moreau, MD",cardiology,non_invasive,partner
+1730000106,"F. Sandoval, MD",cardiology,non_invasive,partner
+1730000107,"G. Petrossian, MD",cardiology,non_invasive,partner
+1730000108,"H. Lindqvist, MD",cardiology,electrophysiology,partner
+1730000109,"J. Adeyemi, MD",cardiology,general,partner
