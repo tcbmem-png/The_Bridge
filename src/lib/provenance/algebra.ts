@@ -19,6 +19,54 @@ export type ProvenanceType =
   | "gap"
   | "contradiction";
 
+/**
+ * WHOSE account a figure comes from. A separate dimension from provenance:
+ * provenance says what kind of statement it is, authorship says who asserted
+ * it. A payer's number, the vendor's number, the bank's number and a computed
+ * number are different evidence classes even when they agree.
+ */
+export type AuthoredBy =
+  | "group"
+  | "clinical_system"
+  | "payer"
+  | "rcm"
+  | "bank"
+  | "cms"
+  | "external_reference"
+  | "computed"
+  | "model";
+
+export const AUTHORED_BY_LABEL: Record<AuthoredBy, string> = {
+  group: "GROUP",
+  clinical_system: "CLINICAL SYSTEM",
+  payer: "PAYER",
+  rcm: "RCM VENDOR",
+  bank: "BANK",
+  cms: "CMS",
+  external_reference: "EXTERNAL REFERENCE",
+  computed: "COMPUTED",
+  model: "MODEL",
+};
+
+/**
+ * GAP is not one thing. Each reason is a different honest way of saying
+ * "I cannot know this" — and none of them is zero.
+ */
+export type GapReason =
+  | "uncovered" // reference needed to price/measure the row is absent
+  | "unmeasurable" // required source fields are not available
+  | "unmappable" // the record has no reliable counterpart
+  | "unresolved" // the record exists, its lifecycle is incomplete
+  | "refused"; // a non-record input was refused entry to a governed total
+
+export const GAP_REASON_LABEL: Record<GapReason, string> = {
+  uncovered: "UNCOVERED",
+  unmeasurable: "UNMEASURABLE",
+  unmappable: "UNMAPPABLE",
+  unresolved: "UNRESOLVED",
+  refused: "REFUSED",
+};
+
 export type MatchState =
   | "matched"
   | "unmatched"
@@ -26,12 +74,50 @@ export type MatchState =
   | "contradictory"
   | "not_applicable";
 
+/**
+ * The no-swallow partition vocabulary. Every row entering a reconciliation
+ * universe lands in exactly one of these, and the classes sum to the total.
+ */
+export type Disposition =
+  | "resolved_clean"
+  | "resolved_repaired"
+  | "unmatched"
+  | "ambiguous"
+  | "contradictory"
+  | "uncovered"
+  | "unresolved"
+  | "not_applicable";
+
+export const DISPOSITION_LABEL: Record<Disposition, string> = {
+  resolved_clean: "RESOLVED — CLEAN",
+  resolved_repaired: "RESOLVED — REPAIRED",
+  unmatched: "UNMATCHED",
+  ambiguous: "AMBIGUOUS",
+  contradictory: "CONTRADICTORY",
+  uncovered: "UNCOVERED",
+  unresolved: "UNRESOLVED",
+  not_applicable: "NOT APPLICABLE",
+};
+
+/** A deterministic repair. Allowed. Never silent. */
+export interface Repair {
+  rule: string;
+  field: string;
+  original: string | null;
+  normalized: string | null;
+  source: string;
+}
+
 export interface Figure {
   /** null means the record does not establish a value. Never coerce to 0. */
   value: number | null;
   type: ProvenanceType;
   label: string;
   unit?: "usd" | "count" | "wrvu" | "usd_per_wrvu" | "percent" | "days";
+  /** Whose account this is. Multiple accounts for a derived figure. */
+  authoredBy?: AuthoredBy[];
+  /** Which of the four source stages this figure is admissible at. */
+  stage?: "own_books" | "the_wire" | "their_ledger" | "their_story";
   /** Source artefacts / tables that established the inputs. */
   sources?: string[];
   /** Human-readable derivation. */
@@ -40,10 +126,16 @@ export interface Figure {
   assumption?: string;
   /** The document or act that would turn an "if" into an "is". */
   closesOn?: string;
+  /** Why this is a gap, when it is one. */
+  gapReason?: GapReason;
   /** Inputs this figure requires, with whether each is satisfied. */
   requires?: { name: string; satisfied: boolean }[];
   /** Conflicting readings, when type is "contradiction". */
   conflict?: { source: string; reading: string }[];
+  /** Deterministic repairs standing behind the value. */
+  repairs?: Repair[];
+  /** Basis note when a denominator excludes uncovered rows. */
+  coveredBasis?: { covered: number; uncovered: number };
   note?: string;
 }
 
@@ -55,6 +147,7 @@ export const PROVENANCE_LABEL: Record<ProvenanceType, string> = {
   gap: "GAP",
   contradiction: "CONTRADICTION",
 };
+
 
 /** A figure that may legitimately enter a governed rollup. */
 export function isGoverned(f: Figure): boolean {
