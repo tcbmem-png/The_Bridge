@@ -53,8 +53,9 @@ export function IntakeDrop({
 
       const d = detectSource(headers);
       if (d.status !== "detected" || !d.spec) {
-        return { ...base, status: d.status, note: d.reason };
+        return { ...base, status: d.status === "ambiguous" ? "ambiguous" : "unrecognized", note: d.reason };
       }
+
 
       if (!booted.current) {
         await resetRecordDb();
