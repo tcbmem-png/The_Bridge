@@ -80,18 +80,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Bridge — Illustrative" },
+      { title: "The Bridge — See What Happened to the Money" },
       {
         name: "description",
         content:
-          "One engine, four doors. The structure of the loss — checkable down to the record.",
+          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
       },
-      { property: "og:title", content: "The Bridge — Illustrative" },
-      { name: "twitter:title", content: "The Bridge — Illustrative" },
-      { property: "og:description", content: "One engine, four doors. The structure of the loss — checkable down to the record." },
-      { name: "twitter:description", content: "One engine, four doors. The structure of the loss — checkable down to the record." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/87b1b24b-32b8-4afe-8dd1-e64ab6f50134/id-preview-c723146e--25dc77bc-374e-4476-9975-920156a02a43.lovable.app-1780274999399.png" },
+      { property: "og:title", content: "The Bridge — See What Happened to the Money" },
+      { name: "twitter:title", content: "The Bridge — See What Happened to the Money" },
+      {
+        property: "og:description",
+        content:
+          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
+      },
+      { property: "og:url", content: "https://clinic-data-unite.lovable.app/" },
+      { property: "og:image", content: "https://clinic-data-unite.lovable.app/og-bridge.jpg" },
+      { name: "twitter:image", content: "https://clinic-data-unite.lovable.app/og-bridge.jpg" },
+
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
