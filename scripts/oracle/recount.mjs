@@ -263,16 +263,24 @@ export function recount(sourceDir) {
     else traceStates.matched_amount_differs++;
   }
 
-  // --- the carve, in exact cents -------------------------------------------
-  const startingGap = charges - depositCents;
-  const explained = [
-    { key: "contractual_adjustments", amount_cents: adjust },
-    { key: "patient_responsibility", amount_cents: patient },
-    { key: "denied_or_zero_pay_charges", amount_cents: deniedCharges },
-    { key: "charges_with_no_remittance", amount_cents: noRemitCharges },
-    { key: "payer_paid_without_bank_trace", amount_cents: paidNoBankCents },
+  // --- the cash carve, in exact cents --------------------------------------
+  //
+  // The only carve that can close exactly at this stage is the cash carve:
+  // what the payers say they paid, against what reached the bank. A trace is
+  // the only join, so the difference is fully accounted for by the two
+  // one-sided populations.
+  const cashStartingGap = depositCents - paid;
+  const cashExplained = [
+    { key: "bank_cash_with_no_payer_trace", amount_cents: bankOnlyCents },
+    { key: "payer_payment_with_no_bank_trace", amount_cents: -paidNoBankCents },
   ];
-  const explainedTotal = explained.reduce((s, e) => s + e.amount_cents, 0);
+  const cashExplainedTotal = cashExplained.reduce((s, e) => s + e.amount_cents, 0);
+
+  // The charge-side components are reported, never forced to close. Their sum
+  // exceeds adjudicated charges on this fixture; that overage is a finding,
+  // not a bucket to hide.
+  const adjudicatedCharges = charges - noRemitCharges;
+  const chargeComponents = adjust + patient + paid;
 
   return {
     custody: {
@@ -329,11 +337,20 @@ export function recount(sourceDir) {
       states: traceStates,
       unexplained_bank_cash_cents: bankOnlyCents,
     },
-    carve: {
-      starting_gap_cents: startingGap,
-      explained,
-      explained_cents: explainedTotal,
-      unexplained_after_cents: startingGap - explainedTotal,
+    cash_carve: {
+      starting_gap_cents: cashStartingGap,
+      explained: cashExplained,
+      explained_cents: cashExplainedTotal,
+      unexplained_after_cents: cashStartingGap - cashExplainedTotal,
+    },
+    charge_side: {
+      charges_cents: charges,
+      no_remittance_charges_cents: noRemitCharges,
+      adjudicated_charges_cents: adjudicatedCharges,
+      components_cents: chargeComponents,
+      component_overage_cents: chargeComponents - adjudicatedCharges,
+      denied_or_zero_pay_charges_cents: deniedCharges,
+      payer_paid_without_bank_trace_cents: paidNoBankCents,
     },
   };
 }
