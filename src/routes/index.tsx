@@ -11,26 +11,30 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode } from "react";
 import { REPO_URL } from "../lib/brand";
 
+const OG_TITLE = "The Bridge — See What Happened to the Money";
+const OG_DESCRIPTION =
+  "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.";
+const SITE_ORIGIN = "https://clinic-data-unite.lovable.app";
+const OG_IMAGE = `${SITE_ORIGIN}/og-bridge.jpg`;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "The Bridge — an independent record of your own economics" },
-      {
-        name: "description",
-        content:
-          "You did the work. You should be able to see what happened to the money. The Bridge reconstructs the chain from service performed to cash received, and names every gap.",
-      },
-      {
-        property: "og:title",
-        content: "The Bridge — an independent record of your own economics",
-      },
-      {
-        property: "og:description",
-        content:
-          "Work to claim to adjudication to payment to cash. Four handoffs, each one checkable, each gap named.",
-      },
+      { title: OG_TITLE },
+      { name: "description", content: OG_DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE_ORIGIN + "/" },
+      { property: "og:title", content: OG_TITLE },
+      { property: "og:description", content: OG_DESCRIPTION },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: OG_TITLE },
+      { name: "twitter:description", content: OG_DESCRIPTION },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
+    links: [{ rel: "canonical", href: SITE_ORIGIN + "/" }],
   }),
+
   component: LandingScroll,
 });
 
