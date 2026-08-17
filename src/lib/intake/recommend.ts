@@ -11,7 +11,8 @@
 // document, so the ask can be made in writing.
 
 import { STAGES, STAGE_ORDER, availability, type StageId } from "../provenance/stages";
-import type { PracticeConfig, PracticeConfigKey } from "./config";
+import type { PracticeConfig } from "./config";
+import type { PracticeConfigKey } from "./questions";
 import { configGaps } from "./config";
 
 export type Obtainability =
