@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { STAGES } from "../lib/provenance/stages";
 import { ProvenanceStamp } from "../components/record/ProvenanceStamp";
 import type { ProvenanceType } from "../lib/provenance/algebra";
-import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/method")({
   head: () => ({

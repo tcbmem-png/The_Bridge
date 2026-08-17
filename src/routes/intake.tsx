@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { useMemo, useState } from "react";
 import { IntakeDrop } from "../components/intake/IntakeDrop";
 import { CustodyLedger } from "../components/intake/CustodyLedger";
@@ -14,7 +15,6 @@ import {
 } from "../lib/intake/custody";
 import { clearConfig, loadConfig, saveConfig, type PracticeConfig } from "../lib/intake/config";
 import { buildReadiness } from "../lib/intake/readiness";
-import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({

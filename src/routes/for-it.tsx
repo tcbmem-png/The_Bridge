@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import cioDeepDive from "../content/cio-deep-dive.md?raw";
-import { routeMeta } from "../lib/site";
 
 export const Route = createFileRoute("/for-it")({
   head: () => ({

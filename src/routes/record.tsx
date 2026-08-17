@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { useState } from "react";
 import { RecordLoader } from "../components/record/RecordLoader";
 import { AuditMachinery } from "../components/record/AuditMachinery";
@@ -14,7 +15,6 @@ import {
 } from "../lib/provenance/algebra";
 import { formatValue } from "../lib/provenance/format";
 import {
-import { routeMeta } from "../lib/site";
   funnel,
   workToClaims,
   claimsToAdjudication,

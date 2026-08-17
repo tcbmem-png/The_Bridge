@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { useState } from "react";
 import { RecordLoader } from "../components/record/RecordLoader";
 import { FigureTile } from "../components/record/FigureTile";
@@ -7,7 +8,6 @@ import { useRecord, useRecordQuery } from "../lib/provenance/useRecord";
 import { record, gap, realizedYield, derive } from "../lib/provenance/algebra";
 import { formatValue } from "../lib/provenance/format";
 import {
-import { routeMeta } from "../lib/site";
   segments,
   totals,
   linesFor,
