@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { SITE } from "../lib/site";
+
 
 const LINKS: Array<{ label: string; to: string }> = [
   { label: "The record", to: "/record" },
