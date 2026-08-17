@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/extractor")({
+export const Route = createFileRoute("/legacy/extractor")({
   head: () => ({
     meta: [
       { title: "Extractor — The Bridge" },

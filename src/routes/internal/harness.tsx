@@ -9,7 +9,7 @@ import { LineageDrill } from "../components/harness/LineageDrill";
 import { UploadPortal } from "../components/harness/UploadPortal";
 import { IntegrityPanel } from "../components/harness/IntegrityPanel";
 
-export const Route = createFileRoute("/harness")({
+export const Route = createFileRoute("/internal/harness")({
   head: () => ({
     meta: [
       { title: "Audit harness — synthetic" },
