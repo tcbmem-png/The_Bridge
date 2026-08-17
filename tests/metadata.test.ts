@@ -10,6 +10,8 @@ import { join } from "node:path";
 const root = readFileSync(join(process.cwd(), "src/routes/__root.tsx"), "utf8");
 const index = readFileSync(join(process.cwd(), "src/routes/index.tsx"), "utf8");
 
+const site = readFileSync(join(process.cwd(), "src/lib/site.ts"), "utf8");
+
 const surfaces = [
   ["__root", root],
   ["index", index],
@@ -18,11 +20,13 @@ const surfaces = [
 describe("unfurl metadata", () => {
   for (const [name, src] of surfaces) {
     it(`${name}: title carries The Bridge`, () => {
-      expect(src).toContain("The Bridge — See What Happened to the Money");
+      expect(site).toContain("The Bridge — See What Happened to the Money");
+      expect(src).toContain("SITE.title");
     });
 
     it(`${name}: description states the product thesis`, () => {
-      expect(src).toContain("independent economic record for physician groups");
+      expect(site).toContain("independent economic record for physician groups");
+      expect(src).toContain("SITE.description");
     });
 
     it(`${name}: open graph + twitter tags present`, () => {
@@ -33,12 +37,23 @@ describe("unfurl metadata", () => {
     });
 
     it(`${name}: og:image is an absolute url`, () => {
-      expect(src).toContain("https://clinic-data-unite.lovable.app");
-      expect(src).toContain("og-bridge.jpg");
+      expect(site).toContain("https://mdmd.dev/og/the-bridge.png");
+      expect(src).toContain("og:image");
+    });
+
+    it(`${name}: canonical points at mdmd.dev`, () => {
+      expect(site).toContain('origin: "https://mdmd.dev"');
+      expect(src).toMatch(/canonical|og:url/);
     });
 
     it(`${name}: no stale identity`, () => {
-      for (const stale of ["Radiology Business Tools", "Extractor", "stipend", "Illustrative\""]) {
+      for (const stale of [
+        "Radiology Business Tools",
+        "Extractor",
+        "stipend",
+        "lovable.app",
+        "localhost",
+      ]) {
         expect(src).not.toContain(stale);
       }
     });

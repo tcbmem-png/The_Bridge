@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { SITE } from "../lib/site";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/Header";
 import { SiteFooter } from "../components/SiteFooter";
@@ -80,28 +81,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Bridge — See What Happened to the Money" },
-      {
-        name: "description",
-        content:
-          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
-      },
-      { property: "og:title", content: "The Bridge — See What Happened to the Money" },
-      { name: "twitter:title", content: "The Bridge — See What Happened to the Money" },
-      {
-        property: "og:description",
-        content:
-          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.",
-      },
-      { property: "og:url", content: "https://clinic-data-unite.lovable.app/" },
-      { property: "og:image", content: "https://clinic-data-unite.lovable.app/og-bridge.jpg" },
-      { name: "twitter:image", content: "https://clinic-data-unite.lovable.app/og-bridge.jpg" },
-
+      { title: SITE.title },
+      { name: "description", content: SITE.description },
+      { name: "application-name", content: SITE.name },
+      { property: "og:site_name", content: SITE.name },
+      { property: "og:title", content: SITE.title },
+      { name: "twitter:title", content: SITE.title },
+      { property: "og:description", content: SITE.description },
+      { name: "twitter:description", content: SITE.description },
+      { property: "og:url", content: SITE.origin + "/" },
+      { property: "og:image", content: SITE.ogImage },
+      { name: "twitter:image", content: SITE.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import cioDeepDive from "../content/cio-deep-dive.md?raw";
@@ -18,7 +19,9 @@ export const Route = createFileRoute("/for-it")({
         content:
           "Technical and compliance deep-dive: what the engine is, what it touches, and the PHI/BAA wall.",
       },
+      ...routeMeta("/for-it").meta,
     ],
+    links: routeMeta("/for-it").links,
   }),
   component: ForItPage,
 });

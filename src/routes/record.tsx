@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { useState } from "react";
 import { RecordLoader } from "../components/record/RecordLoader";
 import { AuditMachinery } from "../components/record/AuditMachinery";
@@ -44,8 +45,9 @@ export const Route = createFileRoute("/record")({
           "Every handoff from work to cash, with its match state and its gaps. Synthetic data, real Postgres, in your browser.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...routeMeta("/record").meta,
     ],
+    links: routeMeta("/record").links,
   }),
   component: RecordPage,
   ssr: false,

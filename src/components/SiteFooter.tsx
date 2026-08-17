@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { SITE } from "../lib/site";
+
 
 const LINKS: Array<{ label: string; to: string }> = [
   { label: "The record", to: "/record" },
@@ -42,7 +44,8 @@ export function SiteFooter() {
             className="underline decoration-ink/20 underline-offset-[3px] hover:text-ink hover:decoration-ink/60"
           >
             taylor@tcblaw.org
-          </a>
+          </a>{" "}
+          · <span className="text-ink/45">{SITE.domain}</span>
         </p>
       </div>
     </footer>

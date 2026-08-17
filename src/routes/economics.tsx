@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { routeMeta } from "../lib/site";
 import { useState } from "react";
 import { RecordLoader } from "../components/record/RecordLoader";
 import { FigureTile } from "../components/record/FigureTile";
@@ -32,8 +33,9 @@ export const Route = createFileRoute("/economics")({
           "Realized dollars per work unit, by any cut of the record, drillable to the 837 and 835 rows behind it.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...routeMeta("/economics").meta,
     ],
+    links: routeMeta("/economics").links,
   }),
   component: EconomicsPage,
   ssr: false,

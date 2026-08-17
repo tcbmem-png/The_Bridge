@@ -10,31 +10,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode } from "react";
 import { REPO_URL } from "../lib/brand";
-
-const OG_TITLE = "The Bridge — See What Happened to the Money";
-const OG_DESCRIPTION =
-  "An independent economic record for physician groups. Trace work to claim, adjudication, payment and bank cash — with every figure tied back to its source.";
-const SITE_ORIGIN = "https://clinic-data-unite.lovable.app";
-const OG_IMAGE = `${SITE_ORIGIN}/og-bridge.jpg`;
+import { SITE, siteUrl } from "../lib/site";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: OG_TITLE },
-      { name: "description", content: OG_DESCRIPTION },
+      { title: SITE.title },
+      { name: "description", content: SITE.description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: SITE_ORIGIN + "/" },
-      { property: "og:title", content: OG_TITLE },
-      { property: "og:description", content: OG_DESCRIPTION },
-      { property: "og:image", content: OG_IMAGE },
+      { property: "og:url", content: siteUrl("/") },
+      { property: "og:title", content: SITE.title },
+      { property: "og:description", content: SITE.description },
+      { property: "og:image", content: SITE.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: OG_TITLE },
-      { name: "twitter:description", content: OG_DESCRIPTION },
-      { name: "twitter:image", content: OG_IMAGE },
+      { name: "twitter:title", content: SITE.title },
+      { name: "twitter:description", content: SITE.description },
+      { name: "twitter:image", content: SITE.ogImage },
     ],
-    links: [{ rel: "canonical", href: SITE_ORIGIN + "/" }],
+    links: [{ rel: "canonical", href: siteUrl("/") }],
   }),
-
   component: LandingScroll,
 });
 
@@ -231,6 +225,8 @@ function LandingScroll() {
           </div>
           <footer className="reveal pb-20 pt-12 font-mono-tab text-[12px] leading-[1.8] tracking-[0.04em] text-[var(--bridge-muted)]">
             Illustrative — synthetic data, no patient records.
+            <br />
+            The Bridge · {SITE.domain}
             <br />
             Flat, deterministic code; every figure drills to its source. Read the
             engine →{" "}
