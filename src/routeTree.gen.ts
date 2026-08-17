@@ -12,21 +12,21 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnderTheHoodRouteImport } from './routes/under-the-hood'
 import { Route as TwonumbersRouteImport } from './routes/twonumbers'
 import { Route as StoryRouteImport } from './routes/story'
-import { Route as StipendRouteImport } from './routes/stipend'
 import { Route as SiteRouteImport } from './routes/site'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as LegalRouteImport } from './routes/legal'
-import { Route as HarnessRouteImport } from './routes/harness'
 import { Route as ForItRouteImport } from './routes/for-it'
 import { Route as ForCounselRouteImport } from './routes/for-counsel'
 import { Route as FaqRouteImport } from './routes/faq'
-import { Route as ExtractorRouteImport } from './routes/extractor'
 import { Route as EconomicsRouteImport } from './routes/economics'
 import { Route as CioRouteImport } from './routes/cio'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LegacyExtractorRouteImport } from './routes/legacy/extractor'
+import { Route as InternalHarnessRouteImport } from './routes/internal/harness'
+import { Route as LegacyRadiologyStipendRouteImport } from './routes/legacy/radiology/stipend'
 
 const UnderTheHoodRoute = UnderTheHoodRouteImport.update({
   id: '/under-the-hood',
@@ -41,11 +41,6 @@ const TwonumbersRoute = TwonumbersRouteImport.update({
 const StoryRoute = StoryRouteImport.update({
   id: '/story',
   path: '/story',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StipendRoute = StipendRouteImport.update({
-  id: '/stipend',
-  path: '/stipend',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SiteRoute = SiteRouteImport.update({
@@ -78,11 +73,6 @@ const LegalRoute = LegalRouteImport.update({
   path: '/legal',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HarnessRoute = HarnessRouteImport.update({
-  id: '/harness',
-  path: '/harness',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ForItRoute = ForItRouteImport.update({
   id: '/for-it',
   path: '/for-it',
@@ -96,11 +86,6 @@ const ForCounselRoute = ForCounselRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExtractorRoute = ExtractorRouteImport.update({
-  id: '/extractor',
-  path: '/extractor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EconomicsRoute = EconomicsRouteImport.update({
@@ -118,67 +103,82 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegacyExtractorRoute = LegacyExtractorRouteImport.update({
+  id: '/legacy/extractor',
+  path: '/legacy/extractor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternalHarnessRoute = InternalHarnessRouteImport.update({
+  id: '/internal/harness',
+  path: '/internal/harness',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegacyRadiologyStipendRoute = LegacyRadiologyStipendRouteImport.update({
+  id: '/legacy/radiology/stipend',
+  path: '/legacy/radiology/stipend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/economics': typeof EconomicsRoute
-  '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
-  '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
   '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
-  '/stipend': typeof StipendRoute
   '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
+  '/internal/harness': typeof InternalHarnessRoute
+  '/legacy/extractor': typeof LegacyExtractorRoute
+  '/legacy/radiology/stipend': typeof LegacyRadiologyStipendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/economics': typeof EconomicsRoute
-  '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
-  '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
   '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
-  '/stipend': typeof StipendRoute
   '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
+  '/internal/harness': typeof InternalHarnessRoute
+  '/legacy/extractor': typeof LegacyExtractorRoute
+  '/legacy/radiology/stipend': typeof LegacyRadiologyStipendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cio': typeof CioRoute
   '/economics': typeof EconomicsRoute
-  '/extractor': typeof ExtractorRoute
   '/faq': typeof FaqRoute
   '/for-counsel': typeof ForCounselRoute
   '/for-it': typeof ForItRoute
-  '/harness': typeof HarnessRoute
   '/legal': typeof LegalRoute
   '/method': typeof MethodRoute
   '/optimizer': typeof OptimizerRoute
   '/record': typeof RecordRoute
   '/sandbox': typeof SandboxRoute
   '/site': typeof SiteRoute
-  '/stipend': typeof StipendRoute
   '/story': typeof StoryRoute
   '/twonumbers': typeof TwonumbersRoute
   '/under-the-hood': typeof UnderTheHoodRoute
+  '/internal/harness': typeof InternalHarnessRoute
+  '/legacy/extractor': typeof LegacyExtractorRoute
+  '/legacy/radiology/stipend': typeof LegacyRadiologyStipendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -186,82 +186,82 @@ export interface FileRouteTypes {
     | '/'
     | '/cio'
     | '/economics'
-    | '/extractor'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
-    | '/harness'
     | '/legal'
     | '/method'
     | '/optimizer'
     | '/record'
     | '/sandbox'
     | '/site'
-    | '/stipend'
     | '/story'
     | '/twonumbers'
     | '/under-the-hood'
+    | '/internal/harness'
+    | '/legacy/extractor'
+    | '/legacy/radiology/stipend'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/cio'
     | '/economics'
-    | '/extractor'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
-    | '/harness'
     | '/legal'
     | '/method'
     | '/optimizer'
     | '/record'
     | '/sandbox'
     | '/site'
-    | '/stipend'
     | '/story'
     | '/twonumbers'
     | '/under-the-hood'
+    | '/internal/harness'
+    | '/legacy/extractor'
+    | '/legacy/radiology/stipend'
   id:
     | '__root__'
     | '/'
     | '/cio'
     | '/economics'
-    | '/extractor'
     | '/faq'
     | '/for-counsel'
     | '/for-it'
-    | '/harness'
     | '/legal'
     | '/method'
     | '/optimizer'
     | '/record'
     | '/sandbox'
     | '/site'
-    | '/stipend'
     | '/story'
     | '/twonumbers'
     | '/under-the-hood'
+    | '/internal/harness'
+    | '/legacy/extractor'
+    | '/legacy/radiology/stipend'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CioRoute: typeof CioRoute
   EconomicsRoute: typeof EconomicsRoute
-  ExtractorRoute: typeof ExtractorRoute
   FaqRoute: typeof FaqRoute
   ForCounselRoute: typeof ForCounselRoute
   ForItRoute: typeof ForItRoute
-  HarnessRoute: typeof HarnessRoute
   LegalRoute: typeof LegalRoute
   MethodRoute: typeof MethodRoute
   OptimizerRoute: typeof OptimizerRoute
   RecordRoute: typeof RecordRoute
   SandboxRoute: typeof SandboxRoute
   SiteRoute: typeof SiteRoute
-  StipendRoute: typeof StipendRoute
   StoryRoute: typeof StoryRoute
   TwonumbersRoute: typeof TwonumbersRoute
   UnderTheHoodRoute: typeof UnderTheHoodRoute
+  InternalHarnessRoute: typeof InternalHarnessRoute
+  LegacyExtractorRoute: typeof LegacyExtractorRoute
+  LegacyRadiologyStipendRoute: typeof LegacyRadiologyStipendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -285,13 +285,6 @@ declare module '@tanstack/react-router' {
       path: '/story'
       fullPath: '/story'
       preLoaderRoute: typeof StoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stipend': {
-      id: '/stipend'
-      path: '/stipend'
-      fullPath: '/stipend'
-      preLoaderRoute: typeof StipendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/site': {
@@ -336,13 +329,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/harness': {
-      id: '/harness'
-      path: '/harness'
-      fullPath: '/harness'
-      preLoaderRoute: typeof HarnessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/for-it': {
       id: '/for-it'
       path: '/for-it'
@@ -362,13 +348,6 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/extractor': {
-      id: '/extractor'
-      path: '/extractor'
-      fullPath: '/extractor'
-      preLoaderRoute: typeof ExtractorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economics': {
@@ -392,6 +371,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legacy/extractor': {
+      id: '/legacy/extractor'
+      path: '/legacy/extractor'
+      fullPath: '/legacy/extractor'
+      preLoaderRoute: typeof LegacyExtractorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/internal/harness': {
+      id: '/internal/harness'
+      path: '/internal/harness'
+      fullPath: '/internal/harness'
+      preLoaderRoute: typeof InternalHarnessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legacy/radiology/stipend': {
+      id: '/legacy/radiology/stipend'
+      path: '/legacy/radiology/stipend'
+      fullPath: '/legacy/radiology/stipend'
+      preLoaderRoute: typeof LegacyRadiologyStipendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -399,21 +399,21 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CioRoute: CioRoute,
   EconomicsRoute: EconomicsRoute,
-  ExtractorRoute: ExtractorRoute,
   FaqRoute: FaqRoute,
   ForCounselRoute: ForCounselRoute,
   ForItRoute: ForItRoute,
-  HarnessRoute: HarnessRoute,
   LegalRoute: LegalRoute,
   MethodRoute: MethodRoute,
   OptimizerRoute: OptimizerRoute,
   RecordRoute: RecordRoute,
   SandboxRoute: SandboxRoute,
   SiteRoute: SiteRoute,
-  StipendRoute: StipendRoute,
   StoryRoute: StoryRoute,
   TwonumbersRoute: TwonumbersRoute,
   UnderTheHoodRoute: UnderTheHoodRoute,
+  InternalHarnessRoute: InternalHarnessRoute,
+  LegacyExtractorRoute: LegacyExtractorRoute,
+  LegacyRadiologyStipendRoute: LegacyRadiologyStipendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
